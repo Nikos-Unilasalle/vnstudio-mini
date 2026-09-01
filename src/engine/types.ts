@@ -6,6 +6,7 @@ export type PortColor =
   | 'regions'
   | 'points'
   | 'string'
+  | 'list'
 
 export interface PortSpec {
   id: string
@@ -34,6 +35,10 @@ export interface ParamSpec {
 export interface RuntimeCtx {
   /** cv is the loaded OpenCV.js module (window.cv) */
   cv: any
+  /** per-node persistent state, keyed by node id — survives across runs (video elements, MediaPipe detectors, accumulated history) */
+  nodeState: Map<string, any>
+  /** the id of the node currently being processed, for indexing into nodeState */
+  nodeId: string
 }
 
 export type NodeInputs = Record<string, unknown>

@@ -60,6 +60,23 @@ export function PreviewPanel() {
     return null
   }, [outputs])
 
+  const genericList = useMemo(() => {
+    if (!outputs || regions) return null
+    for (const [k, v] of Object.entries(outputs)) {
+      if (k === 'regions') continue
+      if (Array.isArray(v) && v.length > 0) return v as unknown[]
+    }
+    return null
+  }, [outputs, regions])
+
+  const scalars = useMemo(() => {
+    if (!outputs) return null
+    const entries = Object.entries(outputs).filter(
+      ([k, v]) => !k.startsWith('__') && (typeof v === 'number' || typeof v === 'string' || typeof v === 'boolean')
+    )
+    return entries.length > 0 ? entries : null
+  }, [outputs])
+
   return (
     <div className="preview-panel">
       <div className="preview-panel__title">{node.data.title || def.label}</div>
@@ -112,7 +129,31 @@ export function PreviewPanel() {
           </tbody>
         </table>
       )}
-      {!imageUrl && !text && !regions && !stats && !csv && !dict && count === undefined && !error && (
+      {genericList && (
+        <table className="preview-panel__table">
+          <tbody>
+            {genericList.slice(0, 50).map((item, i) => (
+              <tr key={i}>
+                <td>{i}</td>
+                <td>{typeof item === 'object' ? JSON.stringify(item).slice(0, 120) : String(item)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      {!dict && !genericList && scalars && (
+        <table className="preview-panel__table">
+          <tbody>
+            {scalars.map(([k, v]) => (
+              <tr key={k}>
+                <td>{k}</td>
+                <td>{typeof v === 'number' ? (Number.isInteger(v) ? v : v.toFixed(3)) : String(v)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      {!imageUrl && !text && !regions && !stats && !csv && !dict && !genericList && !scalars && count === undefined && !error && (
         <div className="preview-panel__empty">Pas de sortie (relance le graphe ?)</div>
       )}
     </div>

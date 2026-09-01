@@ -24,6 +24,10 @@ function resolvePort(typeId: string, side: 'in' | 'out', rawHandle: string | nul
   const guess = rawHandle?.split('__').pop()
   if (guess && ports.some((p) => p.id === guess)) return guess
 
+  // plotter_pro has desktop-side dynamic_inputs: every value port beyond "ticks"
+  // gets an arbitrary user-typed name that can't be known ahead of time.
+  if (typeId === 'plotter_pro' && side === 'in' && guess !== 'ticks') return 'value'
+
   return ports[0].id
 }
 
@@ -61,12 +65,12 @@ export function parseVnFile(json: unknown): ParsedVn {
     }
     const params = { ...(n.data?.params ?? {}) }
 
-    // input_image legacy files reference an absolute filesystem path; remap to a bundled sample by filename.
-    if (n.type === 'input_image' && typeof params.path === 'string') {
+    // input_image/input_movie legacy files reference an absolute filesystem path; remap to a bundled sample by filename.
+    if ((n.type === 'input_image' || n.type === 'input_movie') && typeof params.path === 'string') {
       const filename = params.path.split('/').pop() ?? ''
       const known = def.params.find((p) => p.id === 'source')?.options?.find((o) => String(o.value).endsWith(filename))
       params.source = known ? known.value : '__upload__'
-      if (!known) warnings.push(`Image "${filename}" non fournie: importe-la manuellement sur la node ${n.id}.`)
+      if (!known) warnings.push(`Fichier "${filename}" non fourni: importe-le manuellement sur la node ${n.id}.`)
       delete params.path
     }
 

@@ -81,13 +81,42 @@ export default function App() {
     [setNodes]
   )
 
+  const nodeStateRef = useRef(new Map<string, any>())
+  const nodesRef = useRef(nodes)
+  useEffect(() => {
+    nodesRef.current = nodes
+  }, [nodes])
+
   const run = useCallback(() => {
     if (!ready) return
     setRunning(true)
-    runGraph(nodes, edges, { cv })
+    runGraph(nodes, edges, { cv, nodeState: nodeStateRef.current, nodeId: '' })
       .then(setLastRun)
       .finally(() => setRunning(false))
   }, [nodes, edges, cv, ready])
+
+  // Movie File nodes with params.playing=true advance their own scrub_index on a timer,
+  // which re-triggers a run — this is what makes playback and Plotter Pro history work.
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const hasPlaying = nodesRef.current.some((n) => n.data.typeId === 'input_movie' && n.data.params.playing)
+      if (!hasPlaying) return
+      setNodes((nds) =>
+        nds.map((n) => {
+          if (n.data.typeId !== 'input_movie' || !n.data.params.playing) return n
+          const next = (Number(n.data.params.scrub_index) || 0) + 1
+          return { ...n, data: { ...n.data, params: { ...n.data.params, scrub_index: next } } }
+        })
+      )
+    }, 120)
+    return () => clearInterval(interval)
+  }, [setNodes])
+
+  useEffect(() => {
+    if (!ready) return
+    if (nodesRef.current.some((n) => n.data.typeId === 'input_movie' && n.data.params.playing)) run()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nodes])
 
   function onDrop(e: React.DragEvent) {
     e.preventDefault()
@@ -153,6 +182,7 @@ export default function App() {
           <span className="app__brand">vnstudio-mini</span>
           <button onClick={() => loadSample('M1.1_reference.vn')}>Charger TD I</button>
           <button onClick={() => loadSample('M1.2_reference.vn')}>Charger TD II</button>
+          <button onClick={() => loadSample('M1.3_reference.vn')}>Charger TD III</button>
           <button onClick={() => fileInputRef.current?.click()}>Importer .vn</button>
           <input ref={fileInputRef} type="file" accept=".vn,application/json" hidden onChange={onImportFile} />
           <button onClick={exportVn}>Exporter .vn</button>

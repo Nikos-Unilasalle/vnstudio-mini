@@ -8,4 +8,5 @@ export const PORT_COLORS: Record<PortColor, string> = {
   regions: '#57c785',
   points: '#f07db0',
   string: '#f0954d',
+  list: '#4dd0e1',
 }

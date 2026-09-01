@@ -91,15 +91,24 @@ export function ParamsPanel() {
           )
         }
         if (p.type === 'file') {
+          const isCsv = def.typeId === 'util_csv_import'
+          const isVideo = def.typeId === 'input_movie'
           return (
             <label key={p.id} className="params-panel__field">
               <span>{p.label}</span>
               <input
                 type="file"
-                accept="image/*"
+                accept={isCsv ? '.csv,text/csv' : isVideo ? 'video/*' : 'image/*'}
                 onChange={(e) => {
                   const file = e.target.files?.[0]
                   if (!file) return
+                  if (isCsv) {
+                    file.text().then((text) => {
+                      setParam(p.id, file.name)
+                      setParam('__csvText', text)
+                    })
+                    return
+                  }
                   const reader = new FileReader()
                   reader.onload = () => {
                     setParam(p.id, reader.result as string)

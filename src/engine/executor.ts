@@ -82,7 +82,7 @@ export async function runGraph(
     }
 
     try {
-      const result = await def.process(inputs, node.data.params, ctx)
+      const result = await def.process(inputs, node.data.params, { ...ctx, nodeId: id })
       outputsByNode[id] = result
     } catch (err) {
       errors[id] = err instanceof Error ? err.message : String(err)

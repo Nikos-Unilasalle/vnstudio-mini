@@ -24,6 +24,24 @@ import { dictGetNode } from '../nodes/dictGet'
 import { analysisReportNode } from '../nodes/analysisReport'
 import { pythonNode } from '../nodes/pythonNode'
 import { maskOperationsNode } from '../nodes/maskOperations'
+import { movieFileNode } from '../nodes/movieFile'
+import { faceTrackerNode } from '../nodes/faceTracker'
+import { pointTrackerNode } from '../nodes/pointTracker'
+import { coordCombineNode, coordSplitterNode } from '../nodes/coordCombine'
+import {
+  mathAddNode,
+  mathSubNode,
+  mathMulNode,
+  mathDivNode,
+  mathModNode,
+  mathAbsNode,
+  mathRoundNode,
+  mathDistanceNode,
+  numberNode,
+} from '../nodes/mathNodes'
+import { listSelectorNode } from '../nodes/listSelector'
+import { csvImportNode } from '../nodes/csvImport'
+import { plotterProNode } from '../nodes/plotterPro'
 import { canvasFrameNode, canvasNoteNode } from '../nodes/decorative'
 
 export const NODE_DEFS: NodeDef[] = [
@@ -52,6 +70,23 @@ export const NODE_DEFS: NodeDef[] = [
   analysisReportNode,
   pythonNode,
   maskOperationsNode,
+  movieFileNode,
+  faceTrackerNode,
+  pointTrackerNode,
+  coordCombineNode,
+  coordSplitterNode,
+  mathAddNode,
+  mathSubNode,
+  mathMulNode,
+  mathDivNode,
+  mathModNode,
+  mathAbsNode,
+  mathRoundNode,
+  mathDistanceNode,
+  numberNode,
+  listSelectorNode,
+  csvImportNode,
+  plotterProNode,
   canvasFrameNode,
   canvasNoteNode,
 ]
