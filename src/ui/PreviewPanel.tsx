@@ -50,6 +50,16 @@ export function PreviewPanel() {
   const stats = outputs?.stats as { d10: number; d50: number; d90: number; unit: string; count: number } | undefined
   const count = typeof outputs?.count === 'number' ? outputs.count : undefined
 
+  const dict = useMemo(() => {
+    if (!outputs) return null
+    for (const v of Object.values(outputs)) {
+      if (v && typeof v === 'object' && !Array.isArray(v) && !isMat(v) && !('labels' in (v as any)) && !('d50' in (v as any))) {
+        return v as Record<string, unknown>
+      }
+    }
+    return null
+  }, [outputs])
+
   return (
     <div className="preview-panel">
       <div className="preview-panel__title">{node.data.title || def.label}</div>
@@ -90,7 +100,19 @@ export function PreviewPanel() {
           </tbody>
         </table>
       )}
-      {!imageUrl && !text && !regions && !stats && !csv && count === undefined && !error && (
+      {dict && Object.keys(dict).length > 0 && (
+        <table className="preview-panel__table">
+          <tbody>
+            {Object.entries(dict).map(([k, v]) => (
+              <tr key={k}>
+                <td>{k}</td>
+                <td>{typeof v === 'number' ? (Number.isInteger(v) ? v : v.toFixed(3)) : String(v)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      {!imageUrl && !text && !regions && !stats && !csv && !dict && count === undefined && !error && (
         <div className="preview-panel__empty">Pas de sortie (relance le graphe ?)</div>
       )}
     </div>

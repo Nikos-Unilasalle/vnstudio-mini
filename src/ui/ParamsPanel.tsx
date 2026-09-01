@@ -4,6 +4,15 @@ import { useGraph } from './GraphContext'
 import { InteractiveImageEditor } from './InteractiveImageEditor'
 import { matToDataUrl } from '../engine/imageIO'
 
+function parseNormPoints(raw: unknown): { x: number; y: number }[] {
+  try {
+    const arr = JSON.parse(String(raw ?? '[]'))
+    return Array.isArray(arr) ? arr : []
+  } catch {
+    return []
+  }
+}
+
 export function ParamsPanel() {
   const { nodes, edges, selectedId, updateNodeParams, lastRun, cv } = useGraph()
   const [editing, setEditing] = useState(false)
@@ -11,7 +20,7 @@ export function ParamsPanel() {
   const node = nodes.find((n) => n.id === selectedId)
   const def = node ? getNodeDef(node.data.typeId) : undefined
 
-  const upstreamImageUrl = useMemo(() => {
+  const upstream = useMemo(() => {
     if (!node || !def || !cv) return null
     const inputPortId = def.inputs.find((p) => p.color === 'image')?.id
     if (!inputPortId) return null
@@ -20,7 +29,7 @@ export function ParamsPanel() {
     const mat = lastRun.outputsByNode[edge.source]?.[edge.sourceHandle ?? 'main'] as any
     if (!mat || typeof mat.delete !== 'function') return null
     try {
-      return matToDataUrl(cv, mat)
+      return { url: matToDataUrl(cv, mat), w: mat.cols as number, h: mat.rows as number }
     } catch {
       return null
     }
@@ -102,6 +111,18 @@ export function ParamsPanel() {
             </label>
           )
         }
+        if (p.id === 'code') {
+          return (
+            <label key={p.id} className="params-panel__field">
+              <span>{p.label}</span>
+              <textarea
+                rows={8}
+                value={String(value ?? '')}
+                onChange={(e) => setParam(p.id, e.target.value)}
+              />
+            </label>
+          )
+        }
         // string
         return (
           <label key={p.id} className="params-panel__field">
@@ -111,41 +132,17 @@ export function ParamsPanel() {
         )
       })}
 
-      {def.typeId === 'geo_mask_polygon' && (
+      {(def.typeId === 'util_roi_polygon' || def.typeId === 'sci_interactive_calibration') && (
         <div className="params-panel__interactive">
-          <button disabled={!upstreamImageUrl} onClick={() => setEditing(true)}>
-            {upstreamImageUrl ? 'Éditer le polygone' : 'Lance le graphe pour voir l\'image'}
+          <button disabled={!upstream} onClick={() => setEditing(true)}>
+            {upstream ? (def.typeId === 'util_roi_polygon' ? 'Éditer le polygone' : 'Tracer la ligne de calibration') : "Lance le graphe pour voir l'image"}
           </button>
-          {editing && upstreamImageUrl && (
+          {editing && upstream && (
             <InteractiveImageEditor
-              imageDataUrl={upstreamImageUrl}
-              mode="polygon"
-              initialPoints={(node.data.params.__polygon as any) ?? []}
-              onSave={(pts) => setParam('__polygon', pts)}
-              onClose={() => setEditing(false)}
-            />
-          )}
-        </div>
-      )}
-
-      {def.typeId === 'geo_visual_calibration' && (
-        <div className="params-panel__interactive">
-          <button disabled={!upstreamImageUrl} onClick={() => setEditing(true)}>
-            {upstreamImageUrl ? 'Tracer la ligne de calibration' : 'Lance le graphe pour voir l\'image'}
-          </button>
-          {editing && upstreamImageUrl && (
-            <InteractiveImageEditor
-              imageDataUrl={upstreamImageUrl}
-              mode="line"
-              initialPoints={
-                node.data.params.__line
-                  ? [
-                      { x: (node.data.params.__line as any).x1, y: (node.data.params.__line as any).y1 },
-                      { x: (node.data.params.__line as any).x2, y: (node.data.params.__line as any).y2 },
-                    ]
-                  : []
-              }
-              onSave={(pts) => setParam('__line', { x1: pts[0].x, y1: pts[0].y, x2: pts[1].x, y2: pts[1].y })}
+              imageDataUrl={upstream.url}
+              mode={def.typeId === 'util_roi_polygon' ? 'polygon' : 'line'}
+              initialPoints={parseNormPoints(node.data.params.points).map((p) => ({ x: p.x * upstream.w, y: p.y * upstream.h }))}
+              onSave={(pts) => setParam('points', JSON.stringify(pts.map((p) => ({ x: p.x / upstream.w, y: p.y / upstream.h }))))}
               onClose={() => setEditing(false)}
             />
           )}

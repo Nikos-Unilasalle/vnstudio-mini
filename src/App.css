@@ -266,12 +266,14 @@ button.primary:hover:not(:disabled) {
   font-size: 12px;
 }
 
-.params-panel__field input, .params-panel__field select {
+.params-panel__field input, .params-panel__field select, .params-panel__field textarea {
   background: #0f141a;
   border: 1px solid #2c3948;
   color: #e6e9ee;
   border-radius: 4px;
   padding: 4px 6px;
+  font-family: 'SF Mono', Menlo, monospace;
+  font-size: 11px;
 }
 
 .params-panel__field--checkbox {

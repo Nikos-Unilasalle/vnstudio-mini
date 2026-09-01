@@ -5,9 +5,12 @@ export const morphologyAdvNode: NodeDef = {
   typeId: 'feat_morphology_adv',
   label: 'Morphology (Advanced)',
   category: 'Segmentation',
-  description: 'Opening enlève les grains isolés, Closing bouche les trous / rattache ce qui est proche.',
-  inputs: [{ id: 'main', label: 'mask', color: 'mask' }],
-  outputs: [{ id: 'main', label: 'mask', color: 'mask' }],
+  description: 'Opérations morphologiques : Opening enlève les grains isolés, Closing bouche les trous / rattache ce qui est proche.',
+  inputs: [{ id: 'mask', label: 'mask', color: 'mask' }],
+  outputs: [
+    { id: 'main', label: 'image', color: 'image' },
+    { id: 'mask', label: 'mask', color: 'mask' },
+  ],
   params: [
     {
       id: 'operation',
@@ -17,34 +20,55 @@ export const morphologyAdvNode: NodeDef = {
       options: [
         { label: 'Opening', value: 0 },
         { label: 'Closing', value: 1 },
+        { label: 'Gradient', value: 2 },
+        { label: 'Top Hat', value: 3 },
+        { label: 'Black Hat', value: 4 },
+        { label: 'Dilate', value: 5 },
+        { label: 'Erode', value: 6 },
       ],
     },
     {
       id: 'shape',
-      label: 'Shape',
+      label: 'Kernel Shape',
       type: 'select',
-      default: 2,
+      default: 0,
       options: [
         { label: 'Rect', value: 0 },
         { label: 'Cross', value: 1 },
         { label: 'Ellipse', value: 2 },
       ],
     },
-    { id: 'size', label: 'Kernel size', type: 'number', default: 7, min: 1, max: 99, step: 2 },
+    { id: 'size', label: 'Kernel Size', type: 'number', default: 5, min: 1, max: 31, step: 2 },
     { id: 'iterations', label: 'Iterations', type: 'number', default: 1, min: 1, max: 10, step: 1 },
   ],
   process(inputs, params, ctx) {
-    const src = inputs.main as any
-    if (!src) return { main: undefined }
+    const src = inputs.mask as any
+    if (!src) return { main: undefined, mask: undefined }
     const cv = ctx.cv
     const shapeMap = [cv.MORPH_RECT, cv.MORPH_CROSS, cv.MORPH_ELLIPSE]
     const size = Number(params.size)
     const kernel = cv.getStructuringElement(shapeMap[Number(params.shape)], new cv.Size(size, size))
     const dst = trackMat(new cv.Mat())
-    const op = Number(params.operation) === 0 ? cv.MORPH_OPEN : cv.MORPH_CLOSE
     const anchor = new cv.Point(-1, -1)
-    cv.morphologyEx(src, dst, op, kernel, anchor, Number(params.iterations), cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue())
+    const iterations = Number(params.iterations)
+    const opMap = [
+      cv.MORPH_OPEN,
+      cv.MORPH_CLOSE,
+      cv.MORPH_GRADIENT,
+      cv.MORPH_TOPHAT,
+      cv.MORPH_BLACKHAT,
+      null, // dilate
+      null, // erode
+    ]
+    const opIdx = Number(params.operation)
+    if (opIdx === 5) {
+      cv.dilate(src, dst, kernel, anchor, iterations, cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue())
+    } else if (opIdx === 6) {
+      cv.erode(src, dst, kernel, anchor, iterations, cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue())
+    } else {
+      cv.morphologyEx(src, dst, opMap[opIdx], kernel, anchor, iterations, cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue())
+    }
     kernel.delete()
-    return { main: dst }
+    return { main: dst, mask: dst }
   },
 }

@@ -17,6 +17,13 @@ import { grainHistogramNode } from '../nodes/grainHistogram'
 import { displayNode } from '../nodes/display'
 import { inspectorNode } from '../nodes/inspector'
 import { csvExportNode } from '../nodes/csvExport'
+import { geomObbNode } from '../nodes/geomObb'
+import { imageMomentsNode } from '../nodes/imageMoments'
+import { forensicFootprintNode } from '../nodes/forensicFootprint'
+import { dictGetNode } from '../nodes/dictGet'
+import { analysisReportNode } from '../nodes/analysisReport'
+import { pythonNode } from '../nodes/pythonNode'
+import { maskOperationsNode } from '../nodes/maskOperations'
 import { canvasFrameNode, canvasNoteNode } from '../nodes/decorative'
 
 export const NODE_DEFS: NodeDef[] = [
@@ -38,6 +45,13 @@ export const NODE_DEFS: NodeDef[] = [
   displayNode,
   inspectorNode,
   csvExportNode,
+  geomObbNode,
+  imageMomentsNode,
+  forensicFootprintNode,
+  dictGetNode,
+  analysisReportNode,
+  pythonNode,
+  maskOperationsNode,
   canvasFrameNode,
   canvasNoteNode,
 ]

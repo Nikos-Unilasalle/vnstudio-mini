@@ -107,8 +107,8 @@ export default function App() {
     setPreviewId(null)
   }
 
-  function loadSampleTd1() {
-    fetch(`${import.meta.env.BASE_URL}samples/M1.1_reference.vn`)
+  function loadSample(filename: string) {
+    fetch(`${import.meta.env.BASE_URL}samples/${filename}`)
       .then((r) => r.json())
       .then(loadVn)
   }
@@ -151,7 +151,8 @@ export default function App() {
       <div className="app">
         <header className="app__header">
           <span className="app__brand">vnstudio-mini</span>
-          <button onClick={loadSampleTd1}>Charger TD I</button>
+          <button onClick={() => loadSample('M1.1_reference.vn')}>Charger TD I</button>
+          <button onClick={() => loadSample('M1.2_reference.vn')}>Charger TD II</button>
           <button onClick={() => fileInputRef.current?.click()}>Importer .vn</button>
           <input ref={fileInputRef} type="file" accept=".vn,application/json" hidden onChange={onImportFile} />
           <button onClick={exportVn}>Exporter .vn</button>

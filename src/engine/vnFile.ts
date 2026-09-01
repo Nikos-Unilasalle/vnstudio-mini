@@ -10,10 +10,6 @@ const LEGACY_ALIASES: Record<string, { in?: Record<string, string>; out?: Record
   sci_connected_components: {
     out: { markers__labels_map: 'regions', image__main: 'main' },
   },
-  sci_region_props: {
-    in: { markers__labels_map: 'main', image__image: 'intensity', scalar__um_per_pixel: 'um_per_pixel' },
-    out: { list__regions: 'regions', image__main: 'main', scalar__count: 'count' },
-  },
 }
 
 function resolvePort(typeId: string, side: 'in' | 'out', rawHandle: string | null | undefined): string {

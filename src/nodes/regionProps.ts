@@ -17,25 +17,25 @@ export const regionPropsNode: NodeDef = {
   category: 'Measure',
   description: 'Mesure chaque objet : aire, diamètre équivalent, centroïde. Applique la calibration µm/px.',
   inputs: [
-    { id: 'main', label: 'regions', color: 'regions' },
-    { id: 'intensity', label: 'intensity (image)', color: 'image' },
-    { id: 'um_per_pixel', label: 'µm/pixel', color: 'scalar' },
+    { id: 'labels_map', label: 'Label Map', color: 'regions' },
+    { id: 'image', label: 'intensity (optionnel)', color: 'image' },
+    { id: 'um_per_px', label: 'µm/pixel (calibration)', color: 'scalar' },
   ],
   outputs: [
-    { id: 'main', label: 'preview', color: 'image' },
     { id: 'regions', label: 'regions', color: 'regions' },
     { id: 'count', label: 'count', color: 'scalar' },
+    { id: 'main', label: 'preview', color: 'image' },
   ],
   params: [
     { id: 'um_per_px', label: 'µm/pixel (manuel)', type: 'number', default: 1000, min: 0.001, max: 1000000, step: 1 },
     { id: 'show_ids', label: 'Show IDs', type: 'boolean', default: true },
   ],
   process(inputs, params, ctx) {
-    const regions = inputs.main as { labels: any; stats: Map<number, any> } | undefined
+    const regions = inputs.labels_map as { labels: any; stats: Map<number, any> } | undefined
     if (!regions) return { main: undefined, regions: undefined, count: 0 }
     const cv = ctx.cv
 
-    const umPerPixel = typeof inputs.um_per_pixel === 'number' ? (inputs.um_per_pixel as number) : Number(params.um_per_px)
+    const umPerPixel = typeof inputs.um_per_px === 'number' ? (inputs.um_per_px as number) : Number(params.um_per_px)
 
     const measured: MeasuredRegion[] = []
     for (const [id, s] of regions.stats) {
@@ -50,7 +50,7 @@ export const regionPropsNode: NodeDef = {
       })
     }
 
-    const intensity = inputs.intensity as any
+    const intensity = inputs.image as any
     const preview = trackMat(colorizeLabels(cv, regions.labels))
     if (intensity) {
       const base = trackMat(new cv.Mat())

@@ -18,6 +18,8 @@ export const inputImageNode: NodeDef = {
       options: [
         { label: 'galets_atelier.jpg', value: 'samples/galets_atelier.jpg' },
         { label: 'berge_meuse.jpg', value: 'samples/berge_meuse.jpg' },
+        { label: 'empreinte_atelier.jpg', value: 'samples/empreinte_atelier.jpg' },
+        { label: 'empreinte_scene.jpg', value: 'samples/empreinte_scene.jpg' },
         { label: 'Fichier importé…', value: '__upload__' },
       ],
     },
