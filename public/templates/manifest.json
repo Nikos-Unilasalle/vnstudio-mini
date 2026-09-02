@@ -1,0 +1,17 @@
+[
+  {
+    "name": "TD 1 — Le tamis qui n’existe pas",
+    "description": "Granulométrie de galets sur photo de terrain. Chaîne complète : niveaux de gris, seuillage d’Otsu, morphologie, composantes connexes, mesure des régions et histogramme D10/D50/D90. Calibrée avec une pièce de 2 € (25,75 mm).",
+    "file": "M1.1_reference.vn"
+  },
+  {
+    "name": "TD 2 — Le pas de trop",
+    "description": "Morphométrie légale d’une empreinte de pied nu. Masque polygonal, seuillage inverse, redressement par boîte englobante orientée, puis TFL / CBW / HBW et indice de Staheli via la node forensique. Calibrée sur une réglette de 100 mm.",
+    "file": "M1.2_reference.vn"
+  },
+  {
+    "name": "TD 3 — Décoder une émotion",
+    "description": "Suivi facial sur vidéo : 478 points MediaPipe, extraction des commissures et des coins externes des yeux, rapport des deux distances (invariant à la distance caméra) tracé image par image. La vidéo Sally.mp4 est à charger manuellement.",
+    "file": "M1.3_reference.vn"
+  }
+]

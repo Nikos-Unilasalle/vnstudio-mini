@@ -1,0 +1,796 @@
+{
+  "nodes": [
+    {
+      "id": "f-lire",
+      "type": "canvas_frame",
+      "position": {
+        "x": -80,
+        "y": -120
+      },
+      "data": {
+        "label": "Frame",
+        "params": {
+          "title": "1 — Lire",
+          "color_index": 0
+        }
+      },
+      "width": 420,
+      "height": 420,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": -80,
+        "y": -120
+      },
+      "style": {
+        "width": 420,
+        "height": 420,
+        "zIndex": -1
+      }
+    },
+    {
+      "id": "f-suivre",
+      "type": "canvas_frame",
+      "position": {
+        "x": 380,
+        "y": -120
+      },
+      "data": {
+        "label": "Frame",
+        "params": {
+          "title": "2 — Suivre",
+          "color_index": 1
+        }
+      },
+      "width": 420,
+      "height": 640,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 380,
+        "y": -120
+      },
+      "style": {
+        "width": 420,
+        "height": 640,
+        "zIndex": -1
+      }
+    },
+    {
+      "id": "f-points",
+      "type": "canvas_frame",
+      "position": {
+        "x": 840,
+        "y": -120
+      },
+      "data": {
+        "label": "Frame",
+        "params": {
+          "title": "3 — Relever les points",
+          "color_index": 2
+        }
+      },
+      "width": 700,
+      "height": 900,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 840,
+        "y": -120
+      },
+      "style": {
+        "width": 700,
+        "height": 900,
+        "zIndex": -1
+      }
+    },
+    {
+      "id": "f-mesurer",
+      "type": "canvas_frame",
+      "position": {
+        "x": 1580,
+        "y": -120
+      },
+      "data": {
+        "label": "Frame",
+        "params": {
+          "title": "4 — Mesurer",
+          "color_index": 3
+        }
+      },
+      "width": 460,
+      "height": 640,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 1580,
+        "y": -120
+      },
+      "style": {
+        "width": 460,
+        "height": 640,
+        "zIndex": -1
+      }
+    },
+    {
+      "id": "f-tracer",
+      "type": "canvas_frame",
+      "position": {
+        "x": 2080,
+        "y": -120
+      },
+      "data": {
+        "label": "Frame",
+        "params": {
+          "title": "5 — Tracer",
+          "color_index": 4
+        }
+      },
+      "width": 520,
+      "height": 640,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 2080,
+        "y": -120
+      },
+      "style": {
+        "width": 520,
+        "height": 640,
+        "zIndex": -1
+      }
+    },
+    {
+      "id": "n-intro",
+      "type": "canvas_note",
+      "position": {
+        "x": -80,
+        "y": -640
+      },
+      "data": {
+        "label": "Note",
+        "params": {
+          "text": "MISSION 1.3 — Decoder une emotion\n\nCE QUE FAIT CETTE CHAINE\nFace Tracker pose 478 points reperes sur le visage, a chaque image.\nQuand on sourit, les deux coins des levres — les commissures — s'ecartent.\nOn mesure donc cette distance, image apres image.\n\nMais une distance en pixels grandit aussi quand la personne s'approche\nde la camera. On la divise donc par une distance qui, elle, ne change\njamais avec l'expression : l'ecart entre les coins externes des yeux.\nLes deux grandissent ensemble, leur rapport ne bouge pas.\n\nC'est ce rapport que Plotter Pro trace en fonction du temps.\nIl vaut environ 0,6 quand elle parle, et il monte quand elle sourit.\n\nSuis le fil de gauche a droite. Pour voir ce qu'une node produit :\nclique dessus, puis appuie sur Entree.\n\nEtape 2 : remplace le denominateur par une distance qui BOUGE avec\nl'expression, et regarde ce que devient la courbe.",
+          "color_index": 0
+        }
+      },
+      "width": 760,
+      "height": 480,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": -80,
+        "y": -640
+      },
+      "style": {
+        "width": 760,
+        "height": 480
+      }
+    },
+    {
+      "id": "n-chemin",
+      "type": "canvas_note",
+      "position": {
+        "x": -60,
+        "y": 200
+      },
+      "data": {
+        "label": "Note",
+        "params": {
+          "text": "Si la video ne s'affiche pas : clique sur la node Movie File et corrige le\nchemin pour qu'il pointe vers TA copie de Sally.mp4.",
+          "color_index": 3
+        }
+      },
+      "width": 380,
+      "height": 120,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": -60,
+        "y": 200
+      },
+      "style": {
+        "width": 380,
+        "height": 120
+      }
+    },
+    {
+      "id": "n-pixels",
+      "type": "canvas_note",
+      "position": {
+        "x": 860,
+        "y": 560
+      },
+      "data": {
+        "label": "Note",
+        "params": {
+          "text": "Le suivi sort des coordonnees entre 0 et 1 : x divise par la LARGEUR,\ny divise par la HAUTEUR. Sur une image 1920x1080 ce ne sont pas les\nmemes nombres, et toute distance oblique serait fausse.\n\nC'est pourquoi Absolute Coords est coche sur les quatre Point Tracker,\net pourquoi l'image leur est branchee : sans elle, la case ne sait pas\npar quoi multiplier.\n\nDecoche-la sur une seule et regarde ce que devient la courbe.",
+          "color_index": 2
+        }
+      },
+      "width": 660,
+      "height": 300,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 860,
+        "y": 560
+      },
+      "style": {
+        "width": 660,
+        "height": 300
+      }
+    },
+    {
+      "id": "n-etalon",
+      "type": "canvas_note",
+      "position": {
+        "x": 1600,
+        "y": 300
+      },
+      "data": {
+        "label": "Note",
+        "params": {
+          "text": "En haut : la largeur de la bouche. En bas : la distance entre les coins\nEXTERNES des yeux, la seule du visage qu'aucun muscle ne deplace.\n\nMath: Divide fait le rapport. Sans lui on mesurerait des pixels, donc\nla distance a la camera autant que la bouche.\n\nEtape 3 : refais ce motif pour les paupieres et pour les sourcils.",
+          "color_index": 1
+        }
+      },
+      "width": 430,
+      "height": 300,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 1600,
+        "y": 300
+      },
+      "style": {
+        "width": 430,
+        "height": 300
+      }
+    },
+    {
+      "id": "mov",
+      "type": "input_movie",
+      "position": {
+        "x": -40,
+        "y": -40
+      },
+      "data": {
+        "label": "Movie File",
+        "params": {
+          "path": "Sally.mp4",
+          "playing": 1,
+          "scrub_index": 0
+        }
+      },
+      "width": 208,
+      "height": 200,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": -40,
+        "y": -40
+      }
+    },
+    {
+      "id": "face",
+      "type": "analysis_face_mp",
+      "position": {
+        "x": 420,
+        "y": -40
+      },
+      "data": {
+        "label": "Face Tracker",
+        "params": {
+          "max_faces": 1
+        }
+      },
+      "width": 208,
+      "height": 180,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 420,
+        "y": -40
+      }
+    },
+    {
+      "id": "disp",
+      "type": "output_display",
+      "position": {
+        "x": 420,
+        "y": 220
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "mode": 0
+        }
+      },
+      "width": 208,
+      "height": 180,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 420,
+        "y": 220
+      }
+    },
+    {
+      "id": "tp-bg",
+      "type": "geom_track_point",
+      "position": {
+        "x": 880,
+        "y": -60
+      },
+      "data": {
+        "label": "Point Tracker",
+        "params": {
+          "point_id": 61,
+          "absolute": 1,
+          "thickness": 6
+        }
+      },
+      "width": 208,
+      "height": 170,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 880,
+        "y": -60
+      }
+    },
+    {
+      "id": "cc-bg",
+      "type": "data_coord_combine",
+      "position": {
+        "x": 1150,
+        "y": -60
+      },
+      "data": {
+        "label": "Coord Combine",
+        "params": {}
+      },
+      "width": 208,
+      "height": 150,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 1150,
+        "y": -60
+      }
+    },
+    {
+      "id": "tp-bd",
+      "type": "geom_track_point",
+      "position": {
+        "x": 880,
+        "y": 130
+      },
+      "data": {
+        "label": "Point Tracker",
+        "params": {
+          "point_id": 291,
+          "absolute": 1,
+          "thickness": 6
+        }
+      },
+      "width": 208,
+      "height": 170,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 880,
+        "y": 130
+      }
+    },
+    {
+      "id": "cc-bd",
+      "type": "data_coord_combine",
+      "position": {
+        "x": 1150,
+        "y": 130
+      },
+      "data": {
+        "label": "Coord Combine",
+        "params": {}
+      },
+      "width": 208,
+      "height": 150,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 1150,
+        "y": 130
+      }
+    },
+    {
+      "id": "tp-og",
+      "type": "geom_track_point",
+      "position": {
+        "x": 880,
+        "y": 320
+      },
+      "data": {
+        "label": "Point Tracker",
+        "params": {
+          "point_id": 33,
+          "absolute": 1,
+          "thickness": 6
+        }
+      },
+      "width": 208,
+      "height": 170,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 880,
+        "y": 320
+      }
+    },
+    {
+      "id": "cc-og",
+      "type": "data_coord_combine",
+      "position": {
+        "x": 1150,
+        "y": 320
+      },
+      "data": {
+        "label": "Coord Combine",
+        "params": {}
+      },
+      "width": 208,
+      "height": 150,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 1150,
+        "y": 320
+      }
+    },
+    {
+      "id": "tp-od",
+      "type": "geom_track_point",
+      "position": {
+        "x": 880,
+        "y": 510
+      },
+      "data": {
+        "label": "Point Tracker",
+        "params": {
+          "point_id": 263,
+          "absolute": 1,
+          "thickness": 6
+        }
+      },
+      "width": 208,
+      "height": 170,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 880,
+        "y": 510
+      }
+    },
+    {
+      "id": "cc-od",
+      "type": "data_coord_combine",
+      "position": {
+        "x": 1150,
+        "y": 510
+      },
+      "data": {
+        "label": "Coord Combine",
+        "params": {}
+      },
+      "width": 208,
+      "height": 150,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 1150,
+        "y": 510
+      }
+    },
+    {
+      "id": "d-bouche",
+      "type": "math_distance",
+      "position": {
+        "x": 1620,
+        "y": -40
+      },
+      "data": {
+        "label": "Math: Distance",
+        "params": {}
+      },
+      "width": 208,
+      "height": 140,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 1620,
+        "y": -40
+      }
+    },
+    {
+      "id": "d-etalon",
+      "type": "math_distance",
+      "position": {
+        "x": 1620,
+        "y": 190
+      },
+      "data": {
+        "label": "Math: Distance",
+        "params": {}
+      },
+      "width": 208,
+      "height": 140,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 1620,
+        "y": 190
+      }
+    },
+    {
+      "id": "ratio",
+      "type": "math_div",
+      "position": {
+        "x": 1620,
+        "y": 420
+      },
+      "data": {
+        "label": "Math: Divide",
+        "params": {
+          "value_a": 1,
+          "value_b": 1
+        }
+      },
+      "width": 208,
+      "height": 140,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 1620,
+        "y": 420
+      }
+    },
+    {
+      "id": "plot",
+      "type": "plotter_pro",
+      "position": {
+        "x": 2120,
+        "y": -40
+      },
+      "data": {
+        "label": "Plotter Pro",
+        "params": {
+          "buffer_size": 4000,
+          "normalize": 0,
+          "show_grid": 1,
+          "width": 640,
+          "height": 300
+        }
+      },
+      "width": 208,
+      "height": 300,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 2120,
+        "y": -40
+      }
+    },
+    {
+      "id": "insp",
+      "type": "data_inspector",
+      "position": {
+        "x": 2120,
+        "y": 300
+      },
+      "data": {
+        "label": "Inspector",
+        "params": {}
+      },
+      "width": 208,
+      "height": 110,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 2120,
+        "y": 300
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-mov-main-face-image",
+      "source": "mov",
+      "sourceHandle": "image__main",
+      "target": "face",
+      "targetHandle": "image__image"
+    },
+    {
+      "id": "e-face-main-disp-main",
+      "source": "face",
+      "sourceHandle": "image__main",
+      "target": "disp",
+      "targetHandle": "image__main"
+    },
+    {
+      "id": "e-face-face_0-tp-bg-data",
+      "source": "face",
+      "sourceHandle": "dict__face_0",
+      "target": "tp-bg",
+      "targetHandle": "dict__data"
+    },
+    {
+      "id": "e-face-main-tp-bg-image",
+      "source": "face",
+      "sourceHandle": "image__main",
+      "target": "tp-bg",
+      "targetHandle": "image__image"
+    },
+    {
+      "id": "e-tp-bg-x-cc-bg-x",
+      "source": "tp-bg",
+      "sourceHandle": "scalar__x",
+      "target": "cc-bg",
+      "targetHandle": "scalar__x"
+    },
+    {
+      "id": "e-tp-bg-y-cc-bg-y",
+      "source": "tp-bg",
+      "sourceHandle": "scalar__y",
+      "target": "cc-bg",
+      "targetHandle": "scalar__y"
+    },
+    {
+      "id": "e-face-face_0-tp-bd-data",
+      "source": "face",
+      "sourceHandle": "dict__face_0",
+      "target": "tp-bd",
+      "targetHandle": "dict__data"
+    },
+    {
+      "id": "e-face-main-tp-bd-image",
+      "source": "face",
+      "sourceHandle": "image__main",
+      "target": "tp-bd",
+      "targetHandle": "image__image"
+    },
+    {
+      "id": "e-tp-bd-x-cc-bd-x",
+      "source": "tp-bd",
+      "sourceHandle": "scalar__x",
+      "target": "cc-bd",
+      "targetHandle": "scalar__x"
+    },
+    {
+      "id": "e-tp-bd-y-cc-bd-y",
+      "source": "tp-bd",
+      "sourceHandle": "scalar__y",
+      "target": "cc-bd",
+      "targetHandle": "scalar__y"
+    },
+    {
+      "id": "e-face-face_0-tp-og-data",
+      "source": "face",
+      "sourceHandle": "dict__face_0",
+      "target": "tp-og",
+      "targetHandle": "dict__data"
+    },
+    {
+      "id": "e-face-main-tp-og-image",
+      "source": "face",
+      "sourceHandle": "image__main",
+      "target": "tp-og",
+      "targetHandle": "image__image"
+    },
+    {
+      "id": "e-tp-og-x-cc-og-x",
+      "source": "tp-og",
+      "sourceHandle": "scalar__x",
+      "target": "cc-og",
+      "targetHandle": "scalar__x"
+    },
+    {
+      "id": "e-tp-og-y-cc-og-y",
+      "source": "tp-og",
+      "sourceHandle": "scalar__y",
+      "target": "cc-og",
+      "targetHandle": "scalar__y"
+    },
+    {
+      "id": "e-face-face_0-tp-od-data",
+      "source": "face",
+      "sourceHandle": "dict__face_0",
+      "target": "tp-od",
+      "targetHandle": "dict__data"
+    },
+    {
+      "id": "e-face-main-tp-od-image",
+      "source": "face",
+      "sourceHandle": "image__main",
+      "target": "tp-od",
+      "targetHandle": "image__image"
+    },
+    {
+      "id": "e-tp-od-x-cc-od-x",
+      "source": "tp-od",
+      "sourceHandle": "scalar__x",
+      "target": "cc-od",
+      "targetHandle": "scalar__x"
+    },
+    {
+      "id": "e-tp-od-y-cc-od-y",
+      "source": "tp-od",
+      "sourceHandle": "scalar__y",
+      "target": "cc-od",
+      "targetHandle": "scalar__y"
+    },
+    {
+      "id": "e-cc-bg-dict_out-d-bouche-p1",
+      "source": "cc-bg",
+      "sourceHandle": "coords__dict_out",
+      "target": "d-bouche",
+      "targetHandle": "dict__p1"
+    },
+    {
+      "id": "e-cc-bd-dict_out-d-bouche-p2",
+      "source": "cc-bd",
+      "sourceHandle": "coords__dict_out",
+      "target": "d-bouche",
+      "targetHandle": "dict__p2"
+    },
+    {
+      "id": "e-cc-og-dict_out-d-etalon-p1",
+      "source": "cc-og",
+      "sourceHandle": "coords__dict_out",
+      "target": "d-etalon",
+      "targetHandle": "dict__p1"
+    },
+    {
+      "id": "e-cc-od-dict_out-d-etalon-p2",
+      "source": "cc-od",
+      "sourceHandle": "coords__dict_out",
+      "target": "d-etalon",
+      "targetHandle": "dict__p2"
+    },
+    {
+      "id": "e-d-bouche-result-ratio-a",
+      "source": "d-bouche",
+      "sourceHandle": "scalar__result",
+      "target": "ratio",
+      "targetHandle": "scalar__a"
+    },
+    {
+      "id": "e-d-etalon-result-ratio-b",
+      "source": "d-etalon",
+      "sourceHandle": "scalar__result",
+      "target": "ratio",
+      "targetHandle": "scalar__b"
+    },
+    {
+      "id": "e-mov-frame-plot-ticks",
+      "source": "mov",
+      "sourceHandle": "scalar__frame",
+      "target": "plot",
+      "targetHandle": "scalar__ticks"
+    },
+    {
+      "id": "e-ratio-result-plot-bouche",
+      "source": "ratio",
+      "sourceHandle": "scalar__result",
+      "target": "plot",
+      "targetHandle": "scalar__bouche"
+    },
+    {
+      "id": "e-ratio-result-insp-data",
+      "source": "ratio",
+      "sourceHandle": "scalar__result",
+      "target": "insp",
+      "targetHandle": "any__data"
+    }
+  ]
+}

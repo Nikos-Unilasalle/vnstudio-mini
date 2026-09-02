@@ -1,0 +1,223 @@
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { createNodesDataStore, NodesDataStore } from '../context/NodesDataContext';
+
+export type EngineNotification = {
+  id: string;
+  message: string;
+  progress: number | null;
+  level: 'info' | 'warning' | 'error';
+};
+
+
+export function useVisionEngine(onCapture?: (nodeId: string, base64: string) => void) {
+  const [frame, setFrame] = useState<string | null>(null);
+  const nodesDataStore = useMemo(() => createNodesDataStore(), []);
+  // Legacy flat nodesData ref for App.tsx inspector and other direct consumers
+  const nodesDataRef = useRef<Record<string, any>>({});
+  const [pluginSchemas, setPluginSchemas] = useState<any[]>([]);
+  const [isConnected, setIsConnected] = useState(false);
+  const [lastCommands, setLastCommands] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<EngineNotification[]>([]);
+  const [computingNodeId, setComputingNodeId] = useState<string | null>(null);
+  const ws = useRef<WebSocket | null>(null);
+  const dismissTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const exportPyResolve = useRef<((result: { code?: string; error?: string }) => void) | null>(null);
+
+  useEffect(() => {
+    let retryDelay = 1000;
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+    let failCount = 0;
+    let hasConnected = false;
+    const OFFLINE_ID = 'engine_offline';
+
+    const showOffline = () => {
+      setNotifications(prev => {
+        const msg = hasConnected
+          ? 'Engine disconnected — reconnecting…'
+          : 'Engine offline — start the Python engine (check dependencies)';
+        const n: EngineNotification = { id: OFFLINE_ID, message: msg, progress: null, level: 'error' };
+        const idx = prev.findIndex(x => x.id === OFFLINE_ID);
+        return idx >= 0 ? prev.map((x, i) => i === idx ? n : x) : [...prev, n];
+      });
+    };
+
+    const clearOffline = () => {
+      clearTimeout(dismissTimers.current[OFFLINE_ID]);
+      delete dismissTimers.current[OFFLINE_ID];
+      setNotifications(prev => prev.filter(x => x.id !== OFFLINE_ID));
+    };
+
+    const connect = () => {
+      ws.current = new WebSocket('ws://localhost:8765');
+      
+      ws.current.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg.type === 'update') {
+            setFrame(`data:image/jpeg;base64,${msg.image}`);
+            setComputingNodeId(null);
+            if (msg.nodes_data) {
+                nodesDataRef.current = msg.nodes_data;
+                nodesDataStore._update(msg.nodes_data);
+            }
+            if (msg.commands && msg.commands.length > 0) {
+              setLastCommands(msg.commands);
+            } else {
+              setLastCommands(prev => prev.length > 0 ? [] : prev);
+            }
+          } else if (msg.type === 'node_computing') {
+            setComputingNodeId(msg.node_id);
+          } else if (msg.type === 'schema') {
+            setPluginSchemas(msg.nodes);
+          } else if (msg.type === 'node_capture') {
+            onCapture?.(msg.node_id, msg.image);
+          } else if (msg.type === 'export_py_code') {
+            exportPyResolve.current?.({ code: msg.code, error: msg.error });
+            exportPyResolve.current = null;
+          } else if (msg.type === 'notification') {
+            const n: EngineNotification = {
+              id: msg.id, message: msg.message,
+              progress: msg.progress ?? null, level: msg.level ?? 'info'
+            };
+            setNotifications(prev => {
+              const idx = prev.findIndex(x => x.id === n.id);
+              return idx >= 0 ? prev.map((x, i) => i === idx ? n : x) : [...prev, n];
+            });
+            // Errors: never auto-dismiss (user must click ×)
+            // Completion (progress=1): dismiss after 3s
+            // In-progress: keep until updated
+            if (n.level !== 'error') {
+              const delay = (n.progress !== null && n.progress >= 1) ? 3000 : 60000;
+              clearTimeout(dismissTimers.current[n.id]);
+              dismissTimers.current[n.id] = setTimeout(() => {
+                setNotifications(prev => prev.filter(x => x.id !== n.id));
+                delete dismissTimers.current[n.id];
+              }, delay);
+            } else {
+              clearTimeout(dismissTimers.current[n.id]);
+            }
+          }
+        } catch (e) {
+          console.warn('[Engine] Message parse error:', e);
+        }
+      };
+
+      ws.current.onopen = () => {
+        setIsConnected(true);
+        retryDelay = 1000;
+        failCount = 0;
+        hasConnected = true;
+        clearOffline();
+      };
+
+      ws.current.onerror = () => {
+        // onclose fires right after — keep the socket from leaking listeners.
+        try { ws.current?.close(); } catch { /* noop */ }
+      };
+
+      ws.current.onclose = () => {
+        setIsConnected(false);
+        failCount++;
+        // Surface a sticky offline warning once retries clearly aren't transient.
+        if (failCount >= 3) showOffline();
+        retryTimer = setTimeout(connect, retryDelay);
+        retryDelay = Math.min(retryDelay * 2, 16000);
+      };
+    };
+
+    connect();
+    return () => {
+      if (retryTimer) clearTimeout(retryTimer);
+      ws.current?.close();
+    };
+  }, [onCapture]);
+
+  const updateGraph = useCallback((nodes: any[], edges: any[]) => {
+    if (ws.current?.readyState === WebSocket.OPEN) {
+      // Ink is pure canvas decoration with no ports: keep its stroke payload
+      // out of every graph update.
+      const graphNodes = nodes
+        .filter(n => n.type !== 'canvas_ink')
+        .map(n => ({ id: n.id, type: n.type, data: n.data }));
+      ws.current.send(JSON.stringify({
+        type: 'update_graph',
+        graph: { nodes: graphNodes, edges }
+      }));
+    }
+  }, []);
+
+  const requestCapture = useCallback((nodeId: string) => {
+    if (ws.current?.readyState === WebSocket.OPEN) {
+      ws.current.send(JSON.stringify({ type: 'request_node_capture', node_id: nodeId }));
+    }
+  }, []);
+
+  const requestSnapshotToNode = useCallback((nodeId: string) => {
+    if (ws.current?.readyState === WebSocket.OPEN) {
+      ws.current.send(JSON.stringify({ type: 'snapshot_to_node', node_id: nodeId }));
+    }
+  }, []);
+
+  const setPreviewNode = useCallback((nodeId: string | null) => {
+    if (ws.current?.readyState === WebSocket.OPEN) {
+      ws.current.send(JSON.stringify({ type: 'set_preview_node', node_id: nodeId }));
+    }
+  }, []);
+
+  const requestPyExport = useCallback((nodes: any[], edges: any[], exportNodeId: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      if (ws.current?.readyState !== WebSocket.OPEN) {
+        reject(new Error('Engine not connected'));
+        return;
+      }
+      const timer = setTimeout(() => {
+        exportPyResolve.current = null;
+        reject(new Error('Export timed out'));
+      }, 15000);
+      exportPyResolve.current = ({ code, error }) => {
+        clearTimeout(timer);
+        if (error) reject(new Error(error));
+        else resolve(code ?? '');
+      };
+      ws.current.send(JSON.stringify({
+        type: 'export_py',
+        nodes: nodes.map(n => ({ id: n.id, type: n.type, data: n.data })),
+        edges,
+        export_node_id: exportNodeId,
+      }));
+    });
+  }, []);
+
+  const dismissNotification = (id: string) => {
+    clearTimeout(dismissTimers.current[id]);
+    delete dismissTimers.current[id];
+    setNotifications(prev => prev.filter(x => x.id !== id));
+  };
+
+  const pushNotification = useCallback((message: string, level: EngineNotification['level'] = 'info', ttl = 4000) => {
+    const id = 'fe_' + Date.now();
+    setNotifications(prev => {
+      const next = [...prev.slice(-9), { id, message, progress: null, level }];
+      return next;
+    });
+    if (ttl > 0) {
+      dismissTimers.current[id] = setTimeout(() => dismissNotification(id), ttl);
+    }
+  }, []);
+
+  const cancelNotification = useCallback((notifId: string) => {
+    if (ws.current?.readyState === WebSocket.OPEN) {
+      ws.current.send(JSON.stringify({ type: 'cancel_notif', notif_id: notifId }));
+    }
+    dismissNotification(notifId);
+  }, []);
+
+  const retryInstall = useCallback((notifId: string) => {
+    if (ws.current?.readyState === WebSocket.OPEN) {
+      ws.current.send(JSON.stringify({ type: 'retry_install', notif_id: notifId }));
+    }
+    dismissNotification(notifId);
+  }, []);
+
+  return { frame, nodesData: nodesDataRef.current, nodesDataStore, pluginSchemas, isConnected, updateGraph, requestCapture, requestSnapshotToNode, setPreviewNode, lastCommands, notifications, dismissNotification, cancelNotification, retryInstall, pushNotification, requestPyExport, computingNodeId };
+}

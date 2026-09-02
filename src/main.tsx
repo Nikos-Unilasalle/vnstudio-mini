@@ -1,10 +1,20 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { ReactFlowProvider } from "reactflow";
+import App from "./App";
+import PopoutPreview from "./PopoutPreview";
+import "./index.css";
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+const isPopout = new URLSearchParams(window.location.search).get('popout') === '1';
+
+ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+  <React.StrictMode>
+    {isPopout ? (
+      <PopoutPreview />
+    ) : (
+      <ReactFlowProvider>
+        <App />
+      </ReactFlowProvider>
+    )}
+  </React.StrictMode>,
+);

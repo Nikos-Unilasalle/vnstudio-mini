@@ -1,7 +1,38 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Mirrors the aliases in vite.config.ts — see the comment there for why the
+       Tauri APIs and the engine hook are redirected to browser shims. */
+    "paths": {
+      "@tauri-apps/plugin-dialog": ["./shims/tauri-dialog.ts"],
+      "@tauri-apps/plugin-fs": ["./shims/tauri-fs.ts"],
+      "@tauri-apps/plugin-opener": ["./shims/tauri-opener.ts"],
+      "@tauri-apps/api/core": ["./shims/tauri-core.ts"],
+      "@tauri-apps/api/event": ["./shims/tauri-event.ts"],
+      "@tauri-apps/api/path": ["./shims/tauri-path.ts"],
+      "@tauri-apps/api/window": ["./shims/tauri-window.ts"],
+      "@tauri-apps/api/webviewWindow": ["./shims/tauri-webview-window.ts"]
+    },
+
+    /* Linting */
+    "strict": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src", "shims", "web-engine"],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

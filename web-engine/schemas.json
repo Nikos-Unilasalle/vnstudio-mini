@@ -1,0 +1,3303 @@
+[
+  {
+    "type": "canvas_note",
+    "label": "Note",
+    "category": "canvas",
+    "icon": "StickyNote",
+    "description": "Sticky note. Optionally connect a text input to feed it dynamically — append mode logs each incoming string (e.g. an LLM transcript), replace mode overwrites. Leave the input unconnected for a normal hand-edited note.",
+    "inputs": [
+      {
+        "id": "text",
+        "color": "any",
+        "label": "Text In"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "text_out",
+        "color": "string",
+        "label": "Text Out"
+      }
+    ],
+    "params": [
+      {
+        "id": "text",
+        "label": "Text",
+        "type": "string",
+        "multiline": true,
+        "default": "Write something..."
+      },
+      {
+        "id": "mode",
+        "label": "Input Mode",
+        "type": "enum",
+        "options": [
+          "Append",
+          "Replace"
+        ],
+        "default": 0
+      },
+      {
+        "id": "separator",
+        "label": "Append Separator",
+        "type": "string",
+        "default": "\n\n"
+      },
+      {
+        "id": "clear",
+        "label": "Clear",
+        "type": "trigger",
+        "default": false
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "canvas_frame",
+    "label": "Frame",
+    "category": "canvas",
+    "icon": "Square",
+    "description": "Groups multiple nodes visually inside a frame.",
+    "inputs": [],
+    "outputs": [],
+    "params": [],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "input_image",
+    "label": "Image File",
+    "category": "input",
+    "icon": "Image",
+    "description": "Loads a static image from your local drive.",
+    "inputs": [],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "width",
+        "color": "scalar"
+      },
+      {
+        "id": "height",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "path",
+        "label": "File Path",
+        "type": "string",
+        "default": "samples/car.jpg"
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "input_movie",
+    "label": "Movie File",
+    "category": "input",
+    "icon": "Film",
+    "description": "Plays a video file with playback and scrubbing controls.",
+    "inputs": [],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "frame",
+        "color": "scalar"
+      },
+      {
+        "id": "total_frames",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "path",
+        "label": "File Path",
+        "type": "string",
+        "default": "samples/face.mp4"
+      },
+      {
+        "id": "playing",
+        "label": "Playing",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "loop",
+        "label": "Loop",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "start_frame",
+        "label": "Start Frame",
+        "type": "int",
+        "default": 0
+      },
+      {
+        "id": "end_frame",
+        "label": "End Frame (0 = fin)",
+        "type": "int",
+        "default": 0
+      },
+      {
+        "id": "scrub_index",
+        "label": "Frame",
+        "type": "int",
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "input_webcam",
+    "label": "Webcam",
+    "category": "input",
+    "icon": "Camera",
+    "description": "Captures live video feed from your system camera.",
+    "inputs": [],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "width",
+        "color": "scalar"
+      },
+      {
+        "id": "height",
+        "color": "scalar"
+      },
+      {
+        "id": "fps",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "device_index",
+        "label": "Device Index",
+        "type": "int",
+        "default": 0
+      },
+      {
+        "id": "width",
+        "label": "Width",
+        "type": "int",
+        "default": 0
+      },
+      {
+        "id": "height",
+        "label": "Height",
+        "type": "int",
+        "default": 0
+      },
+      {
+        "id": "fps",
+        "label": "FPS",
+        "type": "int",
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "input_solid_color",
+    "label": "Solid Color",
+    "category": "input",
+    "icon": "Palette",
+    "description": "Generates an image of a custom solid color.",
+    "inputs": [],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "color",
+        "label": "Color",
+        "type": "color",
+        "default": "#ff0000"
+      },
+      {
+        "id": "width",
+        "label": "Width",
+        "type": "int",
+        "default": 640
+      },
+      {
+        "id": "height",
+        "label": "Height",
+        "type": "int",
+        "default": 480
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "filter_gray",
+    "label": "Grayscale",
+    "category": "image",
+    "icon": "Waves",
+    "description": "Converts the image to grayscale.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "filter_blur",
+    "label": "Blur",
+    "category": "image",
+    "icon": "Waves",
+    "description": "Smooths the image. Multiple methods (Gaussian, Median, Box, Bilateral, Motion). Connect a mask to blur only that region.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      },
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "method",
+        "label": "Method",
+        "type": "enum",
+        "options": [
+          "Gaussian",
+          "Median",
+          "Box",
+          "Bilateral",
+          "Motion"
+        ],
+        "default": 0
+      },
+      {
+        "id": "size",
+        "label": "Strength (kernel)",
+        "type": "scalar",
+        "min": 1,
+        "max": 99,
+        "step": 2,
+        "default": 5
+      },
+      {
+        "id": "sigma",
+        "label": "Sigma (Gaussian, 0=auto)",
+        "type": "float",
+        "min": 0,
+        "max": 50,
+        "step": 0.5,
+        "default": 0
+      },
+      {
+        "id": "sigma_color",
+        "label": "Sigma Color (Bilateral)",
+        "type": "scalar",
+        "min": 1,
+        "max": 200,
+        "default": 75
+      },
+      {
+        "id": "sigma_space",
+        "label": "Sigma Space (Bilateral)",
+        "type": "scalar",
+        "min": 1,
+        "max": 200,
+        "default": 75
+      },
+      {
+        "id": "angle",
+        "label": "Angle (Motion)",
+        "type": "scalar",
+        "min": 0,
+        "max": 360,
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "filter_canny",
+    "label": "Canny Edge",
+    "category": "image",
+    "icon": "Waves",
+    "description": "Detects edges using the Canny algorithm.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "low",
+        "label": "Low Threshold",
+        "type": "int",
+        "default": 100,
+        "min": 0,
+        "max": 500,
+        "step": 1
+      },
+      {
+        "id": "high",
+        "label": "High Threshold",
+        "type": "int",
+        "default": 200,
+        "min": 0,
+        "max": 500,
+        "step": 1
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "filter_threshold",
+    "label": "Threshold",
+    "category": "image",
+    "icon": "Waves",
+    "description": "Separates the image into black and white based on intensity.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "params": [
+      {
+        "id": "threshold",
+        "label": "Threshold Value",
+        "type": "int",
+        "default": 127
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "plugin_invert",
+    "label": "Invert Color",
+    "category": "image",
+    "icon": "Palette",
+    "description": "Inverts all colors in the image (negative effect).",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "plugin_brightness_contrast",
+    "label": "Bright & Contrast",
+    "category": "color",
+    "icon": "Zap",
+    "description": "Adjusts the brightness and contrast of the image.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "brightness",
+        "min": -100,
+        "max": 100,
+        "step": 1,
+        "default": 0
+      },
+      {
+        "id": "contrast",
+        "min": -100,
+        "max": 100,
+        "step": 1,
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "plugin_sobel",
+    "label": "Sobel Edge Detector",
+    "category": "image",
+    "icon": "Activity",
+    "description": "Detects horizontal and vertical gradients using the Sobel operator.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "kernel_size",
+        "min": 1,
+        "max": 7,
+        "step": 2,
+        "default": 3
+      },
+      {
+        "id": "x_dir",
+        "label": "X Direction",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "y_dir",
+        "label": "Y Direction",
+        "type": "bool",
+        "default": true
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "cv_colorspace",
+    "label": "Color Space",
+    "category": "color",
+    "icon": "Palette",
+    "description": "Convert RGB image to HSV or CIE Lab color space for advanced analysis and processing.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "hsv",
+        "color": "image"
+      },
+      {
+        "id": "lab",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "bgr_input",
+        "label": "Input is BGR (OpenCV)",
+        "type": "boolean",
+        "default": true
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "feat_clahe",
+    "label": "CLAHE (Contrast)",
+    "category": "image",
+    "icon": "Maximize",
+    "description": "Adaptive local contrast enhancement (CLAHE). Choose the color space to operate in, dose the effect, and optionally restrict it to a mask region. 'Auto Clip' derives the clip limit from local contrast; the 'luma' output exposes the equalized luminance channel.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      },
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "luma",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "auto_clip",
+        "label": "Auto Clip",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "clip_limit",
+        "label": "Clip Limit",
+        "type": "float",
+        "min": 0.5,
+        "max": 40,
+        "step": 0.5,
+        "default": 2
+      },
+      {
+        "id": "grid_size",
+        "label": "Tile Grid Size",
+        "type": "scalar",
+        "min": 1,
+        "max": 32,
+        "default": 8
+      },
+      {
+        "id": "color_space",
+        "label": "Operate On",
+        "type": "enum",
+        "options": [
+          "LAB (luminance)",
+          "YCrCb (luma)",
+          "HSV (value)",
+          "Per-channel RGB",
+          "Grayscale out"
+        ],
+        "default": 0
+      },
+      {
+        "id": "strength",
+        "label": "Strength (blend)",
+        "type": "float",
+        "min": 0,
+        "max": 1,
+        "step": 0.05,
+        "default": 1
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "feat_threshold_adv",
+    "label": "Threshold (Advanced)",
+    "category": "segmentation",
+    "icon": "Layers",
+    "description": "Advanced thresholding including Otsu's method and relative percentage thresholds.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "params": [
+      {
+        "id": "mode",
+        "label": "Mode",
+        "type": "enum",
+        "options": [
+          "Binary",
+          "Binary Inv",
+          "Otsu",
+          "Otsu Inv",
+          "70% of Max"
+        ],
+        "default": 0
+      },
+      {
+        "id": "threshold",
+        "label": "Value",
+        "type": "scalar",
+        "min": 0,
+        "max": 255,
+        "default": 127
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "feat_morphology_adv",
+    "label": "Morphology (Advanced)",
+    "category": "segmentation",
+    "icon": "Wind",
+    "description": "Advanced morphological operations like Opening, Closing, and Gradient.",
+    "inputs": [
+      {
+        "id": "mask",
+        "color": "any"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "params": [
+      {
+        "id": "operation",
+        "label": "Operation",
+        "type": "enum",
+        "options": [
+          "Opening",
+          "Closing",
+          "Gradient",
+          "Top Hat",
+          "Black Hat",
+          "Dilate",
+          "Erode"
+        ],
+        "default": 0
+      },
+      {
+        "id": "shape",
+        "label": "Kernel Shape",
+        "type": "enum",
+        "options": [
+          "Rect",
+          "Cross",
+          "Ellipse"
+        ],
+        "default": 0
+      },
+      {
+        "id": "size",
+        "label": "Kernel Size",
+        "type": "scalar",
+        "min": 1,
+        "max": 31,
+        "step": 2,
+        "default": 5
+      },
+      {
+        "id": "iterations",
+        "label": "Iterations",
+        "type": "scalar",
+        "min": 1,
+        "max": 10,
+        "default": 1
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "feat_distance_transform",
+    "label": "Distance Transform",
+    "category": "segmentation",
+    "icon": "Maximize",
+    "description": "Calculates the distance from each pixel to the nearest zero pixel (mask border).",
+    "inputs": [
+      {
+        "id": "mask",
+        "color": "any"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "dist_map",
+        "color": "any"
+      }
+    ],
+    "params": [
+      {
+        "id": "dist_type",
+        "label": "Dist Type",
+        "type": "enum",
+        "options": [
+          "L2 (Euclidean)",
+          "L1 (Manhattan)",
+          "C (Chessboard)"
+        ],
+        "default": 0
+      },
+      {
+        "id": "mask_size",
+        "label": "Mask Size",
+        "type": "enum",
+        "options": [
+          "3",
+          "5",
+          "Precise"
+        ],
+        "default": 1
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "feat_connected_components",
+    "label": "Connected Components",
+    "category": "segmentation",
+    "icon": "Database",
+    "description": "Labels connected regions in a binary image. Each region gets a unique ID (Markers).",
+    "inputs": [
+      {
+        "id": "mask",
+        "color": "any"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "markers",
+        "color": "markers"
+      },
+      {
+        "id": "count",
+        "color": "scalar"
+      }
+    ],
+    "params": [],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "sci_connected_components",
+    "label": "Connected Components",
+    "category": "segmentation",
+    "icon": "Layers",
+    "description": "Label and count connected regions (particles, cells, blobs). Measures area and centroid of each object.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "any"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image",
+        "label": "Labeled Image"
+      },
+      {
+        "id": "count",
+        "color": "scalar",
+        "label": "Object Count"
+      },
+      {
+        "id": "areas",
+        "color": "list",
+        "label": "Areas (px²)"
+      },
+      {
+        "id": "centroids",
+        "color": "list",
+        "label": "Centroids"
+      },
+      {
+        "id": "labels_map",
+        "color": "markers",
+        "label": "Label Map"
+      },
+      {
+        "id": "mask_out",
+        "color": "mask",
+        "label": "Binary Mask"
+      },
+      {
+        "id": "contour_out",
+        "color": "mask",
+        "label": "Contours Mask"
+      }
+    ],
+    "params": [
+      {
+        "id": "threshold",
+        "label": "Threshold",
+        "type": "int",
+        "default": 128,
+        "min": 0,
+        "max": 255
+      },
+      {
+        "id": "min_area",
+        "label": "Min Area (px²)",
+        "type": "int",
+        "default": 50,
+        "min": 1,
+        "max": 1000000
+      },
+      {
+        "id": "max_area",
+        "label": "Max Area (px²)",
+        "type": "int",
+        "default": 500000,
+        "min": 1,
+        "max": 10000000
+      },
+      {
+        "id": "connectivity",
+        "label": "Connectivity",
+        "type": "enum",
+        "options": [
+          "8-connected",
+          "4-connected"
+        ],
+        "default": 0
+      },
+      {
+        "id": "colorize",
+        "label": "Colorize Labels",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "show_cross",
+        "label": "Show Centroids",
+        "type": "bool",
+        "default": true
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "feat_marker_filter",
+    "label": "Marker Filter",
+    "category": "segmentation",
+    "icon": "Filter",
+    "description": "Filters markers (label map) by area, removing regions outside the min/max range.",
+    "inputs": [
+      {
+        "id": "markers",
+        "color": "markers"
+      },
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "markers_out",
+        "color": "markers"
+      },
+      {
+        "id": "count",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "min_area",
+        "label": "Min Area",
+        "type": "scalar",
+        "min": 0,
+        "max": 1000000,
+        "default": 0
+      },
+      {
+        "id": "max_area",
+        "label": "Max Area",
+        "type": "scalar",
+        "min": 0,
+        "max": 1000000,
+        "default": 100000
+      },
+      {
+        "id": "area_unit",
+        "label": "Area Unit",
+        "type": "enum",
+        "options": [
+          "Pixels",
+          "% of image"
+        ],
+        "default": 0
+      },
+      {
+        "id": "remap_ids",
+        "label": "Remap IDs",
+        "type": "enum",
+        "options": [
+          "No",
+          "Yes"
+        ],
+        "default": 1
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "feat_watershed",
+    "label": "Watershed",
+    "category": "segmentation",
+    "icon": "Target",
+    "description": "Separates overlapping objects using marker-controlled watershed algorithm.\n\nRescue Unseeded Regions: when a Cell Mask is connected, any region of that mask containing no marker is normally claimed by the background basin and disappears from the result — a silent loss that hits small objects first, because a seed threshold set as a percentage of the distance map's global maximum never reaches them. Turn this on to give every unseeded region its own marker (placed at its distance-transform peak) before flooding, so nothing is dropped.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      },
+      {
+        "id": "markers",
+        "color": "markers"
+      },
+      {
+        "id": "mask",
+        "color": "mask",
+        "label": "Cell Mask (opt)"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "markers_out",
+        "color": "markers"
+      },
+      {
+        "id": "count",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "visualization",
+        "label": "Visualization",
+        "type": "enum",
+        "options": [
+          "Original + Boundaries",
+          "Colorized Regions",
+          "Regions + Boundaries",
+          "Original"
+        ],
+        "default": 0
+      },
+      {
+        "id": "rescue_unseeded",
+        "label": "Rescue Unseeded Regions",
+        "type": "enum",
+        "options": [
+          "No",
+          "Yes"
+        ],
+        "default": 0
+      },
+      {
+        "id": "rescue_min_area",
+        "label": "Rescue Min Area (px)",
+        "type": "scalar",
+        "min": 0,
+        "max": 100000,
+        "default": 200
+      },
+      {
+        "id": "boundary_color",
+        "label": "Boundary Color",
+        "type": "color",
+        "default": "#FF0000"
+      },
+      {
+        "id": "boundary_thickness",
+        "label": "Boundary Thickness",
+        "type": "scalar",
+        "min": 1,
+        "max": 5,
+        "default": 1
+      },
+      {
+        "id": "region_alpha",
+        "label": "Region Alpha",
+        "type": "scalar",
+        "min": 0,
+        "max": 1,
+        "default": 0.5
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "fill_holes",
+    "label": "Fill Holes",
+    "category": "utility",
+    "icon": "Disc",
+    "description": "Fills internal holes in a binary mask.\n\nUseful for cells with central pallor (erythrocytes), hollow particles, or any ring-shaped objects where the interior void would otherwise displace distance transform peaks.\n\nMethod \"Contour Fill\": fills by re-drawing external contours solid — fast, removes all internal holes regardless of size.\nMethod \"Flood Fill\": floods from image border — preserves holes touching the border.\nMethod \"Size Filter\": removes only holes smaller than max_hole_px.",
+    "inputs": [
+      {
+        "id": "mask",
+        "label": "Mask",
+        "color": "mask"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "label": "Filled Mask",
+        "color": "mask"
+      }
+    ],
+    "params": [
+      {
+        "id": "method",
+        "label": "Method",
+        "type": "enum",
+        "options": [
+          "Contour Fill",
+          "Flood Fill",
+          "Size Filter"
+        ],
+        "default": 0
+      },
+      {
+        "id": "max_hole_px",
+        "label": "Max Hole (px²)",
+        "type": "int",
+        "default": 500,
+        "min": 1,
+        "max": 50000
+      }
+    ],
+    "resizable": true,
+    "min_width": 240,
+    "min_height": 160,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "mask_operations",
+    "label": "Mask Operations",
+    "category": "mask",
+    "icon": "Layers",
+    "description": "Perform bitwise operations between two masks.",
+    "inputs": [
+      {
+        "id": "mask_a",
+        "color": "mask"
+      },
+      {
+        "id": "mask_b",
+        "color": "mask"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "params": [
+      {
+        "id": "operation",
+        "label": "Operation",
+        "type": "enum",
+        "options": [
+          "Addition (OR)",
+          "Subtraction (A - B)",
+          "Intersection (AND)"
+        ],
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "util_roi_polygon",
+    "label": "Mask Polygon",
+    "category": "geometry",
+    "icon": "Scaling",
+    "description": "Interactive polygonal region of interest — draws a mask, optionally restricted by an input mask.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      },
+      {
+        "id": "mask_in",
+        "color": "mask"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "mask",
+        "color": "mask"
+      },
+      {
+        "id": "masked",
+        "color": "image"
+      },
+      {
+        "id": "masked_inv",
+        "color": "image"
+      },
+      {
+        "id": "pts",
+        "color": "list"
+      }
+    ],
+    "params": [
+      {
+        "id": "points",
+        "label": "Points",
+        "type": "string",
+        "default": "[]"
+      },
+      {
+        "id": "filled",
+        "label": "Filled",
+        "type": "boolean",
+        "default": true
+      },
+      {
+        "id": "thickness",
+        "label": "Thickness",
+        "type": "scalar",
+        "min": 1,
+        "max": 20,
+        "default": 2
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "geom_obb",
+    "label": "Oriented Bounding Box",
+    "category": "geom",
+    "icon": "RotateCw",
+    "description": "Computes minimum-area oriented bounding box from mask contours and outputs a deskewed auto-rotated crop.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      },
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "rotated",
+        "color": "image"
+      },
+      {
+        "id": "rotated_mask",
+        "color": "mask"
+      },
+      {
+        "id": "angle",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "draw_obb",
+        "label": "Draw OBB",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "color",
+        "label": "Color",
+        "type": "color",
+        "default": "#00ff88"
+      },
+      {
+        "id": "thickness",
+        "label": "Thickness",
+        "type": "int",
+        "default": 2,
+        "min": 1,
+        "max": 20
+      },
+      {
+        "id": "target",
+        "label": "Target",
+        "type": "enum",
+        "default": "largest",
+        "options": [
+          "largest",
+          "all",
+          "combined"
+        ]
+      },
+      {
+        "id": "auto_crop",
+        "label": "Crop to OBB",
+        "type": "bool",
+        "default": true
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "sci_marker_filter",
+    "label": "Region Filter",
+    "category": "measure",
+    "icon": "Scissors",
+    "description": "Filters markers/labels based on their pixel area. Removes objects that are too small or too large.",
+    "inputs": [
+      {
+        "id": "markers",
+        "color": "markers"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "markers",
+        "color": "markers"
+      },
+      {
+        "id": "count",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "min_area",
+        "label": "Min Area (px)",
+        "type": "scalar",
+        "min": 0,
+        "max": 1000000,
+        "default": 200
+      },
+      {
+        "id": "max_area",
+        "label": "Max Area (px)",
+        "type": "scalar",
+        "min": 0,
+        "max": 10000000,
+        "default": 1000000
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "sci_region_props",
+    "label": "Region Properties",
+    "category": "measure",
+    "icon": "Database",
+    "description": "Extract shape and intensity features from a labeled region map. Outputs: area, perimeter, circularity, aspect_ratio (elongation), eccentricity, solidity, convexity, extent, rectangularity, roundness, anisotropy, equivalent_diameter, orientation, centroid, bbox. Connect image for mean/max/min/std intensity per region.",
+    "inputs": [
+      {
+        "id": "labels_map",
+        "color": "markers",
+        "label": "Label Map"
+      },
+      {
+        "id": "image",
+        "color": "image",
+        "label": "Image (intensity, optional)"
+      },
+      {
+        "id": "um_per_px",
+        "color": "scalar",
+        "label": "µm/pixel (Calibration)"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "regions",
+        "color": "regions",
+        "label": "Regions"
+      },
+      {
+        "id": "count",
+        "color": "scalar",
+        "label": "Count"
+      },
+      {
+        "id": "main",
+        "color": "image",
+        "label": "Preview"
+      }
+    ],
+    "params": [
+      {
+        "id": "intensity",
+        "label": "Intensity Features",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "show_ids",
+        "label": "Show IDs",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "show_ellipse",
+        "label": "Show Ellipses",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "um_per_px",
+        "label": "µm / pixel",
+        "type": "float",
+        "default": 1,
+        "min": 0.001,
+        "max": 10000
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "sci_interactive_calibration",
+    "label": "Visual Calibration",
+    "category": "measure",
+    "icon": "Scaling",
+    "description": "Calculates a calibration factor by drawing a line of a known physical length on the image.\n\nTwo ways to read the result, both always computed:\n• Px/Unit — pixels per unit of the length you typed (e.g. px/mm)\n• µm/px — microns per pixel, the convention Region Properties and Grain Stats expect\n\nRecognised units: µm, mm, cm, m, in. Any other unit name leaves µm/px unavailable.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "factor",
+        "color": "scalar",
+        "label": "Px/Unit"
+      },
+      {
+        "id": "um_per_px",
+        "color": "scalar",
+        "label": "µm/px"
+      },
+      {
+        "id": "unit",
+        "color": "scalar",
+        "label": "Unit Name"
+      },
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "points",
+        "label": "Line Points",
+        "type": "string",
+        "default": "[]"
+      },
+      {
+        "id": "real_len",
+        "label": "Known Length",
+        "type": "float",
+        "default": 10
+      },
+      {
+        "id": "unit",
+        "label": "Unit Name",
+        "type": "string",
+        "default": "mm"
+      },
+      {
+        "id": "readout",
+        "label": "Show",
+        "type": "enum",
+        "options": [
+          "Both",
+          "Px / Unit",
+          "µm / Pixel"
+        ],
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "sci_calibration",
+    "label": "Unit Calibration",
+    "category": "measure",
+    "icon": "Scaling",
+    "description": "Converts pixel measurements (length or area) into real-world units based on a calibration factor.",
+    "inputs": [
+      {
+        "id": "input",
+        "color": "any"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "output",
+        "color": "any"
+      }
+    ],
+    "params": [
+      {
+        "id": "factor",
+        "label": "Pixels per Unit",
+        "type": "float",
+        "default": 100
+      },
+      {
+        "id": "dimension",
+        "label": "Dimension",
+        "type": "string",
+        "default": "Area",
+        "options": [
+          "Length",
+          "Area"
+        ]
+      },
+      {
+        "id": "unit_name",
+        "label": "Unit Name",
+        "type": "string",
+        "default": "cm"
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "image_moments",
+    "label": "Image Moments",
+    "category": "measure",
+    "icon": "Target",
+    "description": "Computes spatial moments and Hu invariants for a single connected shape (ch2). Outputs raw moments M_pq, central moments μ_pq, normalized moments η_pq, centroid, orientation θ, anisotropy, and the 7 log-scaled Hu invariants φ₁–φ₇. Binary Mode ON → pure geometry (mask). Binary Mode OFF → intensity-weighted centroid (barycentre lumineux, sub-pixel localisation).",
+    "inputs": [
+      {
+        "id": "image",
+        "label": "Image",
+        "color": "image"
+      },
+      {
+        "id": "mask",
+        "label": "Mask",
+        "color": "mask"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "label": "Overlay",
+        "color": "image"
+      },
+      {
+        "id": "data",
+        "label": "Moments",
+        "color": "dict"
+      }
+    ],
+    "params": [
+      {
+        "id": "binary_mode",
+        "label": "Binary Mode (geometry)",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "source",
+        "label": "Source",
+        "type": "enum",
+        "options": [
+          "Largest Contour",
+          "Whole Mask"
+        ],
+        "default": "Largest Contour"
+      },
+      {
+        "id": "draw_overlay",
+        "label": "Draw Overlay",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "draw_ellipse",
+        "label": "Draw Principal Axis",
+        "type": "bool",
+        "default": false
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "sci_analysis_report",
+    "label": "Analysis Report",
+    "category": "measure",
+    "icon": "Clipboard",
+    "description": "Displays a beautiful summary table of all variables. Connect any dictionary (stats, report, etc.).",
+    "inputs": [
+      {
+        "id": "data",
+        "color": "dict"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "report",
+        "color": "dict"
+      }
+    ],
+    "params": [
+      {
+        "id": "title",
+        "label": "Report Title",
+        "type": "string",
+        "default": "Analysis Report"
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "geo_grain_histogram",
+    "label": "Grain Size Histogram",
+    "category": "geology",
+    "icon": "BarChart2",
+    "description": "Interactive grain size histogram + cumulative frequency curve rendered inside the node.\nConnect 'Regions' from SAM Grain Stats or from Region Properties.\n\nShows D10 / D50 / D90 percentiles, count, mean, and std directly in the chart.\nUnits follow the upstream calibration (px when uncalibrated, µm otherwise).",
+    "inputs": [
+      {
+        "id": "regions",
+        "color": "list",
+        "label": "Regions (Grain Stats / Region Props)"
+      }
+    ],
+    "outputs": [],
+    "params": [
+      {
+        "id": "bins",
+        "label": "Bins",
+        "type": "int",
+        "default": 30,
+        "min": 5,
+        "max": 100
+      },
+      {
+        "id": "metric",
+        "label": "Metric",
+        "type": "enum",
+        "options": [
+          "Equiv. Diameter",
+          "Feret Max",
+          "Feret Min",
+          "Area"
+        ],
+        "default": 0
+      }
+    ],
+    "resizable": true,
+    "min_width": 240,
+    "min_height": 180,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "forensic_footprint",
+    "label": "Barefoot Print Forensics",
+    "category": "analysis",
+    "icon": "Activity",
+    "description": "Forensic analysis of a BARE FOOT print on a deskewed crop. Computes pressure zones, foot length and width in mm, per-zone widths, Staheli Arch Index with its Cavus / Normal / Flat classification, medial-lateral asymmetry and pressure centroid.\n\nThe Staheli index is the arch area divided by the non-heel area: it describes a plantar arch and is meaningless on a shoe sole. Use this on bare prints only.\n\nConnect geom_obb rotated + rotated_mask outputs, and px_per_mm from a calibration.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      },
+      {
+        "id": "mask",
+        "color": "mask"
+      },
+      {
+        "id": "px_per_mm",
+        "color": "scalar",
+        "label": "Px/mm"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "report",
+        "color": "dict"
+      },
+      {
+        "id": "staheli",
+        "color": "scalar"
+      },
+      {
+        "id": "asymmetry",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "n_zones",
+        "label": "Zones",
+        "type": "enum",
+        "default": 0,
+        "options": [
+          "4 zones (Toes/FF/Arch/Heel)",
+          "3 zones (FF/Arch/Heel)"
+        ]
+      },
+      {
+        "id": "pressure_weights",
+        "label": "Pressure Weights",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "show_measurements",
+        "label": "Width Lines",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "alpha",
+        "label": "Overlay Alpha",
+        "type": "float",
+        "default": 0.55,
+        "min": 0,
+        "max": 1
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "analysis_face_mp",
+    "label": "Face Tracker",
+    "category": "body",
+    "icon": "User",
+    "description": "Detects and tracks faces and facial landmarks (MediaPipe).",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "faces_list",
+        "color": "list"
+      },
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "max_faces",
+        "label": "Max Faces",
+        "type": "int",
+        "default": 3,
+        "min": 1,
+        "max": 10
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "analysis_hand_mp",
+    "label": "Hand Tracker",
+    "category": "body",
+    "icon": "Hand",
+    "description": "Detects and tracks hands and joints (MediaPipe).",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "hands_list",
+        "color": "list"
+      },
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "max_hands",
+        "label": "Max Hands",
+        "type": "int",
+        "default": 2,
+        "min": 1,
+        "max": 10
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "geom_track_point",
+    "label": "Point Tracker",
+    "category": "tracking",
+    "icon": "Target",
+    "description": "Extracts the precise coordinates of a specific tracked landmark (e.g., joints).",
+    "inputs": [
+      {
+        "id": "data",
+        "color": "dict"
+      },
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "x",
+        "color": "scalar"
+      },
+      {
+        "id": "y",
+        "color": "scalar"
+      },
+      {
+        "id": "draw",
+        "color": "dict"
+      }
+    ],
+    "params": [
+      {
+        "id": "point_id",
+        "min": 0,
+        "max": 477,
+        "step": 1,
+        "default": 8
+      },
+      {
+        "id": "absolute",
+        "label": "Absolute Coords",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "_sec_display",
+        "label": "Display",
+        "type": "section"
+      },
+      {
+        "id": "thickness",
+        "min": 1,
+        "max": 20,
+        "step": 1,
+        "default": 5
+      },
+      {
+        "id": "r",
+        "min": 0,
+        "max": 255,
+        "step": 1,
+        "default": 0
+      },
+      {
+        "id": "g",
+        "min": 0,
+        "max": 255,
+        "step": 1,
+        "default": 255
+      },
+      {
+        "id": "b",
+        "min": 0,
+        "max": 255,
+        "step": 1,
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "data_coord_combine",
+    "label": "Coord Combine",
+    "category": "data",
+    "icon": "Box",
+    "description": "Combines 4 scalar values into a coordinate dictionary.",
+    "inputs": [
+      {
+        "id": "x",
+        "color": "scalar"
+      },
+      {
+        "id": "y",
+        "color": "scalar"
+      },
+      {
+        "id": "w",
+        "color": "scalar"
+      },
+      {
+        "id": "h",
+        "color": "scalar"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "dict_out",
+        "color": "coords"
+      }
+    ],
+    "params": [],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "data_coord_splitter",
+    "label": "Coord Splitter",
+    "category": "data",
+    "icon": "Database",
+    "description": "Extracts the first two numeric values from a dictionary (e.g., x, y).",
+    "inputs": [
+      {
+        "id": "dict_in",
+        "color": "dict"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "a",
+        "color": "scalar"
+      },
+      {
+        "id": "b",
+        "color": "scalar"
+      }
+    ],
+    "params": [],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "data_list_selector",
+    "label": "List Selector",
+    "category": "utility",
+    "icon": "List",
+    "description": "Extracts a specific item from a list by its index.",
+    "inputs": [
+      {
+        "id": "list_in",
+        "color": "list"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "item_out",
+        "color": "any"
+      }
+    ],
+    "params": [
+      {
+        "id": "index",
+        "label": "Index",
+        "type": "int",
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "plugin_dict_get",
+    "label": "Dict Get",
+    "category": "utility",
+    "icon": "Key",
+    "description": "Extracts 1 to 3 values from a dictionary by key name. val_1/2/3 outputs accept any downstream type; scalar_1 coerces val_1 to float.",
+    "inputs": [
+      {
+        "id": "dict_in",
+        "color": "any"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "val_1",
+        "color": "any"
+      },
+      {
+        "id": "val_2",
+        "color": "any"
+      },
+      {
+        "id": "val_3",
+        "color": "any"
+      },
+      {
+        "id": "scalar_1",
+        "color": "scalar"
+      },
+      {
+        "id": "dict_1",
+        "color": "dict"
+      }
+    ],
+    "params": [
+      {
+        "id": "key_1",
+        "type": "string",
+        "default": "xmin"
+      },
+      {
+        "id": "key_2",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "key_3",
+        "type": "string",
+        "default": ""
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "math_add",
+    "label": "Math: Add",
+    "category": "math",
+    "icon": "Plus",
+    "description": "",
+    "inputs": [
+      {
+        "id": "a",
+        "color": "scalar"
+      },
+      {
+        "id": "b",
+        "color": "scalar"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "result",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "value_a",
+        "label": "A (if disconnected)",
+        "type": "number",
+        "default": 0
+      },
+      {
+        "id": "value_b",
+        "label": "B (if disconnected)",
+        "type": "number",
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "math_sub",
+    "label": "Math: Subtract",
+    "category": "math",
+    "icon": "Minus",
+    "description": "",
+    "inputs": [
+      {
+        "id": "a",
+        "color": "scalar"
+      },
+      {
+        "id": "b",
+        "color": "scalar"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "result",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "value_a",
+        "label": "A (if disconnected)",
+        "type": "number",
+        "default": 0
+      },
+      {
+        "id": "value_b",
+        "label": "B (if disconnected)",
+        "type": "number",
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "math_mul",
+    "label": "Math: Multiply",
+    "category": "math",
+    "icon": "Hash",
+    "description": "",
+    "inputs": [
+      {
+        "id": "a",
+        "color": "scalar"
+      },
+      {
+        "id": "b",
+        "color": "scalar"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "result",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "value_a",
+        "label": "A (if disconnected)",
+        "type": "number",
+        "default": 1
+      },
+      {
+        "id": "value_b",
+        "label": "B (if disconnected)",
+        "type": "number",
+        "default": 1
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "math_div",
+    "label": "Math: Divide",
+    "category": "math",
+    "icon": "Divide",
+    "description": "",
+    "inputs": [
+      {
+        "id": "a",
+        "color": "scalar"
+      },
+      {
+        "id": "b",
+        "color": "scalar"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "result",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "value_a",
+        "label": "A (if disconnected)",
+        "type": "number",
+        "default": 1
+      },
+      {
+        "id": "value_b",
+        "label": "B (if disconnected)",
+        "type": "number",
+        "default": 1
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "math_mod",
+    "label": "Math: Modulo",
+    "category": "math",
+    "icon": "Hash",
+    "description": "",
+    "inputs": [
+      {
+        "id": "a",
+        "color": "scalar"
+      },
+      {
+        "id": "b",
+        "color": "scalar"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "result",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "value_a",
+        "label": "A (if disconnected)",
+        "type": "number",
+        "default": 0
+      },
+      {
+        "id": "value_b",
+        "label": "B (if disconnected)",
+        "type": "number",
+        "default": 1
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "math_min",
+    "label": "Math: Min",
+    "category": "math",
+    "icon": "ChevronDown",
+    "description": "",
+    "inputs": [
+      {
+        "id": "a",
+        "color": "scalar"
+      },
+      {
+        "id": "b",
+        "color": "scalar"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "result",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "value_a",
+        "label": "A",
+        "type": "number",
+        "default": 0
+      },
+      {
+        "id": "value_b",
+        "label": "B",
+        "type": "number",
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "math_max",
+    "label": "Math: Max",
+    "category": "math",
+    "icon": "ChevronUp",
+    "description": "",
+    "inputs": [
+      {
+        "id": "a",
+        "color": "scalar"
+      },
+      {
+        "id": "b",
+        "color": "scalar"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "result",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "value_a",
+        "label": "A",
+        "type": "number",
+        "default": 0
+      },
+      {
+        "id": "value_b",
+        "label": "B",
+        "type": "number",
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "math_pow",
+    "label": "Math: Power",
+    "category": "math",
+    "icon": "Zap",
+    "description": "",
+    "inputs": [
+      {
+        "id": "a",
+        "color": "scalar"
+      },
+      {
+        "id": "b",
+        "color": "scalar"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "result",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "value_a",
+        "label": "Base",
+        "type": "number",
+        "default": 1
+      },
+      {
+        "id": "value_b",
+        "label": "Exp",
+        "type": "number",
+        "default": 2
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "math_abs",
+    "label": "Math: Absolute",
+    "category": "math",
+    "icon": "Maximize",
+    "description": "",
+    "inputs": [
+      {
+        "id": "a",
+        "color": "scalar"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "result",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "value_a",
+        "label": "Value",
+        "type": "number",
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "math_round",
+    "label": "Math: Round",
+    "category": "math",
+    "icon": "Target",
+    "description": "",
+    "inputs": [
+      {
+        "id": "a",
+        "color": "scalar"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "result",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "value_a",
+        "label": "Value",
+        "type": "number",
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "math_sin",
+    "label": "Math: Sin",
+    "category": "math",
+    "icon": "Waves",
+    "description": "",
+    "inputs": [
+      {
+        "id": "a",
+        "color": "scalar"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "result",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "value_a",
+        "label": "Radians",
+        "type": "number",
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "math_cos",
+    "label": "Math: Cos",
+    "category": "math",
+    "icon": "Waves",
+    "description": "",
+    "inputs": [
+      {
+        "id": "a",
+        "color": "scalar"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "result",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "value_a",
+        "label": "Radians",
+        "type": "number",
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "math_clamp",
+    "label": "Math: Clamp",
+    "category": "math",
+    "icon": "Scaling",
+    "description": "",
+    "inputs": [
+      {
+        "id": "val",
+        "color": "scalar"
+      },
+      {
+        "id": "min",
+        "color": "scalar"
+      },
+      {
+        "id": "max",
+        "color": "scalar"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "result",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "val",
+        "label": "Value",
+        "type": "number",
+        "default": 0
+      },
+      {
+        "id": "min",
+        "label": "Min",
+        "type": "number",
+        "default": 0
+      },
+      {
+        "id": "max",
+        "label": "Max",
+        "type": "number",
+        "default": 1
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "math_distance",
+    "label": "Math: Distance",
+    "category": "math",
+    "icon": "Maximize",
+    "description": "",
+    "inputs": [
+      {
+        "id": "p1",
+        "color": "dict"
+      },
+      {
+        "id": "p2",
+        "color": "dict"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "result",
+        "color": "scalar"
+      }
+    ],
+    "params": [],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "scalar_input",
+    "label": "Number",
+    "category": "math",
+    "icon": "Hash",
+    "description": "",
+    "inputs": [],
+    "outputs": [
+      {
+        "id": "value",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "format",
+        "label": "Format",
+        "type": "enum",
+        "options": [
+          "Integer",
+          "Float"
+        ],
+        "default": 1
+      },
+      {
+        "id": "value",
+        "label": "Value",
+        "type": "float",
+        "default": 0
+      },
+      {
+        "id": "_sec_range",
+        "label": "Range",
+        "type": "section"
+      },
+      {
+        "id": "min",
+        "label": "Min",
+        "type": "float",
+        "default": 0
+      },
+      {
+        "id": "max",
+        "label": "Max",
+        "type": "float",
+        "default": 100
+      },
+      {
+        "id": "step",
+        "label": "Step",
+        "type": "float",
+        "default": 1
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "logic_python",
+    "label": "Python Node",
+    "category": "logic",
+    "icon": "Zap",
+    "description": "",
+    "inputs": [
+      {
+        "id": "a",
+        "color": "any"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "out_a",
+        "color": "any"
+      }
+    ],
+    "params": [
+      {
+        "id": "code",
+        "label": "Python Script",
+        "type": "string",
+        "default": "# ── Inputs ────────────────────────────────────────────────────────────────────\n#   a, b, c, d …  : the connected inputs (a new port appears as you connect each).\n#   np, cv2       : numpy and OpenCV always available\n#   pd            : pandas (if installed)\n#\n# ── Outputs ───────────────────────────────────────────────────────────────────\n#   out_a, out_b … : assign any variable named out_* to expose it on an output port.\n#                    Every out_* name is yours — out_e included.\n#                    Output ports are auto-typed by whatever you connect them to.\n#       out_a = a if isinstance(a, np.ndarray) else None\n#       out_b = float(np.mean(a)) if isinstance(a, np.ndarray) else 0.0\n#\n# ── VNStudio port types → Python value ────────────────────────────────────────\n#   image     → np.ndarray  HxWx3 uint8, BGR (OpenCV order)\n#   mask      → np.ndarray  HxW   uint8, 0/255 binary\n#   markers   → np.ndarray  HxW   int32, integer label map (0 = background)\n#   flow      → np.ndarray  HxWx2 float32, optical-flow dx/dy\n#   data      → pd.DataFrame                      (the orange \"DataFrame\" port)\n#   geotiff   → dict {'bands': np.ndarray (C,H,W) float32, 'count': int,\n#                     'crs': str, 'transform': affine, 'nodata': float|None}\n#   contours  → list[np.ndarray]  each (N,1,2) int32  (cv2 contour format)\n#   regions   → list[dict]  e.g. {'area':…, 'centroid':(y,x), 'bbox':…, …}\n#   points    → list[dict]  {'x': float, 'y': float, 'label': int}  (1=fg, 0=bg)\n#   audio     → np.ndarray  float32 samples  (paired with a scalar sample-rate)\n#   scalar    → int | float           string → str           dict → dict\n#   list      → list                  boolean → bool          any → anything\n#\n# ── DataFrame tip ─────────────────────────────────────────────────────────────\n#   if isinstance(a, pd.DataFrame):\n#       out_a = a[a['species'] == 'Iris-setosa']\n#\n# ── GeoTIFF tip ───────────────────────────────────────────────────────────────\n#   if isinstance(a, dict) and 'bands' in a:\n#       ndvi = (a['bands'][3] - a['bands'][2]) / (a['bands'][3] + a['bands'][2] + 1e-6)\n#       out_a = ndvi.astype(np.float32)\n#\n# ── Persistence between frames ────────────────────────────────────────────────\n#   state['counter'] = state.get('counter', 0) + 1\n\nout_a = a if isinstance(a, np.ndarray) else None\n"
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": true,
+    "dynamic_outputs": true,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "plotter_pro",
+    "label": "Plotter Pro",
+    "category": "visualize",
+    "icon": "Activity",
+    "description": "Real-time multi-series plotter. Dynamic scalar and dict inputs, a fixed 'ticks' input to synchronise curves, per-series toggles, normalization, and dict + dataframe outputs. Resizable.",
+    "inputs": [
+      {
+        "id": "ticks",
+        "color": "scalar"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "dict",
+        "color": "dict"
+      },
+      {
+        "id": "table",
+        "color": "data"
+      }
+    ],
+    "params": [
+      {
+        "id": "buffer_size",
+        "label": "History Size",
+        "type": "scalar",
+        "min": 10,
+        "max": 20000,
+        "default": 200
+      },
+      {
+        "id": "normalize",
+        "label": "Normalize Curves",
+        "type": "boolean",
+        "default": false
+      },
+      {
+        "id": "show_grid",
+        "label": "Show Axes / Grid",
+        "type": "boolean",
+        "default": true
+      },
+      {
+        "id": "reset",
+        "label": "Reset History",
+        "type": "trigger"
+      },
+      {
+        "id": "_sec_image",
+        "label": "Image Output Size",
+        "type": "section"
+      },
+      {
+        "id": "width",
+        "label": "Image Width",
+        "type": "scalar",
+        "min": 100,
+        "max": 1920,
+        "default": 640
+      },
+      {
+        "id": "height",
+        "label": "Image Height",
+        "type": "scalar",
+        "min": 100,
+        "max": 1080,
+        "default": 360
+      }
+    ],
+    "resizable": true,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": true,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "data_inspector",
+    "label": "Inspector",
+    "category": "visualize",
+    "icon": "Eye",
+    "description": "Displays the raw data content flowing through a link.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      },
+      {
+        "id": "data",
+        "color": "any"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "data_out",
+        "color": "any"
+      }
+    ],
+    "params": [],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "output_display",
+    "label": "Display",
+    "category": "output",
+    "icon": "Maximize",
+    "description": "The output terminal displaying the final video stream.",
+    "inputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "mask_in",
+        "color": "mask"
+      },
+      {
+        "id": "flow_in",
+        "color": "any"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "mode",
+        "label": "Mode",
+        "type": "enum",
+        "options": [
+          "Side by Side",
+          "Top / Bottom",
+          "Grid",
+          "Picture in Picture",
+          "Split Screen",
+          "Blend"
+        ],
+        "default": 0
+      },
+      {
+        "id": "grid_cols",
+        "label": "Grid Columns",
+        "type": "int",
+        "min": 1,
+        "max": 8,
+        "default": 2
+      },
+      {
+        "id": "split_pos",
+        "label": "Split / Tile %",
+        "type": "scalar",
+        "min": 0,
+        "max": 100,
+        "default": 50
+      },
+      {
+        "id": "gap",
+        "label": "Gap / Line (px)",
+        "type": "scalar",
+        "min": 0,
+        "max": 50,
+        "default": 2
+      },
+      {
+        "id": "alpha",
+        "label": "Alpha (A)",
+        "type": "float",
+        "min": 0,
+        "max": 1,
+        "default": 0.5
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": true,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "util_csv_export",
+    "label": "CSV Export",
+    "category": "output",
+    "icon": "Database",
+    "description": "Exports data to CSV. Dynamic inputs — connect any value to add a column. Use Recording for live streams or Snapshot for single-frame capture.",
+    "inputs": [],
+    "outputs": [],
+    "params": [
+      {
+        "id": "_sec_control",
+        "label": "Control",
+        "type": "section"
+      },
+      {
+        "id": "record",
+        "label": "Recording",
+        "type": "toggle",
+        "default": false
+      },
+      {
+        "id": "snapshot",
+        "label": "Snapshot",
+        "type": "trigger",
+        "default": 0
+      },
+      {
+        "id": "_sec_export",
+        "label": "Export",
+        "type": "section"
+      },
+      {
+        "id": "filename",
+        "label": "Base Name",
+        "type": "string",
+        "default": "capture"
+      },
+      {
+        "id": "path",
+        "label": "Folder Path",
+        "type": "string",
+        "default": "exports"
+      },
+      {
+        "id": "auto_timestamp",
+        "label": "Auto Timestamp",
+        "type": "bool",
+        "default": true
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": true,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  }
+]

@@ -1,0 +1,483 @@
+{
+  "nodes": [
+    {
+      "id": "f-prep",
+      "type": "canvas_frame",
+      "position": {
+        "x": -80,
+        "y": -120
+      },
+      "data": {
+        "label": "Frame",
+        "params": {
+          "title": "1 — Préparer",
+          "color_index": 0
+        }
+      },
+      "width": 760,
+      "height": 620,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": -80,
+        "y": -120
+      },
+      "style": {
+        "width": 760,
+        "height": 620,
+        "zIndex": -1
+      }
+    },
+    {
+      "id": "f-sep",
+      "type": "canvas_frame",
+      "position": {
+        "x": 720,
+        "y": -120
+      },
+      "data": {
+        "label": "Frame",
+        "params": {
+          "title": "2 — Séparer",
+          "color_index": 1
+        }
+      },
+      "width": 520,
+      "height": 620,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 720,
+        "y": -120
+      },
+      "style": {
+        "width": 520,
+        "height": 620,
+        "zIndex": -1
+      }
+    },
+    {
+      "id": "f-mes",
+      "type": "canvas_frame",
+      "position": {
+        "x": 1280,
+        "y": -120
+      },
+      "data": {
+        "label": "Frame",
+        "params": {
+          "title": "3 — Mesurer",
+          "color_index": 2
+        }
+      },
+      "width": 520,
+      "height": 620,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 1280,
+        "y": -120
+      },
+      "style": {
+        "width": 520,
+        "height": 620,
+        "zIndex": -1
+      }
+    },
+    {
+      "id": "f-dec",
+      "type": "canvas_frame",
+      "position": {
+        "x": 1840,
+        "y": -120
+      },
+      "data": {
+        "label": "Frame",
+        "params": {
+          "title": "4 — Décider",
+          "color_index": 4
+        }
+      },
+      "width": 620,
+      "height": 900,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 1840,
+        "y": -120
+      },
+      "style": {
+        "width": 620,
+        "height": 900,
+        "zIndex": -1
+      }
+    },
+    {
+      "id": "n-intro",
+      "type": "canvas_note",
+      "position": {
+        "x": -80,
+        "y": -420
+      },
+      "data": {
+        "label": "Note",
+        "params": {
+          "text": "MISSION 1.1 — Le tamis qui n'existe pas\n\nCette chaîne fonctionne parfaitement sur galets_atelier.jpg.\nSuis le fil de gauche à droite. Pour voir ce qu'une node produit :\nclique dessus, puis appuie sur Entrée.\n\nEtape 2 : remplace l'image par berge_meuse.jpg et relance. Ne touche a rien d'autre.",
+          "color_index": 0
+        }
+      },
+      "width": 900,
+      "height": 260,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": -80,
+        "y": -420
+      },
+      "style": {
+        "width": 900,
+        "height": 260
+      }
+    },
+    {
+      "id": "n-path",
+      "type": "canvas_note",
+      "position": {
+        "x": -40,
+        "y": 380
+      },
+      "data": {
+        "label": "Note",
+        "params": {
+          "text": "Si l'image ne s'affiche pas : clique sur la node Image File et corrige le chemin\npour qu'elle pointe vers TA copie de galets_atelier.jpg.",
+          "color_index": 1
+        }
+      },
+      "width": 420,
+      "height": 180,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": -40,
+        "y": 380
+      },
+      "style": {
+        "width": 420,
+        "height": 180
+      }
+    },
+    {
+      "id": "n-calib",
+      "type": "canvas_note",
+      "position": {
+        "x": 1320,
+        "y": 380
+      },
+      "data": {
+        "label": "Note",
+        "params": {
+          "text": "Calibration : la piece de 2 euros fait 25,75 mm et mesure 232 px sur cette photo.\n25,75 / 232 = 0,1108 mm/px, soit 110,8 um/px — la valeur reglee ici.\n\nCette valeur ne vaut que pour la photo d'atelier. Sur une autre photo, refais le calcul.",
+          "color_index": 3
+        }
+      },
+      "width": 440,
+      "height": 220,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 1320,
+        "y": 380
+      },
+      "style": {
+        "width": 440,
+        "height": 220
+      }
+    },
+    {
+      "id": "img",
+      "type": "input_image",
+      "position": {
+        "x": -40,
+        "y": -40
+      },
+      "data": {
+        "label": "Image File",
+        "params": {
+          "path": "samples/galets_atelier.jpg",
+          "color_index": 1
+        }
+      },
+      "width": 208,
+      "height": 203,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": -40,
+        "y": -40
+      }
+    },
+    {
+      "id": "gray",
+      "type": "filter_gray",
+      "position": {
+        "x": 240,
+        "y": -40
+      },
+      "data": {
+        "label": "Grayscale",
+        "params": {
+          "color_index": 3
+        }
+      },
+      "width": 208,
+      "height": 90,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 240,
+        "y": -40
+      }
+    },
+    {
+      "id": "thr",
+      "type": "feat_threshold_adv",
+      "position": {
+        "x": 480,
+        "y": -40
+      },
+      "data": {
+        "label": "Threshold (Advanced)",
+        "params": {
+          "mode": 2,
+          "threshold": 127,
+          "color_index": 3
+        }
+      },
+      "width": 208,
+      "height": 112,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 480,
+        "y": -40
+      }
+    },
+    {
+      "id": "morph",
+      "type": "feat_morphology_adv",
+      "position": {
+        "x": 760,
+        "y": -40
+      },
+      "data": {
+        "label": "Morphology (Advanced)",
+        "params": {
+          "operation": 0,
+          "shape": 2,
+          "size": 7,
+          "iterations": 1,
+          "color_index": 1
+        }
+      },
+      "width": 208,
+      "height": 168,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 760,
+        "y": -40
+      }
+    },
+    {
+      "id": "cc",
+      "type": "sci_connected_components",
+      "position": {
+        "x": 760,
+        "y": 180
+      },
+      "data": {
+        "label": "Connected Components",
+        "params": {
+          "threshold": 128,
+          "min_area": 200,
+          "max_area": 500000,
+          "connectivity": 0,
+          "colorize": true,
+          "show_cross": false,
+          "color_index": 1
+        }
+      },
+      "width": 208,
+      "height": 272,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 760,
+        "y": 180
+      }
+    },
+    {
+      "id": "props",
+      "type": "sci_region_props",
+      "position": {
+        "x": 1320,
+        "y": -40
+      },
+      "data": {
+        "label": "Region Properties",
+        "params": {
+          "intensity": true,
+          "show_ids": true,
+          "show_ellipse": false,
+          "um_per_px": 110.8,
+          "color_index": 2
+        }
+      },
+      "width": 208,
+      "height": 180,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 1320,
+        "y": -40
+      }
+    },
+    {
+      "id": "hist",
+      "type": "geo_grain_histogram",
+      "position": {
+        "x": 1880,
+        "y": -40
+      },
+      "data": {
+        "label": "Grain Size Histogram",
+        "params": {
+          "bins": 30,
+          "metric": 0,
+          "color_index": 4
+        }
+      },
+      "width": 380,
+      "height": 280,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 1880,
+        "y": -40
+      },
+      "style": {
+        "width": 380,
+        "height": 280
+      }
+    },
+    {
+      "id": "disp",
+      "type": "output_display",
+      "position": {
+        "x": 1880,
+        "y": 280
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "color_index": 4
+        }
+      },
+      "width": 380,
+      "height": 260,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 1880,
+        "y": 280
+      }
+    },
+    {
+      "id": "insp",
+      "type": "data_inspector",
+      "position": {
+        "x": 1880,
+        "y": 580
+      },
+      "data": {
+        "label": "Inspector",
+        "params": {
+          "color_index": 4
+        }
+      },
+      "width": 180,
+      "height": 120,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 1880,
+        "y": 580
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-img-main-gray-image",
+      "source": "img",
+      "sourceHandle": "image__main",
+      "target": "gray",
+      "targetHandle": "image__image"
+    },
+    {
+      "id": "e-gray-main-thr-image",
+      "source": "gray",
+      "sourceHandle": "image__main",
+      "target": "thr",
+      "targetHandle": "image__image"
+    },
+    {
+      "id": "e-thr-mask-morph-mask",
+      "source": "thr",
+      "sourceHandle": "mask__mask",
+      "target": "morph",
+      "targetHandle": "any__mask"
+    },
+    {
+      "id": "e-morph-mask-cc-image",
+      "source": "morph",
+      "sourceHandle": "mask__mask",
+      "target": "cc",
+      "targetHandle": "any__image"
+    },
+    {
+      "id": "e-cc-labels_map-props-labels_map",
+      "source": "cc",
+      "sourceHandle": "markers__labels_map",
+      "target": "props",
+      "targetHandle": "markers__labels_map"
+    },
+    {
+      "id": "e-cc-main-props-image",
+      "source": "cc",
+      "sourceHandle": "image__main",
+      "target": "props",
+      "targetHandle": "image__image"
+    },
+    {
+      "id": "e-props-regions-hist-regions",
+      "source": "props",
+      "sourceHandle": "regions__regions",
+      "target": "hist",
+      "targetHandle": "list__regions"
+    },
+    {
+      "id": "e-props-main-disp-main",
+      "source": "props",
+      "sourceHandle": "image__main",
+      "target": "disp",
+      "targetHandle": "image__main"
+    },
+    {
+      "id": "e-props-count-insp-data",
+      "source": "props",
+      "sourceHandle": "scalar__count",
+      "target": "insp",
+      "targetHandle": "any__data"
+    }
+  ]
+}
