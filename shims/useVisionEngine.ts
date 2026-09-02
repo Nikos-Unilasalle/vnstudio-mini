@@ -59,13 +59,18 @@ export function useVisionEngine(onCapture?: (nodeId: string, base64: string) => 
     let cancelled = false
     const LOADING_ID = 'opencv_loading'
 
-    setNotifications((prev) =>
-      prev.some((n) => n.id === LOADING_ID)
-        ? prev
-        : [...prev, { id: LOADING_ID, message: 'Chargement d’OpenCV.js…', progress: 0.3, level: 'info' }]
-    )
+    const showProgress = ({ progress, message }: { progress: number | null; message: string }) => {
+      if (cancelled) return
+      setNotifications((prev) => {
+        const entry: EngineNotification = { id: LOADING_ID, message, progress, level: 'info' }
+        const index = prev.findIndex((n) => n.id === LOADING_ID)
+        return index >= 0 ? prev.map((n, i) => (i === index ? entry : n)) : [...prev, entry]
+      })
+    }
 
-    loadOpenCv()
+    showProgress({ progress: 0, message: 'Téléchargement d’OpenCV.js…' })
+
+    loadOpenCv(showProgress)
       .then((cv) => {
         if (cancelled) return
         executorRef.current = new GraphExecutor(cv)
