@@ -8,7 +8,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createNodesDataStore } from '../src/context/NodesDataContext'
-import { loadOpenCv } from '../web-engine/opencv'
+import { loadOpenCv, offOpenCvProgress } from '../web-engine/opencv'
 import { GraphExecutor, type GraphEdge, type GraphNode } from '../web-engine/executor'
 import { SCHEMAS } from '../web-engine/registry'
 
@@ -88,6 +88,7 @@ export function useVisionEngine(onCapture?: (nodeId: string, base64: string) => 
 
     return () => {
       cancelled = true
+      offOpenCvProgress(showProgress)
       executorRef.current?.dispose()
       executorRef.current = null
     }

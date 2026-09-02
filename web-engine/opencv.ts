@@ -2,31 +2,40 @@
  * Loads OpenCV.js from a CDN on first use.
  *
  * The desktop app links against the native OpenCV in its Python venv. The web
- * build pulls the WASM build instead. It is a 10 MB script (≈3 MB over the wire
- * after brotli) with the WASM binary inlined as base64, so the browser has to
- * parse the script, decode the payload and compile the module — several seconds
- * of busy CPU on first visit. The CDN marks it immutable for a year, so every
- * later visit is served from disk cache and initialises far faster.
+ * build pulls the WASM build instead: a 10 MB script (≈3 MB over the wire after
+ * brotli) with the WASM binary inlined as base64. jsDelivr marks it immutable
+ * for a year, so only the first visit pays the download and compile cost.
  *
- * jsDelivr rather than docs.opencv.org: the latter serves no CORS headers, and
- * without those the download cannot be streamed for progress reporting.
+ * Two properties of that bundle drive the code below, both measured against the
+ * real file rather than assumed:
+ *
+ *  1. It is wrapped in UMD, and UMD prefers AMD. If `define.amd` exists when the
+ *     script evaluates — Monaco ships exactly such a loader — OpenCV registers
+ *     itself as an anonymous AMD module that nothing ever requires, `window.cv`
+ *     is never assigned, and the load hangs forever. Hiding `define` across the
+ *     evaluation forces the plain browser-global branch.
+ *
+ *  2. `Module.onRuntimeInitialized` is not usable here: the wrapper ends with
+ *     `if (typeof Module === 'undefined') var Module = {}`, and because `var` is
+ *     hoisted that condition is always true, so the module builds its own config
+ *     object and ignores any global one. Readiness is therefore detected by
+ *     polling for `cv.Mat`, which appears about a second after evaluation.
  */
 const OPENCV_URL = 'https://cdn.jsdelivr.net/npm/@techstark/opencv-js@4.10.0-release.1/dist/opencv.js'
 
-/** Uncompressed size, used to show progress when the server omits Content-Length. */
-const APPROX_BYTES = 10_378_215
-
-/** Compiling the module can legitimately take a while on a slow machine, but not forever. */
-const READY_TIMEOUT_MS = 180_000
+/** Compiling can legitimately take a while on a slow machine, but not forever. */
+const READY_TIMEOUT_MS = 120_000
+const POLL_INTERVAL_MS = 200
 
 declare global {
   interface Window {
     cv: any
+    define: any
   }
 }
 
 export interface LoadProgress {
-  /** 0–1 across the whole load, or null once the phase is not measurable. */
+  /** 0–1 when measurable, null for the open-ended compile phase. */
   progress: number | null
   message: string
 }
@@ -35,127 +44,95 @@ type ProgressHandler = (progress: LoadProgress) => void
 
 let loading: Promise<any> | null = null
 
-/** Downloading is most of the wall-clock time but not all of it; leave room for compiling. */
-const DOWNLOAD_SHARE = 0.7
-
-async function fetchScript(onProgress: ProgressHandler): Promise<string> {
-  const response = await fetch(OPENCV_URL)
-  if (!response.ok) throw new Error(`OpenCV.js : HTTP ${response.status}`)
-
-  // Content-Length reflects the compressed size while the body reads back
-  // decompressed, so treat the ratio as approximate and clamp it.
-  const declared = Number(response.headers.get('content-length')) || 0
-  const total = declared > APPROX_BYTES / 2 ? declared : APPROX_BYTES
-
-  if (!response.body) return response.text()
-
-  const reader = response.body.getReader()
-  const chunks: Uint8Array[] = []
-  let received = 0
-  // The body arrives in hundreds of small chunks; reporting each one would
-  // re-render the notification bar far more often than a human can read it.
-  let lastReported = 0
-
-  for (;;) {
-    const { done, value } = await reader.read()
-    if (done) break
-    chunks.push(value)
-    received += value.length
-    const ratio = Math.min(1, received / total)
-    if (ratio - lastReported < 0.05) continue
-    lastReported = ratio
-    onProgress({
-      progress: ratio * DOWNLOAD_SHARE,
-      message: `Téléchargement d’OpenCV.js… ${Math.round(ratio * 100)} %`,
-    })
-  }
-
-  const merged = new Uint8Array(received)
-  let offset = 0
-  for (const chunk of chunks) {
-    merged.set(chunk, offset)
-    offset += chunk.length
-  }
-  return new TextDecoder().decode(merged)
-}
-
-function runScript(source: string): void {
-  // A blob URL keeps this out of the HTML and lets the browser treat it as a
-  // normal classic script, which is what the UMD wrapper expects.
-  const url = URL.createObjectURL(new Blob([source], { type: 'text/javascript' }))
-  const script = document.createElement('script')
-  script.src = url
-  script.onload = () => URL.revokeObjectURL(url)
-  document.head.appendChild(script)
-}
-
 /**
- * Emscripten modules signal readiness through `onRuntimeInitialized`, but that
- * callback is lost if the runtime finished before we could attach it — which
- * happens with an inlined WASM payload. Polling covers both orderings.
+ * Every caller gets progress, not just the one that started the load. React
+ * StrictMode mounts the engine hook twice in development and tears the first
+ * one down immediately; reporting only to it would freeze the bar.
  */
-function waitForRuntime(onProgress: ProgressHandler): Promise<any> {
-  return new Promise((resolve, reject) => {
-    const started = Date.now()
-    let announcedCompiling = false
+const progressHandlers = new Set<ProgressHandler>()
+let lastProgress: LoadProgress = { progress: 0, message: 'Chargement d’OpenCV.js…' }
 
-    const settle = () => {
-      clearInterval(poll)
-      onProgress({ progress: 1, message: 'OpenCV.js prêt' })
-      resolve(window.cv)
+const startedAt = performance.now()
+
+function report(update: LoadProgress): void {
+  lastProgress = update
+  // The page cannot be inspected with devtools while the module compiles, so
+  // this trace is the only way to tell a slow load from a stalled one.
+  console.info(`[opencv] ${Math.round(performance.now() - startedAt)}ms — ${update.message}`)
+  for (const handler of progressHandlers) handler(update)
+}
+
+/** Loads the bundle with any AMD loader hidden, restoring it as soon as it has run. */
+function injectScript(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const previousDefine = window.define
+    const hadAmd = typeof previousDefine === 'function' && !!previousDefine.amd
+    if (hadAmd) window.define = undefined
+
+    // The AMD check happens during evaluation, so the window stays as narrow as
+    // possible — anything else on the page keeps its loader either side of it.
+    const restore = () => {
+      if (hadAmd) window.define = previousDefine
     }
 
+    const script = document.createElement('script')
+    script.src = OPENCV_URL
+    script.async = true
+    script.onload = () => {
+      restore()
+      resolve()
+    }
+    script.onerror = () => {
+      restore()
+      reject(new Error(`OpenCV.js : téléchargement impossible depuis ${OPENCV_URL}`))
+    }
+    document.head.appendChild(script)
+  })
+}
+
+function waitForRuntime(): Promise<any> {
+  return new Promise((resolve, reject) => {
     const poll = setInterval(() => {
       if (window.cv?.Mat) {
-        settle()
-        return
-      }
-      if (Date.now() - started > READY_TIMEOUT_MS) {
         clearInterval(poll)
-        reject(new Error('OpenCV.js : délai dépassé pendant l’initialisation du module WASM.'))
+        report({ progress: 1, message: 'OpenCV.js prêt' })
+        resolve(window.cv)
         return
       }
-      if (!announcedCompiling) {
-        announcedCompiling = true
-        onProgress({ progress: null, message: 'Compilation du module WASM…' })
+      if (performance.now() - startedAt > READY_TIMEOUT_MS) {
+        clearInterval(poll)
+        // Say which half failed: a missing global means the script never
+        // exposed itself, a present one means the WASM module stalled.
+        reject(
+          new Error(
+            window.cv
+              ? 'OpenCV.js : le module WASM ne s’est pas initialisé (délai dépassé).'
+              : 'OpenCV.js : le script s’est chargé mais n’a rien exposé (window.cv absent).'
+          )
+        )
       }
-    }, 250)
-
-    // Belt and braces: if the callback does fire, resolve without waiting for
-    // the next poll tick.
-    const attach = setInterval(() => {
-      if (!window.cv || window.cv.Mat) {
-        clearInterval(attach)
-        return
-      }
-      if (typeof window.cv.then === 'function') {
-        clearInterval(attach)
-        window.cv.then((ready: any) => {
-          window.cv = ready
-          settle()
-        })
-      } else if (!window.cv.onRuntimeInitialized) {
-        window.cv.onRuntimeInitialized = settle
-        clearInterval(attach)
-      }
-    }, 50)
+    }, POLL_INTERVAL_MS)
   })
 }
 
 export function loadOpenCv(onProgress: ProgressHandler = () => {}): Promise<any> {
+  progressHandlers.add(onProgress)
+  onProgress(lastProgress)
+
   if (loading) return loading
 
   loading = (async () => {
     if (window.cv?.Mat) return window.cv
-
-    onProgress({ progress: 0, message: 'Téléchargement d’OpenCV.js…' })
-    const source = await fetchScript(onProgress)
-
-    onProgress({ progress: DOWNLOAD_SHARE, message: 'Compilation du module WASM…' })
-    runScript(source)
-
-    return waitForRuntime(onProgress)
+    report({ progress: 0.15, message: 'Téléchargement d’OpenCV.js (~3 Mo)…' })
+    await injectScript()
+    report({ progress: 0.6, message: 'Compilation du module WASM…' })
+    return waitForRuntime()
   })()
 
   return loading
+}
+
+/** Lets a caller stop receiving updates when its component unmounts. */
+export function offOpenCvProgress(onProgress: ProgressHandler): void {
+  progressHandlers.delete(onProgress)
 }
