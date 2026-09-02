@@ -434,7 +434,12 @@ function App() {
   }, [nodes, capturePlotterAsImage, requestCapture]);
 
   const dynamicCategories = useMemo(() => {
-    const cats = CATEGORIES.map(c => ({...c, nodes: [...c.nodes]}));
+    // CATEGORIES is the full desktop node list — this web build only implements
+    // a subset (web-engine/registry.ts), advertised at runtime as pluginSchemas.
+    // Keep only the static entries the engine actually has a schema for, so the
+    // "Add Node" menu never offers a node that silently does nothing when placed.
+    const implementedTypes = new Set((pluginSchemas || []).map((s: any) => s.type));
+    const cats = CATEGORIES.map(c => ({...c, nodes: c.nodes.filter(n => implementedTypes.has(n.type))}));
     const staticTypes = new Set(CATEGORIES.flatMap(c => c.nodes.map(n => n.type)));
     (pluginSchemas || []).forEach(schema => {
       if (staticTypes.has(schema.type)) return;
@@ -448,7 +453,7 @@ function App() {
         targetCat!.nodes.push({ type: schema.type, label: schema.label, schema: schema } as any);
       });
     });
-    return cats.sort((a, b) => a.label.localeCompare(b.label));
+    return cats.filter(c => c.nodes.length > 0).sort((a, b) => a.label.localeCompare(b.label));
   }, [pluginSchemas]);
 
   const dynamicNodeTypes = useMemo(() => {

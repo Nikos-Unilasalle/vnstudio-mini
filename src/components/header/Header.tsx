@@ -2,7 +2,7 @@ import React from 'react';
 import {
   FilePlus, FolderOpen, Save, SaveAll, Undo2, Redo2,
   AlignHorizontalDistributeCenter, AlignVerticalDistributeCenter, Grid3x3,
-  Image, Film, Camera, Type, Layout, GitCommit, FileCode,
+  Image, Film, Camera, Type, Layout, GitCommit,
   Palette, FolderSearch, BookOpen, RefreshCw, HelpCircle, Share2, Play, Square
 } from 'lucide-react';
 import ApiKeysPanel from './ApiKeysPanel';
@@ -171,14 +171,6 @@ const Header: React.FC<HeaderProps> = ({
           </button>
           <button onClick={() => addNode('canvas_reroute', 'Reroute')} title="Add Reroute Node" className="p-1 text-gray-500 hover:text-white hover:bg-white/10 rounded transition-colors">
             <GitCommit size={14} />
-          </button>
-        </div>
-
-        <div className="h-4 w-[1px] bg-[#222] mx-1" />
-
-        <div className="flex items-center bg-[#3d4452] rounded-lg border border-[#4f5b6b] p-0.5">
-          <button onClick={() => addNode('export_py', 'Export .py')} title="Export as Python script" className="p-1.5 hover:bg-white/10 rounded-md text-gray-400 transition-all">
-            <FileCode size={14} className="text-yellow-400" />
           </button>
         </div>
       </div>

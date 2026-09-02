@@ -3,14 +3,18 @@
  *
  * The desktop hook streams the graph to a Python process over a WebSocket and
  * receives rendered frames back. This one keeps the identical return shape but
- * evaluates the graph in-page with OpenCV.js, so the app runs from a static
- * host with no backend. Every consumer in src/ is untouched.
+ * evaluates the graph with OpenCV.js in a dedicated Worker (see
+ * web-engine/worker.ts) — OpenCV's WASM init and every node's Mat processing
+ * happen off the main thread, so the page stays interactive regardless of how
+ * long that takes. Every consumer in src/ is untouched.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createNodesDataStore } from '../src/context/NodesDataContext'
-import { loadOpenCv, offOpenCvProgress } from '../web-engine/opencv'
-import { GraphExecutor, type GraphEdge, type GraphNode } from '../web-engine/executor'
-import { SCHEMAS } from '../web-engine/registry'
+import { resolveMediaUrl } from './vfs'
+import { MediaFrameSource } from './mediaFrameSource'
+import type { WorkerRequest, WorkerResponse } from '../web-engine/worker'
+import type { GraphEdge, GraphNode } from '../web-engine/executor'
+import type { CapturedFrame } from '../web-engine/types'
 
 export type EngineNotification = {
   id: string
@@ -22,16 +26,35 @@ export type EngineNotification = {
 /** Coalesces the bursts of graph updates React emits while a slider is dragged. */
 const RUN_DEBOUNCE_MS = 60
 
+/** input_image's `path` param has to be resolved to a fetchable URL before the
+ * worker sees it: the blob-URL ↔ path mapping that resolveMediaUrl reads
+ * lives in this module's main-thread memory (see shims/vfs.ts), which the
+ * worker — a separate JS realm — doesn't share. */
+function resolveInputPaths(nodes: GraphNode[]): GraphNode[] {
+  return nodes.map((node) => {
+    if (node.type !== 'input_image') return node
+    const path = node.data?.params?.path
+    if (typeof path !== 'string' || !path) return node
+    return { ...node, data: { ...node.data, params: { ...node.data?.params, path: resolveMediaUrl(path) } } }
+  })
+}
+
 export function useVisionEngine(onCapture?: (nodeId: string, base64: string) => void) {
   const [frame, setFrame] = useState<string | null>(null)
   const nodesDataStore = useMemo(() => createNodesDataStore(), [])
   const nodesDataRef = useRef<Record<string, any>>({})
-  const [pluginSchemas] = useState<any[]>(SCHEMAS)
+  const [pluginSchemas, setPluginSchemas] = useState<any[]>([])
   const [isConnected, setIsConnected] = useState(false)
   const [notifications, setNotifications] = useState<EngineNotification[]>([])
   const [computingNodeId, setComputingNodeId] = useState<string | null>(null)
 
-  const executorRef = useRef<GraphExecutor | null>(null)
+  const workerRef = useRef<Worker | null>(null)
+  const mediaRef = useRef<MediaFrameSource>(new MediaFrameSource())
+  const pendingRuns = useRef(
+    new Map<number, { resolve: (r: { nodesData: Record<string, unknown>; frame: string | null; errors: Record<string, string> }) => void; reject: (e: Error) => void }>()
+  )
+  const nextRequestId = useRef(1)
+
   const graphRef = useRef<{ nodes: GraphNode[]; edges: GraphEdge[] }>({ nodes: [], edges: [] })
   const previewNodeRef = useRef<string | null>(null)
   const dismissTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
@@ -59,44 +82,77 @@ export function useVisionEngine(onCapture?: (nodeId: string, base64: string) => 
     let cancelled = false
     const LOADING_ID = 'opencv_loading'
 
-    const showProgress = ({ progress, message }: { progress: number | null; message: string }) => {
+    const worker = new Worker(new URL('../web-engine/worker.ts', import.meta.url), { type: 'module' })
+    workerRef.current = worker
+
+    worker.onmessage = (event: MessageEvent<WorkerResponse>) => {
       if (cancelled) return
-      setNotifications((prev) => {
-        const entry: EngineNotification = { id: LOADING_ID, message, progress, level: 'info' }
-        const index = prev.findIndex((n) => n.id === LOADING_ID)
-        return index >= 0 ? prev.map((n, i) => (i === index ? entry : n)) : [...prev, entry]
-      })
+      const message = event.data
+      switch (message.type) {
+        case 'schemas':
+          setPluginSchemas(message.schemas)
+          break
+        case 'progress':
+          setNotifications((prev) => {
+            const entry: EngineNotification = { id: LOADING_ID, message: message.message, progress: message.progress, level: 'info' }
+            const index = prev.findIndex((n) => n.id === LOADING_ID)
+            return index >= 0 ? prev.map((n, i) => (i === index ? entry : n)) : [...prev, entry]
+          })
+          break
+        case 'ready':
+          setIsConnected(true)
+          setNotifications((prev) => prev.filter((n) => n.id !== LOADING_ID))
+          pushNotification('Moteur navigateur prêt ✓', 'info', 2500)
+          break
+        case 'load-error':
+          setNotifications((prev) =>
+            prev.map((n) => (n.id === LOADING_ID ? { ...n, message: message.message, progress: null, level: 'error' } : n))
+          )
+          break
+        case 'result': {
+          const pending = pendingRuns.current.get(message.requestId)
+          pending?.resolve(message)
+          pendingRuns.current.delete(message.requestId)
+          break
+        }
+        case 'run-error': {
+          const pending = pendingRuns.current.get(message.requestId)
+          pending?.reject(new Error(message.message))
+          pendingRuns.current.delete(message.requestId)
+          break
+        }
+      }
     }
-
-    showProgress({ progress: 0, message: 'Téléchargement d’OpenCV.js…' })
-
-    loadOpenCv(showProgress)
-      .then((cv) => {
-        if (cancelled) return
-        executorRef.current = new GraphExecutor(cv)
-        setIsConnected(true)
-        setNotifications((prev) => prev.filter((n) => n.id !== LOADING_ID))
-        pushNotification('Moteur navigateur prêt ✓', 'info', 2500)
-      })
-      .catch((error: unknown) => {
-        if (cancelled) return
-        const message = error instanceof Error ? error.message : String(error)
-        setNotifications((prev) =>
-          prev.map((n) => (n.id === LOADING_ID ? { ...n, message, progress: null, level: 'error' } : n))
-        )
-      })
 
     return () => {
       cancelled = true
-      offOpenCvProgress(showProgress)
-      executorRef.current?.dispose()
-      executorRef.current = null
+      worker.terminate()
+      workerRef.current = null
+      mediaRef.current.dispose()
+      for (const pending of pendingRuns.current.values()) pending.reject(new Error('Moteur arrêté.'))
+      pendingRuns.current.clear()
     }
   }, [pushNotification])
 
+  const runOnWorker = useCallback(
+    (nodes: GraphNode[], edges: GraphEdge[], previewNodeId: string | null, frames: Record<string, CapturedFrame>) => {
+      const worker = workerRef.current
+      if (!worker) return Promise.reject(new Error('Moteur non initialisé.'))
+
+      const requestId = nextRequestId.current++
+      const bitmaps = Object.values(frames).map((f) => f.bitmap)
+
+      return new Promise<{ nodesData: Record<string, unknown>; frame: string | null; errors: Record<string, string> }>((resolve, reject) => {
+        pendingRuns.current.set(requestId, { resolve, reject })
+        const request: WorkerRequest = { type: 'run', requestId, nodes, edges, previewNodeId, frames }
+        worker.postMessage(request, bitmaps)
+      })
+    },
+    []
+  )
+
   const execute = useCallback(async () => {
-    const executor = executorRef.current
-    if (!executor) return
+    if (!workerRef.current) return
 
     if (isRunning.current) {
       // A run is already in flight; remember that the graph moved under it.
@@ -107,7 +163,9 @@ export function useVisionEngine(onCapture?: (nodeId: string, base64: string) => 
 
     try {
       const { nodes, edges } = graphRef.current
-      const result = await executor.run(nodes, edges, previewNodeRef.current)
+      const resolvedNodes = resolveInputPaths(nodes)
+      const frames = await mediaRef.current.captureFrames(nodes)
+      const result = await runOnWorker(resolvedNodes, edges, previewNodeRef.current, frames)
 
       nodesDataRef.current = result.nodesData
       nodesDataStore._update(result.nodesData)
@@ -123,6 +181,8 @@ export function useVisionEngine(onCapture?: (nodeId: string, base64: string) => 
         const node = nodes.find((n) => n.id === nodeId)
         pushNotification(`${node?.type ?? nodeId} : ${message}`, 'error', 0)
       }
+    } catch (error) {
+      pushNotification(error instanceof Error ? error.message : String(error), 'error', 0)
     } finally {
       isRunning.current = false
       setComputingNodeId(null)
@@ -131,7 +191,7 @@ export function useVisionEngine(onCapture?: (nodeId: string, base64: string) => 
         void execute()
       }
     }
-  }, [nodesDataStore, onCapture, pushNotification])
+  }, [nodesDataStore, onCapture, pushNotification, runOnWorker])
 
   const scheduleRun = useCallback(() => {
     if (runTimer.current) clearTimeout(runTimer.current)

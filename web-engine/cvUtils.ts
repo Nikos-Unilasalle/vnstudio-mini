@@ -1,4 +1,5 @@
 /** Shared OpenCV.js helpers used across the browser node implementations. */
+import { makeCanvas, canvasToBase64, drawMatToCanvas } from './canvasCompat'
 
 /** True when the value is a live cv.Mat rather than a scalar/dict/list payload. */
 export function isMat(v: unknown): boolean {
@@ -22,13 +23,11 @@ export function toGray(cv: any, src: any): any {
   return out
 }
 
-/** Renders a Mat to a canvas element, normalising channel count and depth first. */
-export function matToCanvas(cv: any, mat: any): HTMLCanvasElement {
-  const canvas = document.createElement('canvas')
-  canvas.width = mat.cols
-  canvas.height = mat.rows
+/** Renders a Mat to a canvas, normalising channel count and depth first. */
+export function matToCanvas(cv: any, mat: any): OffscreenCanvas {
+  const canvas = makeCanvas(mat.cols, mat.rows)
 
-  // cv.imshow only accepts 8-bit; float maps (distance transforms) need scaling first.
+  // 8-bit only beyond this point; float maps (distance transforms) need scaling first.
   let display = mat
   let temp: any = null
   if (mat.type() !== cv.CV_8UC1 && mat.type() !== cv.CV_8UC3 && mat.type() !== cv.CV_8UC4) {
@@ -41,22 +40,21 @@ export function matToCanvas(cv: any, mat: any): HTMLCanvasElement {
     display = converted
   }
 
-  cv.imshow(canvas, display)
+  drawMatToCanvas(cv, canvas, display)
   if (temp) temp.delete()
   return canvas
 }
 
 /** Base64 JPEG (no data: prefix) — the format the desktop engine publishes previews in. */
-export function matToBase64(cv: any, mat: any, maxWidth = 480, quality = 0.75): string {
+export async function matToBase64(cv: any, mat: any, maxWidth = 480, quality = 0.75): Promise<string> {
   const full = matToCanvas(cv, mat)
   if (full.width <= maxWidth) {
-    return full.toDataURL('image/jpeg', quality).split(',')[1]
+    return canvasToBase64(full, quality)
   }
-  const scaled = document.createElement('canvas')
-  scaled.width = maxWidth
-  scaled.height = Math.max(1, Math.round((full.height * maxWidth) / full.width))
+  const scaledHeight = Math.max(1, Math.round((full.height * maxWidth) / full.width))
+  const scaled = makeCanvas(maxWidth, scaledHeight)
   scaled.getContext('2d')!.drawImage(full, 0, 0, scaled.width, scaled.height)
-  return scaled.toDataURL('image/jpeg', quality).split(',')[1]
+  return canvasToBase64(scaled, quality)
 }
 
 /**

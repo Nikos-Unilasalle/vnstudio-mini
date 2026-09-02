@@ -36,9 +36,12 @@ const AddNodeMenu: React.FC<AddNodeMenuProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Empty for one render while pluginSchemas is still loading from the worker
+  // (see App.tsx's dynamicCategories) — nothing to show yet, not a crash.
   const activeCategory = dynamicCategories.find(c => c.id === activeCategoryId) || dynamicCategories[0];
 
   const filteredNodes = (() => {
+    if (!activeCategory) return [];
     if (!searchQuery) return activeCategory.nodes;
     const all = dynamicCategories.flatMap(c => c.nodes);
     const unique = Array.from(new Map(all.map(n => [n.type, n])).values());
@@ -79,7 +82,7 @@ const AddNodeMenu: React.FC<AddNodeMenuProps> = ({
         <div className="flex-1 p-12 overflow-y-auto overflow-x-hidden flex flex-col">
           <div className="flex items-center justify-between mb-10 border-b border-[#4f5b6b] pb-4">
             <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-              {searchQuery ? 'Search Results' : `Category :: ${activeCategory.label}`}
+              {searchQuery ? 'Search Results' : `Category :: ${activeCategory?.label ?? '…'}`}
             </h3>
             <div className="relative group">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-accent transition-colors" />

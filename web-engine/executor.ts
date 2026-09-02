@@ -1,4 +1,4 @@
-import type { RunContext } from './types'
+import type { CapturedFrame, RunContext } from './types'
 import { getSchema, IMPLEMENTATIONS } from './registry'
 import { isMat, matToBase64 } from './cvUtils'
 
@@ -111,7 +111,12 @@ export class GraphExecutor {
     }
   }
 
-  async run(nodes: GraphNode[], edges: GraphEdge[], previewNodeId: string | null): Promise<RunResult> {
+  async run(
+    nodes: GraphNode[],
+    edges: GraphEdge[],
+    previewNodeId: string | null,
+    frames?: Record<string, CapturedFrame>
+  ): Promise<RunResult> {
     this.releaseMats()
     this.pruneState(new Set(nodes.map((n) => n.id)))
 
@@ -148,13 +153,23 @@ export class GraphExecutor {
         cv: this.cv,
         state: this.nodeState,
         nodeId,
+        frames,
         track: (mat: any) => {
           if (mat && typeof mat.delete === 'function') this.matPool.push(mat)
           return mat
         },
         emit: (field: string, value: unknown) => {
           nodesData[`${nodeId}:${field}`] = value
+          // The desktop engine (and most ported node components) call this field
+          // `preview`; web-engine standardised on `main_preview`. Write both so
+          // neither convention silently gets nothing — see setPreview below.
+          if (field === 'main_preview') nodesData[`${nodeId}:preview`] = value
         },
+      }
+
+      const setPreview = (base64: string) => {
+        nodesData[`${nodeId}:main_preview`] = base64
+        nodesData[`${nodeId}:preview`] = base64
       }
 
       try {
@@ -163,7 +178,7 @@ export class GraphExecutor {
 
         const main = outputs.main
         if (isMat(main)) {
-          nodesData[`${nodeId}:main_preview`] = matToBase64(this.cv, main)
+          setPreview(await matToBase64(this.cv, main))
         }
         for (const [port, value] of Object.entries(outputs)) {
           if (typeof value === 'number' || typeof value === 'string' || typeof value === 'boolean') {
@@ -181,7 +196,7 @@ export class GraphExecutor {
     if (previewNodeId) {
       const outputs = outputsByNode.get(previewNodeId)
       const image = outputs && (isMat(outputs.main) ? outputs.main : Object.values(outputs).find(isMat))
-      if (image) frame = matToBase64(this.cv, image, 1280, 0.85)
+      if (image) frame = await matToBase64(this.cv, image, 1280, 0.85)
       else {
         const preview = nodesData[`${previewNodeId}:main_preview`]
         if (typeof preview === 'string') frame = preview

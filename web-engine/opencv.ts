@@ -1,22 +1,44 @@
 /**
- * Loads OpenCV (WASM) on first use.
+ * Loads OpenCV (WASM) on first use — worker-side only (see worker.ts).
  *
- * The desktop app links against the native OpenCV in its Python venv. The web
- * build uses a distribution that ships the WASM binary as a **separate file**
- * rather than inlining it as base64:
+ * The web build uses a distribution that ships the WASM binary as a
+ * **separate file** rather than inlining it as base64:
  *
  *   opencv.js    0.4 MB   emscripten glue
  *   opencv.wasm  7.0 MB   the module itself
  *
- * That split is the whole point. The common single-file builds bundle both into
- * one ~10 MB script, so the browser must parse 10 MB of JavaScript and decode a
- * base64 payload on the main thread before anything happens, and readiness can
- * only be observed through `Module.onRuntimeInitialized` — a callback that is
- * easy to miss and impossible to attach on some mirrors, which leaves the app
- * hanging with no error. Here the binary is fetched separately (so download
- * progress is real) and handed to the glue as `Module.wasmBinary`, after which
- * the module initialises *synchronously*: `cv.Mat` exists the moment the script
- * finishes evaluating. There is no callback to miss and no race to lose.
+ * That split gives real download progress instead of one opaque ~10 MB
+ * script. But the glue's own instantiation is still Emscripten's classic
+ * *synchronous* path (`new WebAssembly.Module(binary)` +
+ * `new WebAssembly.Instance(...)`, not `WebAssembly.instantiate`) — this
+ * build's export wiring assumes the result is available the instant the glue
+ * finishes evaluating, so an async `instantiateWasm` override breaks it
+ * (`globalCtors is not a function`, thrown before the async instantiate has
+ * even resolved). That's fine *in a worker*: blocking only stalls this
+ * thread, never the page, so we let it block.
+ *
+ * Loading it is more contrary than it should be:
+ * - `importScripts` (the obvious synchronous loader) is disallowed in module
+ *   workers, and Vite always serves worker.ts as a module worker in dev
+ *   (`?worker` only gets you a true classic bundle in the production build) —
+ *   so relying on it breaks `npm run dev` even though it works once deployed.
+ * - Dynamic `import()` works in both, but ES modules are strict-mode with
+ *   `this === undefined` at the top level, and the glue's UMD wrapper does
+ *   `(function(root, factory){ ... })(this, function(){ ... })`, needing
+ *   `root` to be the global object to attach `cv` to. So the glue text is
+ *   patched to invoke itself with `self` instead of relying on `this`.
+ * - That same wrapper also special-cases `typeof importScripts === 'function'`
+ *   — true in *any* worker, module or not, since the global exists even where
+ *   calling it is forbidden — as "construct the module explicitly": it
+ *   assigns the *factory function* to `cv` rather than invoking it, unlike
+ *   every other branch. So `cv` has to be invoked once more by hand below.
+ * - The resulting `cv` object has its own `.then()` method (an Emscripten
+ *   "run this once ready" convenience API), which makes it a thenable. Ever
+ *   `return`ed or `resolve()`d bare, the JS promise machinery chains onto
+ *   *that* `.then()` instead of settling with the object — and since our own
+ *   init already finished by the time we'd call it, whatever queue it drains
+ *   from is empty, so the callback never fires and the promise hangs forever
+ *   with no error. `loadOpenCv` resolves to `{ cv }` to sidestep this.
  *
  * This distribution is OpenCV 4.3, which omits `HuMoments` and `polylines` from
  * its JS bindings — see huMoments() and drawPolyline() in cvUtils.ts for the
@@ -29,12 +51,12 @@ const GLUE_URL = `${PACKAGE_BASE}/opencv.js`
 /** Approximate size of the binary, used when the CDN omits Content-Length. */
 const APPROX_WASM_BYTES = 6_961_000
 
-declare global {
-  interface Window {
-    cv: any
-    define: any
-    __opencvWasmBinary?: Uint8Array
-  }
+// `lib: webworker` can't coexist with the app's `lib: dom` in one tsconfig, so
+// this is typed loosely rather than as a real `DedicatedWorkerGlobalScope`.
+declare const self: {
+  cv: any
+  define: any
+  __opencvWasmBinary?: Uint8Array
 }
 
 export interface LoadProgress {
@@ -45,13 +67,9 @@ export interface LoadProgress {
 
 type ProgressHandler = (progress: LoadProgress) => void
 
-let loading: Promise<any> | null = null
+// Boxed as `{ cv }` rather than `Promise<cv>` — see loadOpenCv's doc comment.
+let loading: Promise<{ cv: any }> | null = null
 
-/**
- * Every caller gets progress, not just the one that started the load. React
- * StrictMode mounts the engine hook twice in development and tears the first
- * one down immediately; reporting only to it would freeze the bar.
- */
 const progressHandlers = new Set<ProgressHandler>()
 let lastProgress: LoadProgress = { progress: 0, message: 'Chargement d’OpenCV…' }
 
@@ -113,73 +131,71 @@ async function fetchPatchedGlue(): Promise<string> {
   if (!response.ok) throw new Error(`OpenCV : téléchargement du script impossible (HTTP ${response.status})`)
 
   const source = await response.text()
-  const NEEDLE = 'let Module = {};'
-  if (!source.includes(NEEDLE)) {
+  const MODULE_NEEDLE = 'let Module = {};'
+  if (!source.includes(MODULE_NEEDLE)) {
     throw new Error('OpenCV : format du script inattendu (le point d’injection du binaire WASM a changé).')
   }
-  return source.replace(NEEDLE, 'let Module = { wasmBinary: window.__opencvWasmBinary };')
+  // `this` is undefined at the top level of an ES module — see the file doc
+  // comment for why the UMD wrapper needs `self` instead.
+  const UMD_NEEDLE = '}(this, function() {'
+  if (!source.includes(UMD_NEEDLE)) {
+    throw new Error('OpenCV : format du script inattendu (l’invocation du wrapper UMD a changé).')
+  }
+  return source
+    .replace(MODULE_NEEDLE, 'let Module = { wasmBinary: self.__opencvWasmBinary };')
+    .replace(UMD_NEEDLE, '}(self, function() {')
 }
 
 /**
- * The glue is wrapped in UMD, and UMD prefers AMD. Monaco ships an AMD loader,
- * and with `define.amd` present OpenCV would register as an anonymous module
- * that nothing requires — leaving `window.cv` unassigned forever. Hiding
- * `define` across the evaluation forces the plain browser-global branch.
+ * Resolves to `{ cv }`, not `cv` directly — the module has its own `.then()`
+ * method (see the comment below), so returning or resolving with it bare
+ * would make every promise in the chain treat it as a thenable and hang
+ * forever instead of settling. Callers do `const { cv } = await loadOpenCv()`.
  */
-function evaluateGlue(source: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const previousDefine = window.define
-    const hadAmd = typeof previousDefine === 'function' && !!previousDefine.amd
-    if (hadAmd) window.define = undefined
-    const restore = () => {
-      if (hadAmd) window.define = previousDefine
-    }
-
-    const url = URL.createObjectURL(new Blob([source], { type: 'text/javascript' }))
-    const script = document.createElement('script')
-    script.src = url
-    script.onload = () => {
-      restore()
-      URL.revokeObjectURL(url)
-      resolve()
-    }
-    script.onerror = () => {
-      restore()
-      URL.revokeObjectURL(url)
-      reject(new Error('OpenCV : le script n’a pas pu être exécuté.'))
-    }
-    document.head.appendChild(script)
-  })
-}
-
-export function loadOpenCv(onProgress: ProgressHandler = () => {}): Promise<any> {
+export function loadOpenCv(onProgress: ProgressHandler = () => {}): Promise<{ cv: any }> {
   progressHandlers.add(onProgress)
   onProgress(lastProgress)
 
   if (loading) return loading
 
+  // `cv` (the Emscripten Module) exposes its own `.then()` — Emscripten's
+  // "call this once the runtime is ready" convenience API. Returning it
+  // directly from an async function makes the JS promise machinery treat it
+  // as a thenable and chain onto *that* `.then()` instead of resolving with
+  // the object, which never settles our promise (that API expects to be
+  // subscribed before init finishes, not polled after — by the time we'd
+  // call it, whatever queue it drains from is already empty). Boxing it
+  // sidesteps the auto-unwrapping entirely.
   loading = (async () => {
-    if (window.cv?.Mat) return window.cv
+    if (self.cv?.Mat) return { cv: self.cv }
 
     report({ progress: 0, message: 'Téléchargement d’OpenCV…' })
     const [binary, glue] = await Promise.all([fetchWasmBinary(), fetchPatchedGlue()])
-    window.__opencvWasmBinary = binary
+    self.__opencvWasmBinary = binary
 
     report({ progress: 0.9, message: 'Initialisation du module WASM…' })
-    await evaluateGlue(glue)
+    // Blocks this worker thread only — see the file doc comment above.
+    const url = URL.createObjectURL(new Blob([glue], { type: 'text/javascript' }))
+    try {
+      await import(/* @vite-ignore */ url)
+    } finally {
+      URL.revokeObjectURL(url)
+    }
 
-    // With the binary preloaded the module is ready as soon as the script has
-    // run, so a missing Mat here is a real failure rather than a slow start.
-    if (!window.cv?.Mat) {
+    // See the file doc comment: the glue's worker-mode branch hands us the
+    // factory function itself rather than its result.
+    if (typeof self.cv === 'function') self.cv = self.cv()
+
+    if (!self.cv?.Mat) {
       throw new Error('OpenCV : le module s’est chargé mais reste inutilisable (cv.Mat absent).')
     }
 
     // The binary is copied into the WASM heap during init; drop our reference so
-    // 7 MB is not pinned for the lifetime of the page.
-    delete window.__opencvWasmBinary
+    // 7 MB is not pinned for the lifetime of the worker.
+    delete self.__opencvWasmBinary
 
     report({ progress: 1, message: 'OpenCV prêt' })
-    return window.cv
+    return { cv: self.cv }
   })()
 
   return loading

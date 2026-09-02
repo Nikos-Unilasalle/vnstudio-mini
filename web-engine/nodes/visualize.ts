@@ -1,43 +1,62 @@
 import type { NodeImpl } from '../types'
 import type { MeasuredRegion } from './measure'
+import { makeCanvas, canvasToBase64 } from '../canvasCompat'
 
 interface PlotterState {
   series: Map<string, { tick: number; value: number }[]>
   lastReset: unknown
+  /** Auto-incrementing fallback when no `ticks` input is wired up. */
+  tick: number
 }
 
 const SERIES_COLOURS = ['#4f8cff', '#57c785', '#f5a623', '#ff5c5c', '#b083f0', '#4dd0e1']
 
-export const plotterPro: NodeImpl = (inputs, params, ctx) => {
+/**
+ * `PlotterProNode` (src/components/nodes/scientific.tsx) builds its own
+ * frame history client-side from live per-series numbers and a `_tick`
+ * counter — like GrainHistogramNodeUI, it never reads the `main`/preview
+ * image this also renders. That image stays (declared as the `main` output
+ * port, for anyone who patches it into a generic Display node instead of
+ * relying on the inline chart), but the values below are what the node's own
+ * widget actually needs.
+ */
+export const plotterPro: NodeImpl = async (inputs, params, ctx) => {
   let state: PlotterState = ctx.state.get(ctx.nodeId)
   if (!state) {
-    state = { series: new Map(), lastReset: null }
+    state = { series: new Map(), lastReset: null, tick: 0 }
     ctx.state.set(ctx.nodeId, state)
   }
 
-  if (params.reset && params.reset !== state.lastReset) state.series.clear()
+  if (params.reset && params.reset !== state.lastReset) {
+    state.series.clear()
+    state.tick = 0
+  }
   state.lastReset = params.reset
 
-  const tick = typeof inputs.ticks === 'number' ? inputs.ticks : undefined
+  const tick = typeof inputs.ticks === 'number' ? inputs.ticks : state.tick++
   const bufferSize = Math.max(2, Number(params.buffer_size) || 200)
 
   // Every connected port other than `ticks` is a curve, named after the port —
   // that is how the desktop node turns dynamic inputs into a multi-series plot.
+  const seriesKeys: string[] = []
   for (const [port, value] of Object.entries(inputs)) {
     if (port === 'ticks' || typeof value !== 'number') continue
+    seriesKeys.push(port)
     let points = state.series.get(port)
     if (!points) {
       points = []
       state.series.set(port, points)
     }
-    points.push({ tick: tick ?? points.length, value })
+    points.push({ tick, value })
     if (points.length > bufferSize) points.splice(0, points.length - bufferSize)
+    ctx.emit(port, value)
   }
+  ctx.emit('series_keys', seriesKeys)
+  ctx.emit('_tick', tick)
 
   const width = Math.max(100, Number(params.width) || 640)
   const height = Math.max(100, Number(params.height) || 360)
-  const dataUrl = renderPlot(state.series, width, height, !!params.normalize, params.show_grid !== false)
-  ctx.emit('main_preview', dataUrl.split(',')[1])
+  ctx.emit('main_preview', await renderPlot(state.series, width, height, !!params.normalize, params.show_grid !== false))
 
   const summary: Record<string, number> = {}
   for (const [name, points] of state.series) {
@@ -62,16 +81,14 @@ function seriesToTable(series: Map<string, { tick: number; value: number }[]>): 
   return [...byTick.values()].sort((a, b) => (a.tick as number) - (b.tick as number))
 }
 
-function renderPlot(
+async function renderPlot(
   series: Map<string, { tick: number; value: number }[]>,
   width: number,
   height: number,
   normalize: boolean,
   showGrid: boolean
-): string {
-  const canvas = document.createElement('canvas')
-  canvas.width = width
-  canvas.height = height
+): Promise<string> {
+  const canvas = makeCanvas(width, height)
   const ctx = canvas.getContext('2d')!
 
   ctx.fillStyle = '#1e2530'
@@ -88,7 +105,7 @@ function renderPlot(
     ctx.fillStyle = '#7a8593'
     ctx.font = '12px sans-serif'
     ctx.fillText('en attente de données…', marginLeft, marginTop + plotHeight / 2)
-    return canvas.toDataURL('image/jpeg', 0.8)
+    return canvasToBase64(canvas, 0.8)
   }
 
   const allTicks = curves.flatMap(([, points]) => points.map((p) => p.tick))
@@ -151,7 +168,7 @@ function renderPlot(
   ctx.fillText(String(Math.round(minTick)), marginLeft, height - 8)
   ctx.fillText(String(Math.round(maxTick)), marginLeft + plotWidth - 28, height - 8)
 
-  return canvas.toDataURL('image/jpeg', 0.8)
+  return canvasToBase64(canvas, 0.8)
 }
 
 function percentile(sorted: number[], p: number): number {
@@ -163,10 +180,18 @@ function percentile(sorted: number[], p: number): number {
   return sorted[low] * (high - position) + sorted[high] * (position - low)
 }
 
+/**
+ * `GrainHistogramNodeUI` (src/components/nodes/scientific.tsx) renders its own
+ * Recharts bar+line chart from raw per-bin numbers — it never reads an image
+ * output. This used to render a canvas PNG instead (matching how plotterPro
+ * still does, for nodes without a native chart widget), which is why the node
+ * produced *an* image but the UI — which was never looking for one — showed
+ * nothing.
+ */
 export const geoGrainHistogram: NodeImpl = (inputs, params, ctx) => {
   const regions = inputs.regions as MeasuredRegion[] | undefined
   if (!regions || regions.length === 0) {
-    ctx.emit('stats', null)
+    ctx.emit('error', 'Awaiting data…')
     return {}
   }
 
@@ -180,102 +205,43 @@ export const geoGrainHistogram: NodeImpl = (inputs, params, ctx) => {
     .filter((v) => Number.isFinite(v))
     .sort((a, b) => a - b)
 
-  const unit = calibrated ? (metric === 3 ? 'µm²' : 'µm') : metric === 3 ? 'px²' : 'px'
-  const stats = {
-    d10: percentile(values, 10),
-    d50: percentile(values, 50),
-    d90: percentile(values, 90),
-    count: values.length,
-    unit,
+  if (values.length === 0) {
+    ctx.emit('error', 'Awaiting data…')
+    return {}
   }
 
-  const bins = Math.max(4, Number(params.bins) || 30)
-  ctx.emit('main_preview', renderHistogram(values, bins, stats).split(',')[1])
-  ctx.emit('stats', stats)
-  return {}
-}
-
-function renderHistogram(
-  values: number[],
-  bins: number,
-  stats: { d10: number; d50: number; d90: number; unit: string }
-): string {
-  const width = 520
-  const height = 300
-  const canvas = document.createElement('canvas')
-  canvas.width = width
-  canvas.height = height
-  const ctx = canvas.getContext('2d')!
-
-  ctx.fillStyle = '#1e2530'
-  ctx.fillRect(0, 0, width, height)
-
-  const marginLeft = 40
-  const marginBottom = 30
-  const marginTop = 24
-  const plotWidth = width - marginLeft - 12
-  const plotHeight = height - marginTop - marginBottom
+  const unit = calibrated ? (metric === 3 ? 'µm²' : 'µm') : metric === 3 ? 'px²' : 'px'
+  const label = metric === 3 ? 'Area' : 'Diameter'
 
   const min = values[0]
   const max = values[values.length - 1]
-  const binWidth = (max - min) / bins || 1
-  const counts = new Array(bins).fill(0)
+  const binCount = Math.max(4, Number(params.bins) || 30)
+  const binWidth = (max - min) / binCount || 1
+  const counts = new Array(binCount).fill(0)
   for (const value of values) {
-    const index = Math.min(bins - 1, Math.max(0, Math.floor((value - min) / binWidth)))
+    const index = Math.min(binCount - 1, Math.max(0, Math.floor((value - min) / binWidth)))
     counts[index]++
   }
-  const maxCount = Math.max(...counts, 1)
-
-  ctx.fillStyle = '#4f8cff'
-  const barWidth = plotWidth / bins
-  counts.forEach((count, i) => {
-    const barHeight = (count / maxCount) * plotHeight
-    ctx.fillRect(marginLeft + i * barWidth, marginTop + plotHeight - barHeight, Math.max(barWidth - 1, 1), barHeight)
+  const bins = counts.map((_, i) => min + (i + 0.5) * binWidth)
+  let cumulativeCount = 0
+  const cumulative = counts.map((count) => {
+    cumulativeCount += count
+    return (cumulativeCount / values.length) * 100
   })
 
-  // Cumulative curve — the D-values are read off this, not off the bars.
-  ctx.strokeStyle = 'rgba(255,255,255,0.55)'
-  ctx.lineWidth = 1.5
-  ctx.beginPath()
-  let cumulative = 0
-  counts.forEach((count, i) => {
-    cumulative += count
-    const x = marginLeft + (i + 1) * barWidth
-    const y = marginTop + plotHeight - (cumulative / values.length) * plotHeight
-    if (i === 0) ctx.moveTo(marginLeft, marginTop + plotHeight)
-    ctx.lineTo(x, y)
-  })
-  ctx.stroke()
+  const mean = values.reduce((a, b) => a + b, 0) / values.length
+  const variance = values.reduce((a, b) => a + (b - mean) ** 2, 0) / values.length
 
-  ctx.strokeStyle = 'rgba(255,255,255,0.35)'
-  ctx.lineWidth = 1
-  ctx.beginPath()
-  ctx.moveTo(marginLeft, marginTop)
-  ctx.lineTo(marginLeft, marginTop + plotHeight)
-  ctx.lineTo(marginLeft + plotWidth, marginTop + plotHeight)
-  ctx.stroke()
-
-  const span = max - min || 1
-  const markers: [number, string, string][] = [
-    [stats.d10, 'D10', '#f5a623'],
-    [stats.d50, 'D50', '#ff5c5c'],
-    [stats.d90, 'D90', '#7ee787'],
-  ]
-  ctx.font = '11px sans-serif'
-  markers.forEach(([value, label, colour], i) => {
-    const x = marginLeft + ((value - min) / span) * plotWidth
-    ctx.strokeStyle = colour
-    ctx.beginPath()
-    ctx.moveTo(x, marginTop)
-    ctx.lineTo(x, marginTop + plotHeight)
-    ctx.stroke()
-    ctx.fillStyle = colour
-    ctx.fillText(`${label} ${value.toFixed(1)}`, 8 + i * 120, 15)
-  })
-
-  ctx.fillStyle = '#aab4c0'
-  ctx.fillText(`${min.toFixed(0)} ${stats.unit}`, marginLeft, height - 10)
-  ctx.fillText(`${max.toFixed(0)} ${stats.unit}`, marginLeft + plotWidth - 60, height - 10)
-
-  return canvas.toDataURL('image/jpeg', 0.85)
+  ctx.emit('bins', bins)
+  ctx.emit('counts', counts)
+  ctx.emit('cumulative', cumulative)
+  ctx.emit('d10', percentile(values, 10))
+  ctx.emit('d50', percentile(values, 50))
+  ctx.emit('d90', percentile(values, 90))
+  ctx.emit('count', values.length)
+  ctx.emit('mean', Number(mean.toFixed(2)))
+  ctx.emit('std', Number(Math.sqrt(variance).toFixed(2)))
+  ctx.emit('unit', unit)
+  ctx.emit('label', label)
+  return {}
 }

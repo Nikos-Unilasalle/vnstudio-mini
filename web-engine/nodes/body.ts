@@ -1,15 +1,14 @@
 import type { NodeImpl } from '../types'
 import { getFaceLandmarker, getHandLandmarker } from '../mediapipe'
 import { toBgr } from '../cvUtils'
+import { makeCanvas, drawMatToCanvas } from '../canvasCompat'
 
-/** MediaPipe wants an HTML element or ImageData, not a Mat, so round-trip via a canvas. */
-function matToCanvasRgba(cv: any, mat: any): HTMLCanvasElement {
-  const canvas = document.createElement('canvas')
-  canvas.width = mat.cols
-  canvas.height = mat.rows
+/** MediaPipe wants an image-like source, not a Mat, so round-trip via a canvas. */
+function matToCanvasRgba(cv: any, mat: any): OffscreenCanvas {
+  const canvas = makeCanvas(mat.cols, mat.rows)
   const rgba = new cv.Mat()
   cv.cvtColor(mat, rgba, mat.channels() === 1 ? cv.COLOR_GRAY2RGBA : cv.COLOR_BGR2RGBA)
-  cv.imshow(canvas, rgba)
+  drawMatToCanvas(cv, canvas, rgba)
   rgba.delete()
   return canvas
 }
