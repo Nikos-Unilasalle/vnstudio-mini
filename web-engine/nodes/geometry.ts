@@ -1,5 +1,5 @@
 import type { NodeImpl } from '../types'
-import { parseColor, toBgr, toGray } from '../cvUtils'
+import { drawPolyline, parseColor, toBgr, toGray } from '../cvUtils'
 
 interface NormalisedPoint {
   x: number
@@ -28,17 +28,18 @@ export const utilRoiPolygon: NodeImpl = (inputs, params, ctx) => {
   const mask = ctx.track(new cv.Mat(h, w, cv.CV_8U, new cv.Scalar(points.length === 0 ? 255 : 0)))
 
   if (points.length >= 2) {
-    const flat = points.flatMap((p) => [Math.round(p.x * w), Math.round(p.y * h)])
-    const pointsMat = cv.matFromArray(points.length, 1, cv.CV_32SC2, flat)
-    const vector = new cv.MatVector()
-    vector.push_back(pointsMat)
+    const pixels = points.map((p) => ({ x: p.x * w, y: p.y * h }))
     if (points.length >= 3 && params.filled !== false) {
+      const flat = pixels.flatMap((p) => [Math.round(p.x), Math.round(p.y)])
+      const pointsMat = cv.matFromArray(points.length, 1, cv.CV_32SC2, flat)
+      const vector = new cv.MatVector()
+      vector.push_back(pointsMat)
       cv.fillPoly(mask, vector, new cv.Scalar(255))
+      pointsMat.delete()
+      vector.delete()
     } else {
-      cv.polylines(mask, vector, points.length >= 3, new cv.Scalar(255), Math.max(1, Number(params.thickness) || 2))
+      drawPolyline(cv, mask, pixels, points.length >= 3, new cv.Scalar(255), Math.max(1, Number(params.thickness) || 2))
     }
-    pointsMat.delete()
-    vector.delete()
   }
 
   if (maskIn) {
@@ -56,13 +57,8 @@ export const utilRoiPolygon: NodeImpl = (inputs, params, ctx) => {
 
   const overlay = ctx.track(toBgr(cv, src))
   if (points.length >= 2) {
-    const flat = points.flatMap((p) => [Math.round(p.x * w), Math.round(p.y * h)])
-    const pointsMat = cv.matFromArray(points.length, 1, cv.CV_32SC2, flat)
-    const vector = new cv.MatVector()
-    vector.push_back(pointsMat)
-    cv.polylines(overlay, vector, true, new cv.Scalar(0, 255, 136, 255), 2, cv.LINE_AA)
-    pointsMat.delete()
-    vector.delete()
+    const pixels = points.map((p) => ({ x: p.x * w, y: p.y * h }))
+    drawPolyline(cv, overlay, pixels, true, new cv.Scalar(0, 255, 136, 255), 2)
   }
 
   return { main: overlay, mask, masked, masked_inv: maskedInverse, pts: points }
@@ -175,13 +171,7 @@ export const geomObb: NodeImpl = (inputs, params, ctx) => {
     const rect = cv.minAreaRect(contour)
     lastRect = rect
     if (params.draw_obb === false) continue
-    const corners = rotatedRectPoints(rect).flatMap((p) => [Math.round(p.x), Math.round(p.y)])
-    const boxMat = cv.matFromArray(4, 1, cv.CV_32SC2, corners)
-    const vector = new cv.MatVector()
-    vector.push_back(boxMat)
-    cv.polylines(overlay, vector, true, colour, thickness, cv.LINE_AA)
-    boxMat.delete()
-    vector.delete()
+    drawPolyline(cv, overlay, rotatedRectPoints(rect), true, colour, thickness)
   }
   scratch.forEach((m) => m.delete())
   contours.delete()

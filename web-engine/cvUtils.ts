@@ -59,6 +59,62 @@ export function matToBase64(cv: any, mat: any, maxWidth = 480, quality = 0.75): 
   return scaled.toDataURL('image/jpeg', quality).split(',')[1]
 }
 
+/**
+ * The seven Hu invariants, computed from the normalised central moments.
+ *
+ * The OpenCV build used by the web engine does not expose `cv.HuMoments` in its
+ * JS bindings, but the values are a closed-form function of moments we already
+ * have, so nothing is lost by evaluating them here.
+ */
+export function huMoments(moments: any): number[] {
+  const { nu20, nu11, nu02, nu30, nu21, nu12, nu03 } = moments
+
+  const a = nu30 + nu12
+  const b = nu21 + nu03
+  const c = nu30 - 3 * nu12
+  const d = 3 * nu21 - nu03
+
+  const h1 = nu20 + nu02
+  const h2 = (nu20 - nu02) ** 2 + 4 * nu11 ** 2
+  const h3 = c ** 2 + d ** 2
+  const h4 = a ** 2 + b ** 2
+  const h5 = c * a * (a ** 2 - 3 * b ** 2) + d * b * (3 * a ** 2 - b ** 2)
+  const h6 = (nu20 - nu02) * (a ** 2 - b ** 2) + 4 * nu11 * a * b
+  const h7 = d * a * (a ** 2 - 3 * b ** 2) - c * b * (3 * a ** 2 - b ** 2)
+
+  return [h1, h2, h3, h4, h5, h6, h7]
+}
+
+/**
+ * Draws a polyline through `points`, closing it when asked.
+ *
+ * Stands in for `cv.polylines`, which this OpenCV build omits from its JS
+ * bindings. Points are pixel coordinates.
+ */
+export function drawPolyline(
+  cv: any,
+  image: any,
+  points: { x: number; y: number }[],
+  closed: boolean,
+  colour: any,
+  thickness = 1
+): void {
+  if (points.length < 2) return
+  const last = closed ? points.length : points.length - 1
+  for (let i = 0; i < last; i++) {
+    const from = points[i]
+    const to = points[(i + 1) % points.length]
+    cv.line(
+      image,
+      new cv.Point(Math.round(from.x), Math.round(from.y)),
+      new cv.Point(Math.round(to.x), Math.round(to.y)),
+      colour,
+      thickness,
+      cv.LINE_AA
+    )
+  }
+}
+
 /** Parses "#RRGGBB" into an OpenCV BGRA Scalar. */
 export function parseColor(cv: any, hex: string, fallback: [number, number, number] = [0, 255, 136]): any {
   const m = /^#?([0-9a-f]{6})$/i.exec(String(hex ?? ''))

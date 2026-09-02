@@ -1,50 +1,44 @@
 /**
- * Loads OpenCV.js from a CDN on first use.
+ * Loads OpenCV (WASM) on first use.
  *
  * The desktop app links against the native OpenCV in its Python venv. The web
- * build pulls the WASM build instead: a ~10 MB script with the WASM binary
- * inlined as base64, so the first visit pays a download and a compile.
+ * build uses a distribution that ships the WASM binary as a **separate file**
+ * rather than inlining it as base64:
  *
- * Three properties of that bundle drive the code below, each verified against
- * the real file rather than assumed:
+ *   opencv.js    0.4 MB   emscripten glue
+ *   opencv.wasm  7.0 MB   the module itself
  *
- *  1. Readiness must be signalled through a `Module` object created *before*
- *     the script runs. This is the documented Emscripten pattern: the bundle
- *     ends with `if (typeof Module === 'undefined') Module = {}` and hands that
- *     object to the factory, so a global defined up front is adopted and its
- *     `onRuntimeInitialized` fires. Attaching the callback afterwards is a race
- *     that silently never fires.
+ * That split is the whole point. The common single-file builds bundle both into
+ * one ~10 MB script, so the browser must parse 10 MB of JavaScript and decode a
+ * base64 payload on the main thread before anything happens, and readiness can
+ * only be observed through `Module.onRuntimeInitialized` — a callback that is
+ * easy to miss and impossible to attach on some mirrors, which leaves the app
+ * hanging with no error. Here the binary is fetched separately (so download
+ * progress is real) and handed to the glue as `Module.wasmBinary`, after which
+ * the module initialises *synchronously*: `cv.Mat` exists the moment the script
+ * finishes evaluating. There is no callback to miss and no race to lose.
  *
- *     This is why the build matters. The @techstark mirror ships the same line
- *     as `var Module = {}` — and because `var` is hoisted, that condition is
- *     always true, so it builds its own config object and ignores any global.
- *     With that mirror the callback can never be delivered. The official build
- *     is used precisely because it honours a pre-defined `Module`.
- *
- *  2. The bundle is wrapped in UMD, and UMD prefers AMD. If `define.amd` exists
- *     while the script evaluates — Monaco ships exactly such a loader — OpenCV
- *     registers as an anonymous AMD module that nothing requires, `window.cv` is
- *     never assigned, and the load hangs. `define` is hidden across evaluation.
- *
- *  3. `script.onload` fires well before the module is usable, because the WASM
- *     is compiled after evaluation.
+ * This distribution is OpenCV 4.3, which omits `HuMoments` and `polylines` from
+ * its JS bindings — see huMoments() and drawPolyline() in cvUtils.ts for the
+ * replacements.
  */
-const OPENCV_URL = 'https://docs.opencv.org/4.9.0/opencv.js'
+const PACKAGE_BASE = 'https://cdn.jsdelivr.net/npm/opencv-wasm@4.3.0-10'
+const WASM_URL = `${PACKAGE_BASE}/opencv.wasm`
+const GLUE_URL = `${PACKAGE_BASE}/opencv.js`
 
-/** Compiling can legitimately take a while on a slow machine, but not forever. */
-const READY_TIMEOUT_MS = 120_000
-const POLL_INTERVAL_MS = 250
+/** Approximate size of the binary, used when the CDN omits Content-Length. */
+const APPROX_WASM_BYTES = 6_961_000
 
 declare global {
   interface Window {
     cv: any
-    Module: any
     define: any
+    __opencvWasmBinary?: Uint8Array
   }
 }
 
 export interface LoadProgress {
-  /** 0–1 when measurable, null for the open-ended compile phase. */
+  /** 0–1 when measurable, null when the phase has no meaningful ratio. */
   progress: number | null
   message: string
 }
@@ -59,40 +53,100 @@ let loading: Promise<any> | null = null
  * one down immediately; reporting only to it would freeze the bar.
  */
 const progressHandlers = new Set<ProgressHandler>()
-let lastProgress: LoadProgress = { progress: 0, message: 'Chargement d’OpenCV.js…' }
+let lastProgress: LoadProgress = { progress: 0, message: 'Chargement d’OpenCV…' }
 
 const startedAt = performance.now()
 
 function report(update: LoadProgress): void {
   lastProgress = update
-  // The page cannot be inspected with devtools while the module compiles, so
-  // this trace is the only way to tell a slow load from a stalled one.
   console.info(`[opencv] ${Math.round(performance.now() - startedAt)}ms — ${update.message}`)
   for (const handler of progressHandlers) handler(update)
 }
 
-function injectScript(): Promise<void> {
+/** Downloading the binary is the bulk of the wait; leave room for the glue and init. */
+const DOWNLOAD_SHARE = 0.85
+
+async function fetchWasmBinary(): Promise<Uint8Array> {
+  const response = await fetch(WASM_URL)
+  if (!response.ok) throw new Error(`OpenCV : téléchargement du module WASM impossible (HTTP ${response.status})`)
+
+  const declared = Number(response.headers.get('content-length')) || 0
+  const total = declared > 0 ? declared : APPROX_WASM_BYTES
+
+  if (!response.body) return new Uint8Array(await response.arrayBuffer())
+
+  const reader = response.body.getReader()
+  const chunks: Uint8Array[] = []
+  let received = 0
+  // Hundreds of small chunks arrive; reporting each would re-render the
+  // notification far more often than anyone can read it.
+  let lastReported = 0
+
+  for (;;) {
+    const { done, value } = await reader.read()
+    if (done) break
+    chunks.push(value)
+    received += value.length
+    const ratio = Math.min(1, received / total)
+    if (ratio - lastReported < 0.05) continue
+    lastReported = ratio
+    report({ progress: ratio * DOWNLOAD_SHARE, message: `Téléchargement d’OpenCV… ${Math.round(ratio * 100)} %` })
+  }
+
+  const binary = new Uint8Array(received)
+  let offset = 0
+  for (const chunk of chunks) {
+    binary.set(chunk, offset)
+    offset += chunk.length
+  }
+  return binary
+}
+
+/**
+ * The glue hardcodes `let Module = {}` at file scope, so there is no way to hand
+ * it a config object from outside — the binary has to be patched in. Without it
+ * the module tries a synchronous XHR for the .wasm, which browsers refuse, and
+ * aborts with "sync fetching of the wasm failed".
+ */
+async function fetchPatchedGlue(): Promise<string> {
+  const response = await fetch(GLUE_URL)
+  if (!response.ok) throw new Error(`OpenCV : téléchargement du script impossible (HTTP ${response.status})`)
+
+  const source = await response.text()
+  const NEEDLE = 'let Module = {};'
+  if (!source.includes(NEEDLE)) {
+    throw new Error('OpenCV : format du script inattendu (le point d’injection du binaire WASM a changé).')
+  }
+  return source.replace(NEEDLE, 'let Module = { wasmBinary: window.__opencvWasmBinary };')
+}
+
+/**
+ * The glue is wrapped in UMD, and UMD prefers AMD. Monaco ships an AMD loader,
+ * and with `define.amd` present OpenCV would register as an anonymous module
+ * that nothing requires — leaving `window.cv` unassigned forever. Hiding
+ * `define` across the evaluation forces the plain browser-global branch.
+ */
+function evaluateGlue(source: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const previousDefine = window.define
     const hadAmd = typeof previousDefine === 'function' && !!previousDefine.amd
     if (hadAmd) window.define = undefined
-
-    // The AMD check happens during evaluation, so the window stays as narrow as
-    // possible — anything else on the page keeps its loader either side of it.
     const restore = () => {
       if (hadAmd) window.define = previousDefine
     }
 
+    const url = URL.createObjectURL(new Blob([source], { type: 'text/javascript' }))
     const script = document.createElement('script')
-    script.src = OPENCV_URL
-    script.async = true
+    script.src = url
     script.onload = () => {
       restore()
+      URL.revokeObjectURL(url)
       resolve()
     }
     script.onerror = () => {
       restore()
-      reject(new Error(`OpenCV.js : téléchargement impossible depuis ${OPENCV_URL}`))
+      URL.revokeObjectURL(url)
+      reject(new Error('OpenCV : le script n’a pas pu être exécuté.'))
     }
     document.head.appendChild(script)
   })
@@ -104,62 +158,29 @@ export function loadOpenCv(onProgress: ProgressHandler = () => {}): Promise<any>
 
   if (loading) return loading
 
-  loading = new Promise<any>((resolve, reject) => {
-    if (window.cv?.Mat) {
-      resolve(window.cv)
-      return
+  loading = (async () => {
+    if (window.cv?.Mat) return window.cv
+
+    report({ progress: 0, message: 'Téléchargement d’OpenCV…' })
+    const [binary, glue] = await Promise.all([fetchWasmBinary(), fetchPatchedGlue()])
+    window.__opencvWasmBinary = binary
+
+    report({ progress: 0.9, message: 'Initialisation du module WASM…' })
+    await evaluateGlue(glue)
+
+    // With the binary preloaded the module is ready as soon as the script has
+    // run, so a missing Mat here is a real failure rather than a slow start.
+    if (!window.cv?.Mat) {
+      throw new Error('OpenCV : le module s’est chargé mais reste inutilisable (cv.Mat absent).')
     }
 
-    let settled = false
-    const succeed = (cv: any) => {
-      if (settled) return
-      settled = true
-      clearInterval(poll)
-      window.cv = cv
-      report({ progress: 1, message: 'OpenCV.js prêt' })
-      resolve(cv)
-    }
-    const failWith = (message: string) => {
-      if (settled) return
-      settled = true
-      clearInterval(poll)
-      reject(new Error(message))
-    }
+    // The binary is copied into the WASM heap during init; drop our reference so
+    // 7 MB is not pinned for the lifetime of the page.
+    delete window.__opencvWasmBinary
 
-    // Set up the config object first — the bundle adopts this exact object.
-    const runtime: any = {
-      onRuntimeInitialized: () => succeed(runtime),
-      onAbort: (reason: unknown) => failWith(`OpenCV.js : le module WASM a abandonné (${String(reason)})`),
-      // Emscripten writes initialisation failures here rather than throwing.
-      printErr: (text: string) => console.error(`[opencv] ${text}`),
-    }
-    window.Module = runtime
-
-    // Belt and braces: if the callback is somehow missed, polling still detects
-    // the module, and the timeout reports which half failed.
-    const poll = setInterval(() => {
-      if (window.cv?.Mat) {
-        succeed(window.cv)
-        return
-      }
-      if (runtime.Mat) {
-        succeed(runtime)
-        return
-      }
-      if (performance.now() - startedAt > READY_TIMEOUT_MS) {
-        failWith(
-          window.cv
-            ? 'OpenCV.js : le module WASM ne s’est pas initialisé (délai dépassé).'
-            : 'OpenCV.js : le script s’est chargé mais n’a rien exposé (window.cv absent).'
-        )
-      }
-    }, POLL_INTERVAL_MS)
-
-    report({ progress: 0.15, message: 'Téléchargement d’OpenCV.js (~9 Mo)…' })
-    injectScript()
-      .then(() => report({ progress: 0.6, message: 'Compilation du module WASM…' }))
-      .catch((error: Error) => failWith(error.message))
-  })
+    report({ progress: 1, message: 'OpenCV prêt' })
+    return window.cv
+  })()
 
   return loading
 }

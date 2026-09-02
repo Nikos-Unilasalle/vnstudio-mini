@@ -1,5 +1,5 @@
 import type { NodeImpl } from '../types'
-import { colorizeLabels, computeLabelStats, toBgr, toGray } from '../cvUtils'
+import { colorizeLabels, computeLabelStats, huMoments, toBgr, toGray } from '../cvUtils'
 
 export const sciMarkerFilter: NodeImpl = (inputs, params, ctx) => {
   const src = inputs.markers as any
@@ -235,16 +235,9 @@ export const imageMoments: NodeImpl = (inputs, params, ctx) => {
     eccentricity = lambda1 > 0 && lambda2 >= 0 ? Math.sqrt(1 - lambda2 / lambda1) : 0
   }
 
-  const huRaw = cv.HuMoments ? cv.HuMoments(moments) : null
-  let hu: number[] = []
-  if (huRaw?.data64F) {
-    hu = Array.from(huRaw.data64F as Float64Array)
-    huRaw.delete?.()
-  } else if (Array.isArray(huRaw)) {
-    hu = huRaw
-  }
-  // Hu values span many orders of magnitude; the desktop node log-scales them for readability.
-  const huLog = hu.map((v) => (v === 0 ? 0 : -Math.sign(v) * Math.log10(Math.abs(v))))
+  // Hu values span many orders of magnitude; the desktop node log-scales them
+  // for readability, preserving sign.
+  const huLog = huMoments(moments).map((v) => (v === 0 ? 0 : -Math.sign(v) * Math.log10(Math.abs(v))))
 
   const overlay = ctx.track(toBgr(cv, image))
   if (params.draw_overlay !== false && m00 !== 0) {
