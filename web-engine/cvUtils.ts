@@ -113,6 +113,21 @@ export function drawPolyline(
   }
 }
 
+/** OpenCV.js's binding omits arrowedLine — draws the shaft plus a two-stroke arrowhead instead. */
+export function drawArrowedLine(cv: any, image: any, from: any, to: any, colour: any, thickness = 1, tipLength = 0.15): void {
+  cv.line(image, from, to, colour, thickness, cv.LINE_AA)
+  const dx = to.x - from.x
+  const dy = to.y - from.y
+  const length = Math.hypot(dx, dy) || 1
+  const angle = Math.atan2(dy, dx)
+  const tip = length * tipLength
+  const spread = Math.PI / 6
+  const p1 = new cv.Point(Math.round(to.x - tip * Math.cos(angle - spread)), Math.round(to.y - tip * Math.sin(angle - spread)))
+  const p2 = new cv.Point(Math.round(to.x - tip * Math.cos(angle + spread)), Math.round(to.y - tip * Math.sin(angle + spread)))
+  cv.line(image, to, p1, colour, thickness, cv.LINE_AA)
+  cv.line(image, to, p2, colour, thickness, cv.LINE_AA)
+}
+
 /** Parses "#RRGGBB" into an OpenCV BGRA Scalar. */
 export function parseColor(cv: any, hex: string, fallback: [number, number, number] = [0, 255, 136]): any {
   const m = /^#?([0-9a-f]{6})$/i.exec(String(hex ?? ''))

@@ -1,5 +1,5 @@
 import type { NodeImpl } from '../types'
-import { getFaceLandmarker, getHandLandmarker } from '../mediapipe'
+import { getFaceLandmarker, getHandLandmarker, getObjectDetector, getPoseLandmarker } from '../mediapipe'
 import { toBgr } from '../cvUtils'
 import { makeCanvas, drawMatToCanvas } from '../canvasCompat'
 
@@ -87,6 +87,90 @@ export const analysisHandMp: NodeImpl = async (inputs, params, ctx) => {
   hands.forEach((hand, i) => {
     outputs[`hand_${i}`] = hand
   })
+  return outputs
+}
+
+export const analysisPoseMp: NodeImpl = async (inputs, _params, ctx) => {
+  const image = inputs.image as any
+  if (!image) return { main: null, pose_list: [], data: {} }
+
+  const canvas = matToCanvasRgba(ctx.cv, image)
+  const landmarker = await getPoseLandmarker(1)
+  const result = landmarker.detect(canvas)
+  const detected: { x: number; y: number; z: number; visibility?: number }[][] = result.landmarks ?? []
+
+  const poses = detected.map((landmarks) => ({
+    ...boundsOf(landmarks),
+    landmarks: landmarks.map((p) => ({ x: p.x, y: p.y, z: p.z, visibility: p.visibility ?? 1 })),
+    label: 'pose',
+  }))
+
+  const overlay = ctx.track(drawLandmarks(ctx.cv, image, detected, [255, 255, 0]))
+
+  return { main: overlay, pose_list: poses, data: poses[0] ?? {} }
+}
+
+function drawBoxes(cv: any, image: any, boxes: { xmin: number; ymin: number; width: number; height: number; label: string; score: number }[]): any {
+  const overlay = toBgr(cv, image)
+  const w = overlay.cols
+  const h = overlay.rows
+  const scalar = new cv.Scalar(255, 0, 255, 255)
+  for (const box of boxes) {
+    const x1 = Math.round(box.xmin * w)
+    const y1 = Math.round(box.ymin * h)
+    const x2 = Math.round((box.xmin + box.width) * w)
+    const y2 = Math.round((box.ymin + box.height) * h)
+    cv.rectangle(overlay, new cv.Point(x1, y1), new cv.Point(x2, y2), scalar, 2)
+    cv.putText(overlay, `${box.label} ${box.score.toFixed(2)}`, new cv.Point(x1, Math.max(10, y1 - 6)), cv.FONT_HERSHEY_SIMPLEX, 0.5, scalar, 1, cv.LINE_AA)
+  }
+  return overlay
+}
+
+export const analysisObjectMp: NodeImpl = async (inputs, params, ctx) => {
+  const image = inputs.image as any
+  if (!image) return { main: null, objects_list: [] }
+
+  const scoreThreshold = (Number(params.score_threshold) || 50) / 100
+  const maxResults = Math.max(1, Math.round(Number(params.max_results) || 5))
+
+  const canvas = matToCanvasRgba(ctx.cv, image)
+  const detector = await getObjectDetector(scoreThreshold, maxResults)
+  const result = detector.detect(canvas)
+  const detections: { boundingBox: { originX: number; originY: number; width: number; height: number }; categories: { categoryName: string; score: number }[] }[] = result.detections ?? []
+
+  const w = canvas.width
+  const h = canvas.height
+  const objects = detections.map((d) => {
+    const bbox = d.boundingBox
+    const category = d.categories[0]
+    const xmin = bbox.originX / w
+    const ymin = bbox.originY / h
+    const width = bbox.width / w
+    const height = bbox.height / h
+    return {
+      label: category.categoryName,
+      score: category.score,
+      xmin,
+      ymin,
+      width,
+      height,
+      _type: 'graphics' as const,
+      shape: 'rect' as const,
+      pts: [
+        [xmin, ymin],
+        [xmin + width, ymin + height],
+      ],
+      r: 255,
+      g: 0,
+      b: 255,
+      thickness: 2,
+    }
+  })
+
+  const overlay = ctx.track(drawBoxes(ctx.cv, image, objects))
+
+  const outputs: Record<string, unknown> = { main: overlay, objects_list: objects }
+  for (let i = 0; i < 5; i++) outputs[`obj_${i}`] = objects[i] ?? null
   return outputs
 }
 

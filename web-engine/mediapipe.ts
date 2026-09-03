@@ -13,6 +13,8 @@ const WASM_ROOT = `${TASKS_VISION_PKG}/wasm`
 
 const FACE_MODEL = 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task'
 const HAND_MODEL = 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task'
+const POSE_MODEL = 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_heavy/float16/1/pose_landmarker_heavy.task'
+const OBJECT_MODEL = 'https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float16/1/efficientdet_lite0.tflite'
 
 let visionModule: Promise<any> | null = null
 
@@ -53,6 +55,43 @@ export async function getHandLandmarker(numHands: number): Promise<any> {
       baseOptions: { modelAssetPath: HAND_MODEL },
       runningMode: 'IMAGE',
       numHands,
+    })
+  })()
+  detectors.set(key, pending)
+  return pending
+}
+
+export async function getPoseLandmarker(numPoses: number): Promise<any> {
+  const key = `pose:${numPoses}`
+  let pending = detectors.get(key)
+  if (pending) return pending
+
+  pending = (async () => {
+    const { PoseLandmarker, FilesetResolver } = await loadVisionModule()
+    const fileset = await FilesetResolver.forVisionTasks(WASM_ROOT)
+    return PoseLandmarker.createFromOptions(fileset, {
+      baseOptions: { modelAssetPath: POSE_MODEL },
+      runningMode: 'IMAGE',
+      numPoses,
+    })
+  })()
+  detectors.set(key, pending)
+  return pending
+}
+
+export async function getObjectDetector(scoreThreshold: number, maxResults: number): Promise<any> {
+  const key = `object:${scoreThreshold}:${maxResults}`
+  let pending = detectors.get(key)
+  if (pending) return pending
+
+  pending = (async () => {
+    const { ObjectDetector, FilesetResolver } = await loadVisionModule()
+    const fileset = await FilesetResolver.forVisionTasks(WASM_ROOT)
+    return ObjectDetector.createFromOptions(fileset, {
+      baseOptions: { modelAssetPath: OBJECT_MODEL },
+      runningMode: 'IMAGE',
+      scoreThreshold,
+      maxResults,
     })
   })()
   detectors.set(key, pending)

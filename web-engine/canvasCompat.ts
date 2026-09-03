@@ -16,9 +16,22 @@ export function makeCanvas(width: number, height: number): OffscreenCanvas {
  * Stand-ins for `cv.imread`/`cv.imshow`. This OpenCV.js build's own JS glue
  * for both starts with `instanceof HTMLImageElement` / `instanceof
  * HTMLCanvasElement` checks — plain `ReferenceError`s in a worker, since
- * neither global exists there, regardless of what's actually passed in. Both
- * replacements below run the exact same pixel math the glue does after its
- * (here-skipped) DOM validation, just against `OffscreenCanvas`.
+ * neither global exists there, regardless of what's actually passed in.
+ *
+ * `drawMatToCanvas` otherwise runs the same pixel math the real `cv.imshow`
+ * glue does, with one deliberate change for the 3-channel case: upstream
+ * `cv.imshow` assumes the Mat is already RGB — the convention `cv.imread`
+ * produces, reading canvas ImageData straight into a Mat with no channel
+ * swap. Every 3-channel Mat in this codebase is BGR instead, matching the
+ * desktop Python plugins it ports (`cv2.imread` returns BGR, and every
+ * `parseColor`/`toBgr` helper here follows suit) — using `cv.imshow`'s own
+ * RGB2RGBA conversion on that data would swap red and blue on every
+ * displayed image, so that branch uses `COLOR_BGR2RGBA` instead. The
+ * 4-channel case is left as upstream's no-op: this build's one caller with
+ * an already-4-channel Mat (`body.ts`'s MediaPipe canvas prep) converts BGR
+ * to true RGBA itself before calling in, precisely so this passthrough is
+ * correct for it — don't "fix" this branch to un-swap BGRA without checking
+ * that caller first.
  */
 export function matFromCanvas(cv: any, canvas: OffscreenCanvas): any {
   const ctx = canvas.getContext('2d')!
@@ -37,7 +50,7 @@ export function drawMatToCanvas(cv: any, canvas: OffscreenCanvas, mat: any): voi
       cv.cvtColor(img, img, cv.COLOR_GRAY2RGBA)
       break
     case cv.CV_8UC3:
-      cv.cvtColor(img, img, cv.COLOR_RGB2RGBA)
+      cv.cvtColor(img, img, cv.COLOR_BGR2RGBA)
       break
     case cv.CV_8UC4:
       break
