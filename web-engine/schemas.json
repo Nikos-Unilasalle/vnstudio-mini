@@ -19652,5 +19652,674 @@
     "variable_inputs": false,
     "hf_model": "",
     "hf_filename": ""
+  },
+  {
+    "type": "ml_df_filter",
+    "label": "DF Filter",
+    "category": "DataFrame",
+    "icon": "Filter",
+    "description": "Filter rows of a DataFrame by a column condition. Chain multiple filters for complex queries.",
+    "inputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "value",
+        "color": "scalar",
+        "label": "Value"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "Filtered DataFrame"
+      },
+      {
+        "id": "preview",
+        "color": "image",
+        "label": "Preview"
+      },
+      {
+        "id": "row_count",
+        "color": "scalar",
+        "label": "Rows"
+      },
+      {
+        "id": "df_meta",
+        "color": "dict",
+        "label": "DF Metadata"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "params": [
+      {
+        "id": "enabled",
+        "label": "Enable Filter",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "_sec_condition",
+        "label": "Filter Condition",
+        "type": "section"
+      },
+      {
+        "id": "column",
+        "label": "Column",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "operator",
+        "label": "Operator",
+        "type": "enum",
+        "options": [
+          "== (equal)",
+          "!= (different)",
+          "> (greater)",
+          "< (less)",
+          ">= (≥)",
+          "<= (≤)",
+          "contains (text)",
+          "is null",
+          "is not null"
+        ],
+        "default": 0
+      },
+      {
+        "id": "value",
+        "label": "Value (ignored if the input is connected)",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "_sec_options",
+        "label": "Options",
+        "type": "section"
+      },
+      {
+        "id": "dropna",
+        "label": "Drop NaN rows",
+        "type": "bool",
+        "default": false
+      }
+    ],
+    "resizable": true,
+    "min_width": 270,
+    "min_height": 180,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "ml_df_stats",
+    "label": "DF Stats",
+    "category": "DataFrame",
+    "icon": "BarChart2",
+    "description": "Show descriptive statistics of a DataFrame: describe(), head, dtypes, or value counts.",
+    "inputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "preview",
+        "color": "image",
+        "label": "Stats"
+      },
+      {
+        "id": "stats_data",
+        "color": "dict",
+        "label": "Stats dict"
+      }
+    ],
+    "params": [
+      {
+        "id": "mode",
+        "label": "Display Mode",
+        "type": "enum",
+        "options": [
+          "describe()",
+          "head(10)",
+          "dtypes + shape",
+          "value_counts (1 col)"
+        ],
+        "default": 0
+      },
+      {
+        "id": "_sec_display",
+        "label": "Display",
+        "type": "section"
+      },
+      {
+        "id": "columns",
+        "label": "Columns (blank = all)",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "col_vc",
+        "label": "Column (value_counts)",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "_sec_export",
+        "label": "Export",
+        "type": "section"
+      },
+      {
+        "id": "out_w",
+        "label": "Export width px  (0 = auto)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 4000
+      },
+      {
+        "id": "out_h",
+        "label": "Export height px (0 = auto)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 4000
+      }
+    ],
+    "resizable": true,
+    "min_width": 320,
+    "min_height": 220,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "ml_dataframe_join",
+    "label": "DataFrame Join",
+    "category": "DataFrame",
+    "icon": "Merge",
+    "description": "Merge multiple DataFrames into one by joining on a shared key column. Default key is '__px_idx' (the pixel index produced by 'Bands → Table'), which aligns tables from different raster sources (Sentinel-2, DEM, Kaggle…). Accepts any number of 'data' inputs. Join types: inner (keep only shared rows), outer (keep all, fill NaN), left.",
+    "inputs": [
+      {
+        "id": "table_a",
+        "color": "data",
+        "label": "Table A (base)"
+      },
+      {
+        "id": "table_b",
+        "color": "data",
+        "label": "Table B"
+      },
+      {
+        "id": "table_c",
+        "color": "data",
+        "label": "Table C (optional)"
+      },
+      {
+        "id": "table_d",
+        "color": "data",
+        "label": "Table D (optional)"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "Merged DataFrame"
+      },
+      {
+        "id": "preview",
+        "color": "image",
+        "label": "Summary"
+      },
+      {
+        "id": "row_count",
+        "color": "scalar",
+        "label": "Rows"
+      },
+      {
+        "id": "col_count",
+        "color": "scalar",
+        "label": "Columns"
+      }
+    ],
+    "params": [
+      {
+        "id": "join_key",
+        "label": "Join key column",
+        "type": "string",
+        "default": "__px_idx"
+      },
+      {
+        "id": "join_type",
+        "label": "Join type",
+        "type": "enum",
+        "options": [
+          "inner",
+          "outer",
+          "left"
+        ],
+        "default": 1
+      },
+      {
+        "id": "drop_dupes",
+        "label": "Drop duplicate columns",
+        "type": "bool",
+        "default": true
+      }
+    ],
+    "resizable": true,
+    "min_width": 260,
+    "min_height": 180,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "ml_scatter_plot",
+    "label": "Scatter Plot",
+    "category": "DataFrame",
+    "icon": "Crosshair",
+    "description": "2D scatter plot from a DataFrame. Set X/Y columns, optionally color by a class column (hue). Ideal for exploring feature relationships and class separability.",
+    "inputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image",
+        "label": "Plot"
+      },
+      {
+        "id": "df_meta",
+        "color": "dict",
+        "label": "Columns"
+      }
+    ],
+    "params": [
+      {
+        "id": "x_col",
+        "label": "X Column",
+        "type": "string",
+        "default": "",
+        "hints": "df_columns"
+      },
+      {
+        "id": "y_col",
+        "label": "Y Column",
+        "type": "string",
+        "default": "",
+        "hints": "df_columns"
+      },
+      {
+        "id": "hue_col",
+        "label": "Color by (hue)",
+        "type": "string",
+        "default": "",
+        "hints": "df_columns"
+      },
+      {
+        "id": "_sec_appearance",
+        "label": "Appearance",
+        "type": "section"
+      },
+      {
+        "id": "colormap",
+        "label": "Colormap",
+        "type": "enum",
+        "options": [
+          "Tab10",
+          "Set1",
+          "Set2",
+          "Viridis",
+          "Plasma",
+          "Coolwarm",
+          "RdYlGn"
+        ],
+        "default": 0
+      },
+      {
+        "id": "alpha",
+        "label": "Opacity",
+        "type": "float",
+        "default": 0.75,
+        "min": 0.1,
+        "max": 1,
+        "step": 0.05
+      },
+      {
+        "id": "dot_size",
+        "label": "Dot Size",
+        "type": "int",
+        "default": 40,
+        "min": 5,
+        "max": 250
+      },
+      {
+        "id": "_sec_options",
+        "label": "Options",
+        "type": "section"
+      },
+      {
+        "id": "regression",
+        "label": "Regression Line",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "grid",
+        "label": "Grid",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "max_points",
+        "label": "Max Points (0=all)",
+        "type": "int",
+        "default": 2000,
+        "min": 0,
+        "max": 50000
+      },
+      {
+        "id": "_sec_export",
+        "label": "Export",
+        "type": "section"
+      },
+      {
+        "id": "out_dpi",
+        "label": "Export DPI (100=screen, 300=pub)",
+        "type": "int",
+        "default": 100,
+        "min": 72,
+        "max": 600
+      },
+      {
+        "id": "out_w",
+        "label": "Export width px (0 = node size)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 5000
+      },
+      {
+        "id": "out_h",
+        "label": "Export height px (0 = node size)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 5000
+      }
+    ],
+    "resizable": true,
+    "min_width": 300,
+    "min_height": 240,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "ml_histogram",
+    "label": "ML Histogram",
+    "category": "DataFrame",
+    "icon": "BarChart2",
+    "description": "Distribution histogram of a DataFrame column. Optional KDE overlay and per-class breakdown (hue).",
+    "inputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image",
+        "label": "Plot"
+      }
+    ],
+    "params": [
+      {
+        "id": "column",
+        "label": "Column",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "hue_col",
+        "label": "Split by (hue)",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "bins",
+        "label": "Bins",
+        "type": "int",
+        "default": 30,
+        "min": 5,
+        "max": 200
+      },
+      {
+        "id": "_sec_hist_options",
+        "label": "Options",
+        "type": "section"
+      },
+      {
+        "id": "kde",
+        "label": "KDE overlay",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "density",
+        "label": "Normalize (density)",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "colormap",
+        "label": "Colormap",
+        "type": "enum",
+        "options": [
+          "Tab10",
+          "Set1",
+          "Set2",
+          "Viridis",
+          "Plasma",
+          "Coolwarm",
+          "RdYlGn"
+        ],
+        "default": 0
+      },
+      {
+        "id": "grid",
+        "label": "Grid",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "_sec_hist_export",
+        "label": "Export",
+        "type": "section"
+      },
+      {
+        "id": "out_dpi",
+        "label": "Export DPI (100=screen, 300=pub)",
+        "type": "int",
+        "default": 100,
+        "min": 72,
+        "max": 600
+      },
+      {
+        "id": "out_w",
+        "label": "Export width px (0 = node size)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 5000
+      },
+      {
+        "id": "out_h",
+        "label": "Export height px (0 = node size)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 5000
+      }
+    ],
+    "resizable": true,
+    "min_width": 300,
+    "min_height": 240,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "ml_corr_heatmap",
+    "label": "Correlation Heatmap",
+    "category": "DataFrame",
+    "icon": "Grid",
+    "description": "Pearson correlation matrix of numeric DataFrame columns. Essential for feature selection.",
+    "inputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image",
+        "label": "Heatmap"
+      }
+    ],
+    "params": [
+      {
+        "id": "columns",
+        "label": "Columns (blank = all numeric)",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "method",
+        "label": "Method",
+        "type": "enum",
+        "options": [
+          "pearson",
+          "spearman",
+          "kendall"
+        ],
+        "default": 0
+      },
+      {
+        "id": "annot",
+        "label": "Show values",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "colormap",
+        "label": "Colormap",
+        "type": "enum",
+        "options": [
+          "coolwarm",
+          "RdYlGn",
+          "viridis",
+          "plasma"
+        ],
+        "default": 0
+      },
+      {
+        "id": "_sec_heatmap_export",
+        "label": "Export",
+        "type": "section"
+      },
+      {
+        "id": "out_dpi",
+        "label": "Export DPI (100=screen, 300=pub)",
+        "type": "int",
+        "default": 100,
+        "min": 72,
+        "max": 600
+      },
+      {
+        "id": "out_w",
+        "label": "Export width px (0 = node size)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 5000
+      },
+      {
+        "id": "out_h",
+        "label": "Export height px (0 = node size)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 5000
+      }
+    ],
+    "resizable": true,
+    "min_width": 300,
+    "min_height": 280,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
   }
 ]

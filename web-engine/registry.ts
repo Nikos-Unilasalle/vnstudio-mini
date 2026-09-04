@@ -65,6 +65,7 @@ import { sciBoundaryF1, sciClusterHeatmap, sciGlcm, sciHausdorff, sciRegionClass
 import { genCanvas, genFeedback, genGrayScott } from './nodes/gen'
 import { pluginEvmColor, pluginEvmMotion } from './nodes/evm'
 import { sciDct, sciFft, sciIfft, sciSpectralGain } from './nodes/spectral'
+import { mlCorrHeatmap, mlDataframeJoin, mlDfFilter, mlDfStats, mlHistogram, mlScatterPlot } from './nodes/mlData'
 import {
   featNdwi,
   featSpectralIndex,
@@ -602,6 +603,13 @@ export const IMPLEMENTATIONS: Record<string, NodeImpl> = {
   util_on_each: utilOnEach,
   math_3d_to_screen: math3dToScreen,
   transform_eye_crop: transformEyeCrop,
+
+  ml_df_filter: mlDfFilter,
+  ml_df_stats: mlDfStats,
+  ml_dataframe_join: mlDataframeJoin,
+  ml_scatter_plot: mlScatterPlot,
+  ml_histogram: mlHistogram,
+  ml_corr_heatmap: mlCorrHeatmap,
 }
 
 const schemaByType = new Map(SCHEMAS.map((s) => [s.type, s]))

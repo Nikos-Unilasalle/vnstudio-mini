@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "vnstudio-mini",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--host"],
+      "port": 5173
+    },
+    {
+      "name": "vnstudio-mini-prod",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "preview", "--", "--host", "--port", "4173"],
+      "port": 4173
+    }
+  ]
+}

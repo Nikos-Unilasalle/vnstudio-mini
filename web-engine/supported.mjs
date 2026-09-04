@@ -359,6 +359,14 @@ export const SUPPORTED_TYPES = [
   'util_on_each',
   'math_3d_to_screen',
   'transform_eye_crop',
+
+  // dataframe analytics / plots
+  'ml_df_filter',
+  'ml_df_stats',
+  'ml_dataframe_join',
+  'ml_scatter_plot',
+  'ml_histogram',
+  'ml_corr_heatmap',
 ]
 
 
