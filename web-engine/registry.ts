@@ -64,6 +64,7 @@ import { imageMoments, sciAnalysisReport, sciCalibration, sciInteractiveCalibrat
 import { sciBoundaryF1, sciClusterHeatmap, sciGlcm, sciHausdorff, sciRegionClassifier, sciRobustBbox } from './nodes/sciAdvanced'
 import { genCanvas, genFeedback, genGrayScott } from './nodes/gen'
 import { pluginEvmColor, pluginEvmMotion } from './nodes/evm'
+import { sciDct, sciFft, sciIfft, sciSpectralGain } from './nodes/spectral'
 import {
   cvMontecarloCluster,
   cvRansac,
@@ -577,6 +578,11 @@ export const IMPLEMENTATIONS: Record<string, NodeImpl> = {
   feat_active_contour: featActiveContour,
   cv_ransac: cvRansac,
   cv_montecarlo_cluster: cvMontecarloCluster,
+
+  sci_fft: sciFft,
+  sci_ifft: sciIfft,
+  sci_spectral_gain: sciSpectralGain,
+  sci_dct: sciDct,
 }
 
 const schemaByType = new Map(SCHEMAS.map((s) => [s.type, s]))

@@ -52,6 +52,10 @@ function isPublishableStructure(value: unknown, depth = 0): boolean {
   if (type === 'number' || type === 'string' || type === 'boolean') return true
   // Functions and symbols cannot be cloned, and neither can a Mat.
   if (type !== 'object' || isMat(value)) return false
+  // A typed array is not something a node component renders, and enumerating a
+  // spectral plane's million keys to find that out would cost more than the
+  // whole frame. ArrayBuffer views are rejected outright.
+  if (ArrayBuffer.isView(value) || value instanceof ArrayBuffer) return false
   // A structure this deep is not something a node component renders; refusing it
   // also bounds the cost of this check on every output of every node, every frame.
   if (depth >= 4) return false

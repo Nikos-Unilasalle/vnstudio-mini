@@ -18705,5 +18705,321 @@
     "variable_inputs": false,
     "hf_model": "",
     "hf_filename": ""
+  },
+  {
+    "type": "sci_fft",
+    "label": "FFT Analysis",
+    "category": "signal",
+    "icon": "Activity",
+    "description": "Advanced 2D FFT Analysis with full color support. Treats BGR channels independently to preserve spectral information. Outputs magnitude, phase, and filtered reconstruction.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image",
+        "label": "Filtered"
+      },
+      {
+        "id": "magnitude",
+        "color": "image",
+        "label": "Magnitude"
+      },
+      {
+        "id": "phase",
+        "color": "image",
+        "label": "Phase"
+      },
+      {
+        "id": "complex_data",
+        "color": "data"
+      },
+      {
+        "id": "magnitude_raw",
+        "color": "data",
+        "label": "Magnitude (raw)"
+      }
+    ],
+    "params": [
+      {
+        "id": "log_scale",
+        "label": "Log Intensity",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "preserve_dynamic_range",
+        "label": "Scientific Range",
+        "type": "bool",
+        "default": false,
+        "description": "Keeps relative intensities instead of normalizing 0-255"
+      },
+      {
+        "id": "filter_type",
+        "label": "Filter Type",
+        "type": "enum",
+        "default": 0,
+        "options": [
+          "None",
+          "Low-pass",
+          "High-pass",
+          "Band-pass",
+          "Band-stop"
+        ]
+      },
+      {
+        "id": "low_cutoff",
+        "label": "Min Freq %",
+        "type": "int",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "default": 0
+      },
+      {
+        "id": "high_cutoff",
+        "label": "Max Freq %",
+        "type": "int",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "default": 10
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "sci_ifft",
+    "label": "Inverse FFT",
+    "category": "signal",
+    "icon": "RotateCcw",
+    "description": "Reconstructs an image from spectral data. Perfect reconstruction from Complex Data or Magnitude Raw + Phase. Magnitude image input is approximate (visualization data).",
+    "inputs": [
+      {
+        "id": "complex_data",
+        "color": "data",
+        "optional": true
+      },
+      {
+        "id": "magnitude_raw",
+        "color": "data",
+        "optional": true
+      },
+      {
+        "id": "magnitude",
+        "color": "image",
+        "optional": true
+      },
+      {
+        "id": "phase",
+        "color": "image",
+        "optional": true
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "mode",
+        "label": "Input Mode",
+        "type": "enum",
+        "default": 0,
+        "options": [
+          "auto",
+          "complex_data",
+          "magnitude_phase"
+        ]
+      },
+      {
+        "id": "inv_log",
+        "label": "Inverse Log",
+        "type": "bool",
+        "default": false,
+        "description": "Undo log(x+1) on magnitude image input. Not needed for magnitude_raw."
+      },
+      {
+        "id": "preserve_dynamic_range",
+        "label": "Scientific Range",
+        "type": "bool",
+        "default": true
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "sci_spectral_gain",
+    "label": "Spectral Gain",
+    "category": "measure",
+    "icon": "Sliders",
+    "description": "3-band frequency equalizer on raw spectral magnitude. Boost or cut low/mid/high spatial frequencies. Connect FFT.magnitude_raw → SpectralGain → IFFT.magnitude_raw.",
+    "inputs": [
+      {
+        "id": "magnitude_raw",
+        "color": "data"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "magnitude_raw",
+        "color": "data",
+        "label": "Magnitude (raw)"
+      },
+      {
+        "id": "preview",
+        "color": "image",
+        "label": "Spectrum Preview"
+      }
+    ],
+    "params": [
+      {
+        "id": "_sec_gain",
+        "label": "Band Gain",
+        "type": "section"
+      },
+      {
+        "id": "low_gain",
+        "label": "Low Freq %",
+        "type": "int",
+        "min": 0,
+        "max": 400,
+        "step": 1,
+        "default": 100
+      },
+      {
+        "id": "mid_gain",
+        "label": "Mid Freq %",
+        "type": "int",
+        "min": 0,
+        "max": 400,
+        "step": 1,
+        "default": 100
+      },
+      {
+        "id": "high_gain",
+        "label": "High Freq %",
+        "type": "int",
+        "min": 0,
+        "max": 400,
+        "step": 1,
+        "default": 100
+      },
+      {
+        "id": "_sec_splits",
+        "label": "Band Splits",
+        "type": "section"
+      },
+      {
+        "id": "low_mid_split",
+        "label": "Low/Mid split %",
+        "type": "int",
+        "min": 1,
+        "max": 98,
+        "step": 1,
+        "default": 15
+      },
+      {
+        "id": "mid_high_split",
+        "label": "Mid/High split %",
+        "type": "int",
+        "min": 2,
+        "max": 99,
+        "step": 1,
+        "default": 50
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "sci_dct",
+    "label": "DCT Analysis",
+    "category": "signal",
+    "icon": "Waves",
+    "description": "2D Discrete Cosine Transform (the transform behind JPEG). View the log DCT spectrum as a colormap, or reconstruct the image keeping only the top-left NxN block of low-frequency coefficients to visualize lossy compression. Reports the fraction of spectral energy retained by the kept coefficients.",
+    "inputs": [
+      {
+        "id": "image",
+        "label": "Image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "label": "Result",
+        "color": "image"
+      },
+      {
+        "id": "data",
+        "label": "Info",
+        "color": "dict"
+      }
+    ],
+    "params": [
+      {
+        "id": "output",
+        "label": "Output",
+        "type": "enum",
+        "options": [
+          "Log Spectrum",
+          "Reconstruction"
+        ],
+        "default": "Log Spectrum"
+      },
+      {
+        "id": "keep_coeffs",
+        "label": "Keep NxN",
+        "type": "int",
+        "min": 1,
+        "max": 256,
+        "default": 32
+      },
+      {
+        "id": "normalize",
+        "label": "Normalize",
+        "type": "bool",
+        "default": true
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
   }
 ]

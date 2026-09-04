@@ -343,6 +343,12 @@ export const SUPPORTED_TYPES = [
   'feat_active_contour',
   'cv_ransac',
   'cv_montecarlo_cluster',
+
+  // Fourier / cosine transforms
+  'sci_fft',
+  'sci_ifft',
+  'sci_spectral_gain',
+  'sci_dct',
 ]
 
 
