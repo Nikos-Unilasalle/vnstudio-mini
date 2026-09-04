@@ -349,6 +349,16 @@ export const SUPPORTED_TYPES = [
   'sci_ifft',
   'sci_spectral_gain',
   'sci_dct',
+
+  // indices / misc
+  'feat_ndwi',
+  'feat_spectral_index',
+  'feat_water_refine',
+  'mask_to_svg',
+  'image_legend',
+  'util_on_each',
+  'math_3d_to_screen',
+  'transform_eye_crop',
 ]
 
 

@@ -66,6 +66,16 @@ import { genCanvas, genFeedback, genGrayScott } from './nodes/gen'
 import { pluginEvmColor, pluginEvmMotion } from './nodes/evm'
 import { sciDct, sciFft, sciIfft, sciSpectralGain } from './nodes/spectral'
 import {
+  featNdwi,
+  featSpectralIndex,
+  featWaterRefine,
+  imageLegend,
+  maskToSvg,
+  math3dToScreen,
+  transformEyeCrop,
+  utilOnEach,
+} from './nodes/misc'
+import {
   cvMontecarloCluster,
   cvRansac,
   cvStereo,
@@ -583,6 +593,15 @@ export const IMPLEMENTATIONS: Record<string, NodeImpl> = {
   sci_ifft: sciIfft,
   sci_spectral_gain: sciSpectralGain,
   sci_dct: sciDct,
+
+  feat_ndwi: featNdwi,
+  feat_spectral_index: featSpectralIndex,
+  feat_water_refine: featWaterRefine,
+  mask_to_svg: maskToSvg,
+  image_legend: imageLegend,
+  util_on_each: utilOnEach,
+  math_3d_to_screen: math3dToScreen,
+  transform_eye_crop: transformEyeCrop,
 }
 
 const schemaByType = new Map(SCHEMAS.map((s) => [s.type, s]))

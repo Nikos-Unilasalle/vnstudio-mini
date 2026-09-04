@@ -19021,5 +19021,636 @@
     "variable_inputs": false,
     "hf_model": "",
     "hf_filename": ""
+  },
+  {
+    "type": "feat_ndwi",
+    "label": "Water Index (NDWI)",
+    "category": "geography",
+    "icon": "Droplets",
+    "description": "Normalized Difference Water Index. Standard formula: (Green−NIR)/(Green+NIR) — connect a NIR band to the second input (Sentinel-2 B8, Landsat B5). RGB Approx. mode uses (B−G)/(B+G) for standard RGB images only. Water threshold: >0.2.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      },
+      {
+        "id": "nir",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "mask",
+        "color": "mask"
+      },
+      {
+        "id": "coverage",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "mode",
+        "label": "Mode",
+        "type": "enum",
+        "options": [
+          "RGB Approx. (B−G)",
+          "Green + NIR (standard)"
+        ],
+        "default": 0
+      },
+      {
+        "id": "threshold",
+        "label": "Threshold",
+        "type": "scalar",
+        "min": -1,
+        "max": 1,
+        "default": 0.2,
+        "step": 0.01
+      },
+      {
+        "id": "colormap",
+        "label": "Colormap",
+        "type": "enum",
+        "options": [
+          "Viridis",
+          "Ocean",
+          "Jet"
+        ],
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "feat_spectral_index",
+    "label": "Spectral Index",
+    "category": "geography",
+    "icon": "Activity",
+    "description": "Generic normalized difference index (A−B)/(A+B). Presets: NDWI, NDVI, NDSI. Custom: pick channels freely. Connect image_b for two-image mode (e.g. separate NIR band).",
+    "inputs": [
+      {
+        "id": "image_a",
+        "color": "image"
+      },
+      {
+        "id": "image_b",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "mask",
+        "color": "mask"
+      },
+      {
+        "id": "coverage",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "preset",
+        "label": "Preset",
+        "type": "enum",
+        "options": [
+          "Custom",
+          "NDWI proxy (B−G)",
+          "NDVI proxy (G−R)",
+          "NDSI proxy (B−R)"
+        ],
+        "default": 0
+      },
+      {
+        "id": "ch_a",
+        "label": "Band A",
+        "type": "enum",
+        "options": [
+          "Blue (0)",
+          "Green (1)",
+          "Red (2)",
+          "Luminance"
+        ],
+        "default": 0
+      },
+      {
+        "id": "ch_b",
+        "label": "Band B",
+        "type": "enum",
+        "options": [
+          "Blue (0)",
+          "Green (1)",
+          "Red (2)",
+          "Luminance"
+        ],
+        "default": 1
+      },
+      {
+        "id": "threshold",
+        "label": "Threshold",
+        "type": "scalar",
+        "min": -1,
+        "max": 1,
+        "default": 0.2,
+        "step": 0.01
+      },
+      {
+        "id": "colormap",
+        "label": "Colormap",
+        "type": "enum",
+        "options": [
+          "Viridis",
+          "Ocean",
+          "Autumn"
+        ],
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "feat_water_refine",
+    "label": "Water Mask Refine",
+    "category": "geography",
+    "icon": "Waves",
+    "description": "Refines a water binary mask: morphological closing to fill gaps, opening to remove noise, area filter to keep only significant water bodies.",
+    "inputs": [
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "mask",
+        "color": "mask"
+      },
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "contours",
+        "color": "list"
+      },
+      {
+        "id": "count",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "close_size",
+        "label": "Close Kernel",
+        "type": "scalar",
+        "min": 0,
+        "max": 51,
+        "default": 7,
+        "step": 2
+      },
+      {
+        "id": "open_size",
+        "label": "Open Kernel",
+        "type": "scalar",
+        "min": 0,
+        "max": 21,
+        "default": 3,
+        "step": 2
+      },
+      {
+        "id": "min_area",
+        "label": "Min Area (px²)",
+        "type": "scalar",
+        "min": 0,
+        "max": 100000,
+        "default": 500,
+        "step": 100
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "mask_to_svg",
+    "label": "Export Mask to SVG",
+    "category": "output",
+    "icon": "Download",
+    "description": "",
+    "inputs": [
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "params": [
+      {
+        "id": "path",
+        "type": "file_path",
+        "default": "output.svg",
+        "label": "File Path"
+      },
+      {
+        "id": "trigger",
+        "type": "trigger",
+        "label": "Save SVG"
+      },
+      {
+        "id": "_sec_display",
+        "label": "Display",
+        "type": "section"
+      },
+      {
+        "id": "stroke_color",
+        "type": "color",
+        "default": "#000000",
+        "label": "Stroke Color"
+      },
+      {
+        "id": "fill_color",
+        "type": "color",
+        "default": "#ffffff",
+        "label": "Fill Color"
+      },
+      {
+        "id": "stroke_width",
+        "type": "number",
+        "default": 1.5,
+        "min": 0.5,
+        "max": 10,
+        "label": "Stroke Width"
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "image_legend",
+    "label": "Image Legend",
+    "category": "draw",
+    "icon": "BookOpen",
+    "description": "Overlay a colour-coded legend on any image. Entries: one per line, format \"Label:#RRGGBB\" or \"Label:R,G,B\". Semi-transparent background, configurable corner.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image",
+        "label": "Image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image",
+        "label": "Image + legend"
+      }
+    ],
+    "params": [
+      {
+        "id": "entries",
+        "type": "string",
+        "default": "Forêt stable:#226422\nRepousse / site abandonné:#64C864\nDéboisement:#8C501E\nEau claire:#0000FF\nEau turbide:#FF1400\nDégradé avant T₀:#500014",
+        "label": "Entries  Label:#RRGGBB  (one per line)"
+      },
+      {
+        "id": "position",
+        "type": "enum",
+        "default": "bottom-left",
+        "options": [
+          "top-left",
+          "top-right",
+          "bottom-left",
+          "bottom-right"
+        ],
+        "label": "Position"
+      },
+      {
+        "id": "font_scale",
+        "type": "float",
+        "default": 0.5,
+        "min": 0.2,
+        "max": 2,
+        "label": "Font scale"
+      },
+      {
+        "id": "swatch_size",
+        "type": "int",
+        "default": 16,
+        "min": 6,
+        "max": 48,
+        "label": "Swatch size (px)"
+      },
+      {
+        "id": "bg_alpha",
+        "type": "float",
+        "default": 0.55,
+        "min": 0,
+        "max": 1,
+        "label": "Background opacity"
+      },
+      {
+        "id": "padding",
+        "type": "int",
+        "default": 8,
+        "min": 0,
+        "max": 40,
+        "label": "Padding (px)"
+      },
+      {
+        "id": "node_note",
+        "type": "string",
+        "default": "",
+        "label": "Note"
+      }
+    ],
+    "resizable": true,
+    "min_width": 280,
+    "min_height": 160,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "util_on_each",
+    "label": "On Each",
+    "category": "utility",
+    "icon": "Layers",
+    "description": "Applies a graphic template to every item in a coordinates list.",
+    "inputs": [
+      {
+        "id": "list_in",
+        "color": "list"
+      },
+      {
+        "id": "template",
+        "color": "dict"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "list_out",
+        "color": "list"
+      }
+    ],
+    "params": [
+      {
+        "id": "text_source",
+        "label": "Text Content",
+        "type": "enum",
+        "options": [
+          "Template Default",
+          "ID / Index",
+          "Label",
+          "Area",
+          "Score",
+          "Coordinates"
+        ],
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "math_3d_to_screen",
+    "label": "3D → Screen",
+    "category": "math",
+    "icon": "Box",
+    "description": "Universal perspective projection of a 3D vector [x, y, z] to 2D screen coordinates [0..1].",
+    "inputs": [
+      {
+        "id": "vector",
+        "color": "dict",
+        "label": "Vector (X, Y, Z)"
+      },
+      {
+        "id": "image",
+        "color": "image",
+        "label": "Background (opt)"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image",
+        "label": "Image Output"
+      },
+      {
+        "id": "x",
+        "color": "scalar",
+        "label": "Screen X"
+      },
+      {
+        "id": "y",
+        "color": "scalar",
+        "label": "Screen Y"
+      },
+      {
+        "id": "point",
+        "color": "dict",
+        "label": "Graphics Point"
+      }
+    ],
+    "params": [
+      {
+        "id": "_sec_projection",
+        "label": "Projection",
+        "type": "section"
+      },
+      {
+        "id": "focal_length",
+        "label": "Focal Length",
+        "type": "float",
+        "default": 1,
+        "min": 0.1,
+        "max": 5,
+        "step": 0.1
+      },
+      {
+        "id": "scale_x",
+        "label": "Scale X",
+        "type": "float",
+        "default": 1,
+        "min": 0.1,
+        "max": 10,
+        "step": 0.05
+      },
+      {
+        "id": "scale_y",
+        "label": "Scale Y",
+        "type": "float",
+        "default": 1,
+        "min": 0.1,
+        "max": 10,
+        "step": 0.05
+      },
+      {
+        "id": "_sec_transform",
+        "label": "Transform",
+        "type": "section"
+      },
+      {
+        "id": "offset_x",
+        "label": "Offset X",
+        "type": "float",
+        "default": 0,
+        "min": -1,
+        "max": 1,
+        "step": 0.01
+      },
+      {
+        "id": "offset_y",
+        "label": "Offset Y",
+        "type": "float",
+        "default": 0,
+        "min": -1,
+        "max": 1,
+        "step": 0.01
+      },
+      {
+        "id": "flip_x",
+        "label": "Flip X",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "flip_y",
+        "label": "Flip Y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "clamp",
+        "label": "Clamp [0..1]",
+        "type": "bool",
+        "default": true
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "transform_eye_crop",
+    "label": "Eye Crop",
+    "category": "body",
+    "icon": "Eye",
+    "description": "Crops and optionally aligns left and right eye regions from MediaPipe Face Tracker landmarks. Reusable for any eye-based classifier.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      },
+      {
+        "id": "face",
+        "color": "dict"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "eye_left",
+        "color": "image"
+      },
+      {
+        "id": "eye_right",
+        "color": "image"
+      },
+      {
+        "id": "meta",
+        "color": "dict"
+      }
+    ],
+    "params": [
+      {
+        "id": "size",
+        "label": "Size (px)",
+        "type": "int",
+        "default": 64,
+        "min": 32,
+        "max": 256
+      },
+      {
+        "id": "padding",
+        "label": "Padding",
+        "type": "float",
+        "default": 0.4,
+        "min": 0,
+        "max": 1.5,
+        "step": 0.05
+      },
+      {
+        "id": "align",
+        "label": "Align",
+        "type": "bool",
+        "default": true
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
   }
 ]
