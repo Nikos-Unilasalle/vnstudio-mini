@@ -64,6 +64,16 @@ import { imageMoments, sciAnalysisReport, sciCalibration, sciInteractiveCalibrat
 import { sciBoundaryF1, sciClusterHeatmap, sciGlcm, sciHausdorff, sciRegionClassifier, sciRobustBbox } from './nodes/sciAdvanced'
 import { genCanvas, genFeedback, genGrayScott } from './nodes/gen'
 import { pluginEvmColor, pluginEvmMotion } from './nodes/evm'
+import { featFast, featHarris, featMatcher, featOrb, featSift } from './nodes/keypoints'
+import {
+  featGaborBank,
+  featHog,
+  featMaskStats,
+  featRansacLine,
+  featShapeGate,
+  featSkeleton,
+  featStructureTensor,
+} from './nodes/featMeasure'
 import {
   dfCollect,
   dfColumnList,
@@ -424,6 +434,19 @@ export const IMPLEMENTATIONS: Record<string, NodeImpl> = {
   df_editor: dfEditor,
   df_export: dfExport,
   df_plot: dfPlot,
+
+  feat_orb: featOrb,
+  feat_sift: featSift,
+  feat_fast: featFast,
+  feat_harris: featHarris,
+  feat_matcher: featMatcher,
+  feat_hog: featHog,
+  feat_gabor_bank: featGaborBank,
+  feat_structure_tensor: featStructureTensor,
+  feat_ransac_line: featRansacLine,
+  feat_skeleton: featSkeleton,
+  feat_mask_stats: featMaskStats,
+  feat_shape_gate: featShapeGate,
 }
 
 const schemaByType = new Map(SCHEMAS.map((s) => [s.type, s]))

@@ -13529,5 +13529,957 @@
     "variable_inputs": false,
     "hf_model": "",
     "hf_filename": ""
+  },
+  {
+    "type": "feat_orb",
+    "label": "ORB Detector",
+    "category": "keypoints",
+    "icon": "Zap",
+    "description": "Detects keypoints and computes ORB descriptors (fast and efficient).",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "keypoints",
+        "color": "list"
+      },
+      {
+        "id": "descriptors",
+        "color": "any"
+      }
+    ],
+    "params": [
+      {
+        "id": "n_features",
+        "label": "Max Features",
+        "type": "scalar",
+        "min": 10,
+        "max": 5000,
+        "default": 500
+      },
+      {
+        "id": "scale_factor",
+        "label": "Scale Factor",
+        "type": "scalar",
+        "min": 1.1,
+        "max": 2,
+        "default": 1.2
+      },
+      {
+        "id": "n_levels",
+        "label": "Levels",
+        "type": "scalar",
+        "min": 1,
+        "max": 16,
+        "default": 8
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "feat_sift",
+    "label": "SIFT Detector",
+    "category": "keypoints",
+    "icon": "Zap",
+    "description": "Detects high-quality scale-invariant keypoints (SIFT algorithm).",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "keypoints",
+        "color": "list"
+      },
+      {
+        "id": "descriptors",
+        "color": "any"
+      }
+    ],
+    "params": [
+      {
+        "id": "n_features",
+        "label": "Max Features",
+        "type": "scalar",
+        "min": 0,
+        "max": 5000,
+        "default": 0
+      },
+      {
+        "id": "contrast_thresh",
+        "label": "Contrast Thr",
+        "type": "scalar",
+        "min": 0,
+        "max": 0.5,
+        "default": 0.04
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "feat_fast",
+    "label": "FAST Corners",
+    "category": "keypoints",
+    "icon": "Zap",
+    "description": "Rapid corner detection optimized for real-time performance.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "keypoints",
+        "color": "list"
+      }
+    ],
+    "params": [
+      {
+        "id": "threshold",
+        "label": "Threshold",
+        "type": "scalar",
+        "min": 1,
+        "max": 100,
+        "default": 10
+      },
+      {
+        "id": "nonmax",
+        "label": "Non-max Suppr.",
+        "type": "boolean",
+        "default": true
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "feat_harris",
+    "label": "Harris Corners",
+    "category": "keypoints",
+    "icon": "LayoutGrid",
+    "description": "Detects corner points using the Harris mathematical operator.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "mask",
+        "color": "mask"
+      },
+      {
+        "id": "keypoints",
+        "color": "list"
+      },
+      {
+        "id": "count",
+        "color": "scalar"
+      },
+      {
+        "id": "points",
+        "color": "list"
+      }
+    ],
+    "params": [
+      {
+        "id": "block_size",
+        "label": "Block Size",
+        "type": "scalar",
+        "min": 2,
+        "max": 10,
+        "default": 2
+      },
+      {
+        "id": "ksize",
+        "label": "Sobel K",
+        "type": "scalar",
+        "min": 1,
+        "max": 31,
+        "default": 3
+      },
+      {
+        "id": "k",
+        "label": "Harris K",
+        "type": "scalar",
+        "min": 0,
+        "max": 0.1,
+        "default": 0.04
+      },
+      {
+        "id": "threshold",
+        "label": "Threshold",
+        "type": "scalar",
+        "min": 0,
+        "max": 0.2,
+        "default": 0.01
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "feat_matcher",
+    "label": "Feature Matcher",
+    "category": "segmentation",
+    "icon": "Link",
+    "description": "Matches features between two sets of descriptors using BF or FLANN and draws matching lines.",
+    "inputs": [
+      {
+        "id": "des1",
+        "color": "any"
+      },
+      {
+        "id": "des2",
+        "color": "any"
+      },
+      {
+        "id": "kp1",
+        "color": "list"
+      },
+      {
+        "id": "kp2",
+        "color": "list"
+      },
+      {
+        "id": "img1",
+        "color": "image"
+      },
+      {
+        "id": "img2",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "matches_count",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "method",
+        "label": "Method",
+        "type": "enum",
+        "options": [
+          "Brute-Force",
+          "FLANN"
+        ],
+        "default": 0
+      },
+      {
+        "id": "norm",
+        "label": "Norm Type",
+        "type": "enum",
+        "options": [
+          "L2 (SIFT)",
+          "HAMMING (ORB)"
+        ],
+        "default": 1
+      },
+      {
+        "id": "ratio_test",
+        "label": "Lowe's Ratio",
+        "type": "scalar",
+        "min": 0.1,
+        "max": 1,
+        "default": 0.75
+      },
+      {
+        "id": "max_matches",
+        "label": "Max Display",
+        "type": "scalar",
+        "min": 1,
+        "max": 200,
+        "default": 50
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "feat_hog",
+    "label": "HOG Descriptor",
+    "category": "measure",
+    "icon": "Wind",
+    "description": "Histogram of Oriented Gradients. Splits the image into cells and draws, in each, the dominant gradient orientations (perpendicular to edges). Outputs the HOG visualisation and a compact global orientation histogram (signature) that stays stable under small rotations — the basis of pedestrian detection.",
+    "inputs": [
+      {
+        "id": "image",
+        "label": "Image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "label": "HOG Visual",
+        "color": "image"
+      },
+      {
+        "id": "signature",
+        "label": "Signature",
+        "color": "list"
+      },
+      {
+        "id": "n_bins",
+        "label": "Orientations",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "orientations",
+        "label": "Orientations",
+        "type": "int",
+        "default": 9,
+        "min": 4,
+        "max": 18
+      },
+      {
+        "id": "cell_px",
+        "label": "Cell Size (px)",
+        "type": "int",
+        "default": 16,
+        "min": 4,
+        "max": 64
+      },
+      {
+        "id": "overlay",
+        "label": "Overlay on Image",
+        "type": "bool",
+        "default": true
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "feat_gabor_bank",
+    "label": "Gabor Bank",
+    "category": "measure",
+    "icon": "Waves",
+    "description": "Multi-orientation Gabor filter bank (ch13 §13.5).\n\nApplies N_theta Gabor filters (magnitude of complex response). Each\nfilter responds only to edges/threads at its own orientation and at the\nchosen wavelength (thread spacing).\n\nOutputs:\n• Orientation Map — per-pixel dominant orientation (colour-coded).\n• Responses Grid — the N individual responses in one labelled montage,\n  all on a SHARED brightness scale so panels are directly comparable.\n• Energy Map — per-pixel max energy across orientations.\n• Signature — mean energy per orientation (a texture signature vector).\n• Orientations — N_theta (scalar).",
+    "inputs": [
+      {
+        "id": "image",
+        "label": "Image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "label": "Orientation Map",
+        "color": "image"
+      },
+      {
+        "id": "responses_grid",
+        "label": "Responses Grid",
+        "color": "image"
+      },
+      {
+        "id": "energy_map",
+        "label": "Energy Map",
+        "color": "image"
+      },
+      {
+        "id": "signature",
+        "label": "Signature",
+        "color": "list"
+      },
+      {
+        "id": "n_orientations",
+        "label": "Orientations",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "n_theta",
+        "label": "Orientations",
+        "type": "int",
+        "default": 4,
+        "min": 2,
+        "max": 16
+      },
+      {
+        "id": "_sec_filter",
+        "label": "Filter",
+        "type": "section"
+      },
+      {
+        "id": "wavelength",
+        "label": "Wavelength (px)",
+        "type": "float",
+        "default": 8,
+        "min": 2,
+        "max": 64
+      },
+      {
+        "id": "sigma",
+        "label": "Sigma",
+        "type": "float",
+        "default": 4,
+        "min": 1,
+        "max": 32
+      },
+      {
+        "id": "gamma",
+        "label": "Aspect Ratio",
+        "type": "float",
+        "default": 0.5,
+        "min": 0.1,
+        "max": 1
+      },
+      {
+        "id": "ksize",
+        "label": "Kernel Size",
+        "type": "int",
+        "default": 31,
+        "min": 7,
+        "max": 63
+      },
+      {
+        "id": "_sec_view",
+        "label": "Display",
+        "type": "section"
+      },
+      {
+        "id": "panel_px",
+        "label": "Panel Size (px)",
+        "type": "int",
+        "default": 256,
+        "min": 96,
+        "max": 640
+      },
+      {
+        "id": "colorize",
+        "label": "Heatmap Panels",
+        "type": "bool",
+        "default": true
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "feat_structure_tensor",
+    "label": "Structure Tensor",
+    "category": "measure",
+    "icon": "Grid",
+    "description": "Computes the structure tensor J in each pixel's neighbourhood (ch6 §6.4).\n\nJ = [Σ(Ix²)   Σ(IxIy)]\n    [Σ(IxIy)  Σ(Iy²) ]   (Gaussian-weighted sum over neighbourhood)\n\nEigenvalues λ₁ ≥ λ₂ of J reveal local geometry:\n  λ₁ ≈ λ₂ ≈ 0   → flat region\n  λ₁ ≫ λ₂ ≈ 0   → edge (one dominant direction)\n  λ₁ ≈ λ₂ ≫ 0   → corner / texture\n\nOverlay: blue=flat, green=edge, red=corner.\nHarris response R = λ₁λ₂ − k·(λ₁+λ₂)² also computed.",
+    "inputs": [
+      {
+        "id": "image",
+        "label": "Image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "label": "Classification",
+        "color": "image"
+      },
+      {
+        "id": "harris",
+        "label": "Harris Response",
+        "color": "image"
+      },
+      {
+        "id": "lambda1",
+        "label": "λ₁ map",
+        "color": "image"
+      },
+      {
+        "id": "lambda2",
+        "label": "λ₂ map",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "sigma_deriv",
+        "label": "Deriv Sigma",
+        "type": "float",
+        "default": 1,
+        "min": 0.5,
+        "max": 5,
+        "step": 0.5
+      },
+      {
+        "id": "sigma_int",
+        "label": "Integration Sigma",
+        "type": "float",
+        "default": 3,
+        "min": 1,
+        "max": 10,
+        "step": 0.5
+      },
+      {
+        "id": "k_harris",
+        "label": "Harris k",
+        "type": "float",
+        "default": 0.04,
+        "min": 0.01,
+        "max": 0.1,
+        "step": 0.01
+      },
+      {
+        "id": "_sec_classification",
+        "label": "Classification",
+        "type": "section"
+      },
+      {
+        "id": "flat_thresh",
+        "label": "Flat Threshold",
+        "type": "float",
+        "default": 0.001,
+        "min": 0,
+        "max": 0.1,
+        "step": 0.001
+      },
+      {
+        "id": "edge_ratio",
+        "label": "Edge Ratio (λ₁/λ₂)",
+        "type": "float",
+        "default": 4,
+        "min": 1.5,
+        "max": 20,
+        "step": 0.5
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "feat_ransac_line",
+    "label": "RANSAC Line Fit",
+    "category": "measure",
+    "icon": "Slash",
+    "description": "Fits one dominant line to the white pixels of an edge map. RANSAC keeps the consensus line supported by the most inliers (robust to false lines); Least Squares fits all points (dragged off by outliers). Reports the inlier count and the line angle, and overlays the fit.",
+    "inputs": [
+      {
+        "id": "image",
+        "label": "Edges",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "label": "Overlay",
+        "color": "image"
+      },
+      {
+        "id": "inliers",
+        "label": "Inliers",
+        "color": "scalar"
+      },
+      {
+        "id": "angle",
+        "label": "Angle (deg)",
+        "color": "scalar"
+      },
+      {
+        "id": "n_points",
+        "label": "Edge Points",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "mode",
+        "label": "Mode",
+        "type": "enum",
+        "options": [
+          "RANSAC",
+          "Least Squares"
+        ],
+        "default": 0
+      },
+      {
+        "id": "threshold",
+        "label": "Inlier Dist (px)",
+        "type": "float",
+        "default": 3,
+        "min": 0.5,
+        "max": 30,
+        "step": 0.5
+      },
+      {
+        "id": "iterations",
+        "label": "Iterations",
+        "type": "int",
+        "default": 200,
+        "min": 10,
+        "max": 5000
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "feat_skeleton",
+    "label": "Skeleton",
+    "category": "measure",
+    "icon": "GitBranch",
+    "description": "Reduces a binary mask to its medial axis (skeleton) (ch11 §11.5).\n\nMethod: Distance Transform + local maxima (crêtes de la carte de distance,\nconsistent with ch10 §10.5). Each skeleton pixel is the centre of a maximal\ninscribed disc — the skeleton and the DT encode the same geometry.\n\nOutputs: skeleton overlay, branch count, max inscribed radius.",
+    "inputs": [
+      {
+        "id": "mask",
+        "label": "Mask",
+        "color": "mask"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "label": "Skeleton",
+        "color": "image"
+      },
+      {
+        "id": "branch_count",
+        "label": "Branch Count",
+        "color": "scalar"
+      },
+      {
+        "id": "max_radius",
+        "label": "Max Inscribed R",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "min_radius",
+        "label": "Min Local Radius (px)",
+        "type": "int",
+        "default": 2,
+        "min": 1,
+        "max": 20
+      },
+      {
+        "id": "overlay",
+        "label": "Overlay on Mask",
+        "type": "bool",
+        "default": true
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "feat_mask_stats",
+    "label": "Mask Statistics",
+    "category": "analysis",
+    "icon": "BarChart2",
+    "description": "Computes statistics from a binary mask: area (px), area % relative to ref_mask, centroid (x, y), bounding box width and height. Connect ref_mask for area_pct relative to full footprint. Connect image for intensity-weighted centroid (pressure centroid).",
+    "inputs": [
+      {
+        "id": "mask",
+        "color": "mask"
+      },
+      {
+        "id": "ref_mask",
+        "color": "mask"
+      },
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "stats",
+        "color": "dict"
+      },
+      {
+        "id": "area_px",
+        "color": "scalar"
+      },
+      {
+        "id": "area_pct",
+        "color": "scalar"
+      },
+      {
+        "id": "centroid_x",
+        "color": "scalar"
+      },
+      {
+        "id": "centroid_y",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "weighted_centroid",
+        "label": "Weighted Centroid",
+        "type": "bool",
+        "default": false
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "feat_shape_gate",
+    "label": "Shape Gate",
+    "category": "segmentation",
+    "icon": "Circle",
+    "description": "Filters connected regions by shape descriptors (ch1 — Décrire une forme).\n\nCircularity C = 4π·A/P²: 1.0=perfect circle, drops when elongated OR edge rough.\nAspect Ratio (elongation) E = L_max/L_min from oriented bbox: 1.0=square, high=elongated.\nSolidity S = A/A_convex: 1.0=fully convex, drops when concavities/fusions present.\nConvexity Cv = P_convex/P: 1.0=smooth hull, drops when edge is rough/jagged.\nEccentricity e = √(1-λ₂/λ₁): 0=circle, →1=needle, mass-weighted.\nRoundness Rd = 4A/(π·L_max²): 1.0=circle, insensitive to edge roughness.\n\nAll active filters are AND-combined. Disable any to use only the others.\nPreview: natural colors=kept, dimmed=rejected, bounding box colored.",
+    "inputs": [
+      {
+        "id": "mask",
+        "label": "Mask",
+        "color": "mask"
+      },
+      {
+        "id": "image",
+        "label": "Image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "mask_kept",
+        "label": "Kept Mask",
+        "color": "mask"
+      },
+      {
+        "id": "mask_rej",
+        "label": "Rejected Mask",
+        "color": "mask"
+      },
+      {
+        "id": "main",
+        "label": "Preview",
+        "color": "image"
+      },
+      {
+        "id": "count",
+        "label": "Count",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "min_size",
+        "label": "Min Size (px²)",
+        "type": "int",
+        "default": 20,
+        "min": 1,
+        "max": 50000
+      },
+      {
+        "id": "_sec_bord",
+        "label": "Bord",
+        "type": "section"
+      },
+      {
+        "id": "use_circularity",
+        "label": "Circularity  C = 4πA/P²",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "min_circularity",
+        "label": "Min C",
+        "type": "float",
+        "default": 0.35,
+        "min": 0,
+        "max": 1,
+        "step": 0.05
+      },
+      {
+        "id": "use_convexity",
+        "label": "Convexity  Cv = P_cvx/P",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "min_convexity",
+        "label": "Min Cv",
+        "type": "float",
+        "default": 0.8,
+        "min": 0,
+        "max": 1,
+        "step": 0.05
+      },
+      {
+        "id": "_sec_forme",
+        "label": "Forme",
+        "type": "section"
+      },
+      {
+        "id": "use_roundness",
+        "label": "Roundness  Rd = 4A/πL²",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "min_roundness",
+        "label": "Min Rd",
+        "type": "float",
+        "default": 0.6,
+        "min": 0,
+        "max": 1,
+        "step": 0.05
+      },
+      {
+        "id": "use_solidity",
+        "label": "Solidity  S = A/A_cvx",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "min_solidity",
+        "label": "Min S",
+        "type": "float",
+        "default": 0.8,
+        "min": 0,
+        "max": 1,
+        "step": 0.05
+      },
+      {
+        "id": "_sec_elon",
+        "label": "Élongation",
+        "type": "section"
+      },
+      {
+        "id": "use_aspect",
+        "label": "Aspect Ratio  E = L/l",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "max_aspect",
+        "label": "Max E",
+        "type": "float",
+        "default": 3,
+        "min": 1,
+        "max": 50,
+        "step": 0.5
+      },
+      {
+        "id": "use_eccentricity",
+        "label": "Eccentricity  e = √(1−λ₂/λ₁)",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "max_eccentricity",
+        "label": "Max e",
+        "type": "float",
+        "default": 0.9,
+        "min": 0,
+        "max": 1,
+        "step": 0.05
+      }
+    ],
+    "resizable": true,
+    "min_width": 240,
+    "min_height": 160,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
   }
 ]

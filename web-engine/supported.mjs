@@ -261,6 +261,21 @@ export const SUPPORTED_TYPES = [
   'df_editor',
   'df_export',
   'df_plot',
+
+  // keypoints / feature measures
+  'feat_orb',
+  'feat_sift',
+  'feat_fast',
+  'feat_harris',
+  'feat_matcher',
+  'feat_hog',
+  'feat_gabor_bank',
+  'feat_structure_tensor',
+  'feat_ransac_line',
+  'feat_skeleton',
+  'feat_mask_stats',
+  'feat_shape_gate',
 ]
+
 
 

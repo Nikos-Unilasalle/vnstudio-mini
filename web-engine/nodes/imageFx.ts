@@ -63,7 +63,7 @@ export const filterNoiseSpeckle: NodeImpl = (inputs, params, ctx) => {
 // ---------------------------------------------------------------------------
 // Gabor Filter
 // ---------------------------------------------------------------------------
-function gaborKernel(ksize: number, sigma: number, theta: number, lambda: number, gamma: number, psi: number): Float32Array {
+export function gaborKernel(ksize: number, sigma: number, theta: number, lambda: number, gamma: number, psi: number): Float32Array {
   const half = Math.floor(ksize / 2)
   const kernel = new Float32Array(ksize * ksize)
   const cosT = Math.cos(theta)
