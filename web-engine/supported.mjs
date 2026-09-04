@@ -324,7 +324,18 @@ export const SUPPORTED_TYPES = [
   'viz_compare_grid',
   'phase_space',
   'imu_phase_dashboard',
+
+  // io / misc
+  'signal_clock',
+  'signal_generator',
+  'color_input',
+  'variable_store',
+  'output_save_frame',
+  'util_snapshot',
+  'export_crops',
+  'obj_extractor',
 ]
+
 
 
 

@@ -17240,5 +17240,594 @@
     "variable_inputs": false,
     "hf_model": "",
     "hf_filename": ""
+  },
+  {
+    "type": "signal_clock",
+    "label": "Clock",
+    "category": "signal",
+    "icon": "Clock",
+    "description": "Pure time source. No inputs needed — forces 30 fps engine ticking. Use as modulation source or pipeline driver.",
+    "inputs": [],
+    "outputs": [
+      {
+        "id": "t",
+        "color": "scalar"
+      },
+      {
+        "id": "ms",
+        "color": "scalar"
+      },
+      {
+        "id": "frame",
+        "color": "scalar"
+      },
+      {
+        "id": "sin_t",
+        "color": "scalar"
+      },
+      {
+        "id": "cos_t",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "speed",
+        "label": "Speed (%)",
+        "min": 1,
+        "max": 1000,
+        "step": 1,
+        "default": 100
+      },
+      {
+        "id": "reset",
+        "label": "Reset",
+        "type": "trigger"
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "signal_generator",
+    "label": "Signal Generator",
+    "category": "signal",
+    "icon": "Waves",
+    "description": "Generates synthetic waveforms and noise. Useful for testing signal pipelines without physical sensors.",
+    "inputs": [
+      {
+        "id": "freq_mod",
+        "color": "scalar"
+      },
+      {
+        "id": "amp_mod",
+        "color": "scalar"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "value",
+        "color": "scalar"
+      },
+      {
+        "id": "t",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "waveform",
+        "label": "Waveform",
+        "type": "enum",
+        "options": [
+          "Sine",
+          "Square",
+          "Triangle",
+          "Sawtooth",
+          "White Noise",
+          "Random Walk"
+        ],
+        "default": 0
+      },
+      {
+        "id": "_sec_signal",
+        "label": "Signal",
+        "type": "section"
+      },
+      {
+        "id": "frequency",
+        "label": "Frequency (Hz)",
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "default": 1
+      },
+      {
+        "id": "freq_fine",
+        "label": "Fine (mHz)",
+        "min": 0,
+        "max": 999,
+        "step": 1,
+        "default": 0
+      },
+      {
+        "id": "amplitude",
+        "label": "Amplitude",
+        "min": 0,
+        "max": 10000,
+        "step": 1,
+        "default": 100
+      },
+      {
+        "id": "offset",
+        "label": "Offset",
+        "min": -10000,
+        "max": 10000,
+        "step": 1,
+        "default": 0
+      },
+      {
+        "id": "phase",
+        "label": "Phase (deg)",
+        "min": 0,
+        "max": 359,
+        "step": 1,
+        "default": 0
+      },
+      {
+        "id": "_sec_advanced",
+        "label": "Advanced",
+        "type": "section"
+      },
+      {
+        "id": "duty",
+        "label": "Duty Cycle (%)",
+        "min": 1,
+        "max": 99,
+        "step": 1,
+        "default": 50
+      },
+      {
+        "id": "rw_step",
+        "label": "Walk Step (%)",
+        "min": 1,
+        "max": 100,
+        "step": 1,
+        "default": 5
+      },
+      {
+        "id": "seed",
+        "label": "Seed (-1=off)",
+        "min": -1,
+        "max": 9999,
+        "step": 1,
+        "default": -1
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "color_input",
+    "label": "Color Value",
+    "category": "color",
+    "icon": "Palette",
+    "description": "Outputs a hex color string. Drive multiple color params from one shared value.",
+    "inputs": [],
+    "outputs": [
+      {
+        "id": "result",
+        "color": "string"
+      }
+    ],
+    "params": [
+      {
+        "id": "value",
+        "label": "Color",
+        "type": "color",
+        "default": "#FF0000"
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "variable_store",
+    "label": "Variable",
+    "category": "data",
+    "icon": "Variable",
+    "description": "Stateful accumulator. Connect to 'append' to add values one by one, or 'replace' to overwrite. Outputs the collected value as joined text, as a list, and a count. Press Clear to reset.",
+    "inputs": [
+      {
+        "id": "append",
+        "color": "any",
+        "label": "Append"
+      },
+      {
+        "id": "replace",
+        "color": "any",
+        "label": "Replace"
+      },
+      {
+        "id": "reset",
+        "color": "scalar",
+        "label": "Reset (>0.5)"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "text",
+        "color": "string",
+        "label": "Text (joined)"
+      },
+      {
+        "id": "list",
+        "color": "list",
+        "label": "List"
+      },
+      {
+        "id": "count",
+        "color": "scalar",
+        "label": "Count"
+      },
+      {
+        "id": "last",
+        "color": "string",
+        "label": "Last"
+      }
+    ],
+    "params": [
+      {
+        "id": "separator",
+        "label": "Text Separator",
+        "type": "string",
+        "default": "\n"
+      },
+      {
+        "id": "clear",
+        "label": "Clear",
+        "type": "trigger",
+        "default": false
+      },
+      {
+        "id": "max_items",
+        "label": "Max Items (0=unlimited)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 10000
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "output_save_frame",
+    "label": "Save Frame",
+    "category": "output",
+    "icon": "ImageDown",
+    "description": "Saves an image to disk on trigger. Supports PNG, JPG, TIFF, BMP. Auto-timestamp option.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      },
+      {
+        "id": "trigger",
+        "color": "scalar"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "saved_path",
+        "color": "string"
+      }
+    ],
+    "params": [
+      {
+        "id": "path",
+        "label": "Folder",
+        "type": "string",
+        "default": "exports"
+      },
+      {
+        "id": "filename",
+        "label": "Filename",
+        "type": "string",
+        "default": "frame"
+      },
+      {
+        "id": "format",
+        "label": "Format",
+        "type": "enum",
+        "options": [
+          "PNG",
+          "JPG",
+          "TIFF",
+          "BMP"
+        ],
+        "default": 0
+      },
+      {
+        "id": "auto_timestamp",
+        "label": "Auto Timestamp",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "record",
+        "label": "Record (every frame)",
+        "type": "toggle",
+        "default": false
+      },
+      {
+        "id": "quality",
+        "label": "JPG Quality",
+        "type": "int",
+        "default": 95,
+        "min": 1,
+        "max": 100
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "util_snapshot",
+    "label": "Snapshot",
+    "category": "utility",
+    "icon": "Camera",
+    "description": "Captures the current frame and saves it as a new image node in the workspace.",
+    "inputs": [
+      {
+        "id": "image",
+        "label": "Image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "capture",
+        "label": "Take Snapshot",
+        "type": "trigger",
+        "default": 0
+      },
+      {
+        "id": "save_to_disk",
+        "label": "Save as Pict",
+        "type": "trigger",
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "export_crops",
+    "label": "Export Crops",
+    "category": "output",
+    "icon": "DownloadCloud",
+    "description": "Export one image per object from a boxes list (GDINO/YOLO) and/or a contours list (SAM). Rect or masked (transparent) crops. Optionally sort into per-class subfolders via a connected labels list (DINOv2) — perfect for building an ImageFolder reference set. Press 'Export Now' to write.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image",
+        "label": "Source Image"
+      },
+      {
+        "id": "boxes_list",
+        "color": "list",
+        "label": "Boxes List"
+      },
+      {
+        "id": "contours",
+        "color": "list",
+        "label": "Contours"
+      },
+      {
+        "id": "labels_list",
+        "color": "list",
+        "label": "Labels List (optional)"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "count",
+        "color": "scalar",
+        "label": "Exported Count"
+      }
+    ],
+    "params": [
+      {
+        "id": "export_trigger",
+        "label": "Export Now",
+        "type": "trigger",
+        "default": 0
+      },
+      {
+        "id": "out_dir",
+        "label": "Output Folder",
+        "type": "string",
+        "default": "exports/crops"
+      },
+      {
+        "id": "prefix",
+        "label": "Prefix",
+        "type": "string",
+        "default": "crop"
+      },
+      {
+        "id": "source",
+        "label": "Source",
+        "type": "enum",
+        "options": [
+          "Auto",
+          "Boxes",
+          "Contours"
+        ],
+        "default": 0
+      },
+      {
+        "id": "cut_mode",
+        "label": "Cut Mode",
+        "type": "enum",
+        "options": [
+          "Rect (opaque)",
+          "Masked (transparent)"
+        ],
+        "default": 0
+      },
+      {
+        "id": "naming",
+        "label": "Naming",
+        "type": "enum",
+        "options": [
+          "Auto (by class if labels)",
+          "By id",
+          "By class"
+        ],
+        "default": 0
+      },
+      {
+        "id": "pad",
+        "label": "Padding (px)",
+        "type": "int",
+        "default": 5,
+        "min": 0,
+        "max": 200
+      },
+      {
+        "id": "format",
+        "label": "Format",
+        "type": "enum",
+        "options": [
+          "PNG",
+          "JPG"
+        ],
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "obj_extractor",
+    "label": "Object Extractor",
+    "category": "segmentation",
+    "icon": "Package",
+    "description": "Unified object extractor — normalises any segmentation output into a labeled map, count, and per-object statistics.\n\nWhen both Mask and Objects are connected, they are merged: objects (circles, polygons) are drawn first, then mask regions not already covered by an object are added — no double-counting.\n\nObject list format: Hough circles, polygon lists, YOLO detections.\nStats output includes: id, area (px²), cx, cy, diameter (px).",
+    "inputs": [
+      {
+        "id": "objects",
+        "label": "Objects List",
+        "color": "list"
+      },
+      {
+        "id": "mask",
+        "label": "Mask",
+        "color": "mask"
+      },
+      {
+        "id": "image",
+        "label": "Image (dims)",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "count",
+        "label": "Count",
+        "color": "scalar"
+      },
+      {
+        "id": "labels",
+        "label": "Labels Map",
+        "color": "markers"
+      },
+      {
+        "id": "main",
+        "label": "Preview",
+        "color": "image"
+      },
+      {
+        "id": "stats",
+        "label": "Stats",
+        "color": "dict"
+      }
+    ],
+    "params": [
+      {
+        "id": "min_area",
+        "label": "Min Area (px²)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 100000
+      }
+    ],
+    "resizable": true,
+    "min_width": 220,
+    "min_height": 160,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
   }
 ]

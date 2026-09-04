@@ -65,6 +65,16 @@ import { sciBoundaryF1, sciClusterHeatmap, sciGlcm, sciHausdorff, sciRegionClass
 import { genCanvas, genFeedback, genGrayScott } from './nodes/gen'
 import { pluginEvmColor, pluginEvmMotion } from './nodes/evm'
 import {
+  colorInput,
+  exportCrops,
+  objExtractor,
+  outputSaveFrame,
+  signalClock,
+  signalGenerator,
+  utilSnapshot,
+  variableStore,
+} from './nodes/io'
+import {
   featListAggregator,
   imuPhaseDashboard,
   phaseSpace,
@@ -541,6 +551,15 @@ export const IMPLEMENTATIONS: Record<string, NodeImpl> = {
   viz_compare_grid: vizCompareGrid,
   phase_space: phaseSpace,
   imu_phase_dashboard: imuPhaseDashboard,
+
+  signal_clock: signalClock,
+  signal_generator: signalGenerator,
+  color_input: colorInput,
+  variable_store: variableStore,
+  output_save_frame: outputSaveFrame,
+  util_snapshot: utilSnapshot,
+  export_crops: exportCrops,
+  obj_extractor: objExtractor,
 }
 
 const schemaByType = new Map(SCHEMAS.map((s) => [s.type, s]))
