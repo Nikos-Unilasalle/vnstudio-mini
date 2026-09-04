@@ -313,7 +313,19 @@ export const SUPPORTED_TYPES = [
   'plugin_invert_mask',
   'points_to_mask',
   'merge_points',
+
+  // analytics / visualisation
+  'sci_plotter',
+  'sci_stats',
+  'sci_heatmap',
+  'feat_list_aggregator',
+  'sci_kmeans_list',
+  'sci_robust_stats',
+  'viz_compare_grid',
+  'phase_space',
+  'imu_phase_dashboard',
 ]
+
 
 
 

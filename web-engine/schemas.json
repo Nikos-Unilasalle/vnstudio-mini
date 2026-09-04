@@ -16547,5 +16547,698 @@
     "variable_inputs": false,
     "hf_model": "",
     "hf_filename": ""
+  },
+  {
+    "type": "sci_plotter",
+    "label": "Plotter",
+    "category": "visualize",
+    "icon": "Activity",
+    "description": "Multi-series real-time graph. Connect any scalar/list inputs dynamically. Resizable.",
+    "inputs": [],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "buffer_size",
+        "label": "History Size",
+        "type": "scalar",
+        "min": 10,
+        "max": 1000,
+        "default": 200
+      },
+      {
+        "id": "_sec_y_axis",
+        "label": "Y Axis",
+        "type": "section"
+      },
+      {
+        "id": "min_y",
+        "label": "Y-Axis Min",
+        "type": "float",
+        "default": 0
+      },
+      {
+        "id": "max_y",
+        "label": "Y-Axis Max",
+        "type": "float",
+        "default": 100
+      },
+      {
+        "id": "auto_scale",
+        "label": "Auto-Scale",
+        "type": "boolean",
+        "default": true
+      },
+      {
+        "id": "_sec_image_size",
+        "label": "Image Size",
+        "type": "section"
+      },
+      {
+        "id": "width",
+        "label": "Image Width",
+        "type": "scalar",
+        "min": 100,
+        "max": 1920,
+        "default": 640
+      },
+      {
+        "id": "height",
+        "label": "Image Height",
+        "type": "scalar",
+        "min": 100,
+        "max": 1080,
+        "default": 360
+      }
+    ],
+    "resizable": true,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": true,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "sci_stats",
+    "label": "Statistics",
+    "category": "measure",
+    "icon": "Info",
+    "description": "Calculates key statistical metrics (mean, median, standard deviation) from a list.",
+    "inputs": [
+      {
+        "id": "data_list",
+        "color": "list"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "mean",
+        "color": "scalar"
+      },
+      {
+        "id": "median",
+        "color": "scalar"
+      },
+      {
+        "id": "std",
+        "color": "scalar"
+      },
+      {
+        "id": "min",
+        "color": "scalar"
+      },
+      {
+        "id": "max",
+        "color": "scalar"
+      }
+    ],
+    "params": [],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "sci_heatmap",
+    "label": "Density Heatmap",
+    "category": "visualize",
+    "icon": "Wind",
+    "description": "Generates a cumulative heatmap based on provided detection points.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      },
+      {
+        "id": "points",
+        "color": "points"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "res",
+        "label": "Resolution",
+        "type": "scalar",
+        "min": 16,
+        "max": 256,
+        "default": 64
+      },
+      {
+        "id": "decay",
+        "label": "Decay (Fade)",
+        "type": "scalar",
+        "min": 0,
+        "max": 0.1,
+        "step": 0.001,
+        "default": 0.01
+      },
+      {
+        "id": "intensity",
+        "label": "Intensity",
+        "type": "scalar",
+        "min": 0.1,
+        "max": 5,
+        "default": 1
+      },
+      {
+        "id": "_sec_display",
+        "label": "Display",
+        "type": "section"
+      },
+      {
+        "id": "blur",
+        "label": "Blur Radius",
+        "type": "scalar",
+        "min": 0,
+        "max": 21,
+        "step": 2,
+        "default": 5
+      },
+      {
+        "id": "colormap",
+        "label": "Colormap",
+        "type": "enum",
+        "options": [
+          "Jet",
+          "Hot",
+          "Magma",
+          "Viridis",
+          "Ocean"
+        ],
+        "default": 0
+      },
+      {
+        "id": "blend",
+        "label": "Alpha Blend",
+        "type": "scalar",
+        "min": 0,
+        "max": 1,
+        "step": 0.1,
+        "default": 0.7
+      },
+      {
+        "id": "_sec_control",
+        "label": "Control",
+        "type": "section"
+      },
+      {
+        "id": "reset",
+        "label": "Reset Buffer",
+        "type": "trigger",
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "feat_list_aggregator",
+    "label": "List Aggregator",
+    "category": "data",
+    "icon": "Sigma",
+    "description": "Extracts a key from a list of objects and computes group statistics (Sum, Mean, SD, Count). Useful for summarizing circle/contour lists.",
+    "inputs": [
+      {
+        "id": "items",
+        "color": "list"
+      },
+      {
+        "id": "px_per_unit",
+        "color": "scalar",
+        "label": "Px/Unit (Calibration)"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "stats",
+        "color": "dict"
+      }
+    ],
+    "params": [
+      {
+        "id": "key",
+        "label": "Target Key",
+        "type": "string",
+        "default": "radius"
+      },
+      {
+        "id": "prefix",
+        "label": "Label Prefix",
+        "type": "string",
+        "default": "Item"
+      },
+      {
+        "id": "is_area",
+        "label": "Is Area (squared factor)",
+        "type": "boolean",
+        "default": false
+      },
+      {
+        "id": "unit",
+        "label": "Unit Name",
+        "type": "string",
+        "default": "mm"
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "sci_kmeans_list",
+    "label": "K-Means Classifier",
+    "category": "measure",
+    "icon": "Grid",
+    "description": "Clusters a list of objects (like circles) into K groups based on a numeric property. Adds a 'cluster_id' to each item. Cluster 0 = smallest value, cluster K-1 = largest.",
+    "inputs": [
+      {
+        "id": "items",
+        "color": "list"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "items",
+        "color": "list",
+        "label": "Clustered List"
+      },
+      {
+        "id": "stats",
+        "color": "dict",
+        "label": "Group Stats (count + center)"
+      }
+    ],
+    "params": [
+      {
+        "id": "k",
+        "label": "K Clusters",
+        "type": "int",
+        "default": 3,
+        "min": 2,
+        "max": 10
+      },
+      {
+        "id": "key",
+        "label": "Property Key",
+        "type": "string",
+        "default": "radius",
+        "hints": "item_keys"
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "sci_robust_stats",
+    "label": "Robust Pixel Stats",
+    "category": "measure",
+    "icon": "ShieldHalf",
+    "description": "Mean, median, std and MAD (median absolute deviation) inside a rectangular ROI (ch16 §16.x). Median and MAD ignore a small fraction of extreme pixels (hot spots, sensor glitches) that drag mean and std off the true background level — compare the two pairs to see how much an outlier costs the non-robust estimators.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "any"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image",
+        "label": "Image + ROI"
+      },
+      {
+        "id": "mean",
+        "color": "scalar"
+      },
+      {
+        "id": "median",
+        "color": "scalar"
+      },
+      {
+        "id": "std",
+        "color": "scalar"
+      },
+      {
+        "id": "mad",
+        "color": "scalar",
+        "label": "MAD"
+      },
+      {
+        "id": "count",
+        "color": "scalar",
+        "label": "Pixel Count"
+      }
+    ],
+    "params": [
+      {
+        "id": "_sec_geometry",
+        "label": "Geometry",
+        "type": "section"
+      },
+      {
+        "id": "x",
+        "label": "X (%)",
+        "type": "float",
+        "default": 0,
+        "min": 0,
+        "max": 99
+      },
+      {
+        "id": "y",
+        "label": "Y (%)",
+        "type": "float",
+        "default": 0,
+        "min": 0,
+        "max": 99
+      },
+      {
+        "id": "w",
+        "label": "Width (%)",
+        "type": "float",
+        "default": 100,
+        "min": 1,
+        "max": 100
+      },
+      {
+        "id": "h",
+        "label": "Height (%)",
+        "type": "float",
+        "default": 100,
+        "min": 1,
+        "max": 100
+      },
+      {
+        "id": "_sec_display",
+        "label": "Display",
+        "type": "section"
+      },
+      {
+        "id": "channel",
+        "label": "Channel",
+        "type": "enum",
+        "options": [
+          "Luminance",
+          "Red",
+          "Green",
+          "Blue"
+        ],
+        "default": 0
+      },
+      {
+        "id": "color",
+        "label": "Overlay Color",
+        "type": "color",
+        "default": "#00FFA0"
+      },
+      {
+        "id": "show_stats",
+        "label": "Show Stats",
+        "type": "bool",
+        "default": true
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "viz_compare_grid",
+    "label": "Compare Grid",
+    "category": "visualize",
+    "icon": "LayoutGrid",
+    "description": "Tiles N connected images into one labelled montage for side-by-side comparison. Inputs are dynamic — drag several image links onto the node (e.g. two segmentations with different seeds vs a third method). Each panel is resized to a common cell and labelled A, B, C…",
+    "inputs": [],
+    "outputs": [
+      {
+        "id": "main",
+        "label": "Grid",
+        "color": "image"
+      },
+      {
+        "id": "n_panels",
+        "label": "Panels",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "cols",
+        "label": "Columns (0=auto)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 8
+      },
+      {
+        "id": "panel_px",
+        "label": "Panel Size (px)",
+        "type": "int",
+        "default": 320,
+        "min": 96,
+        "max": 768
+      },
+      {
+        "id": "show_labels",
+        "label": "Show Labels",
+        "type": "bool",
+        "default": true
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": true,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "phase_space",
+    "label": "Phase Space",
+    "category": "visualize",
+    "icon": "GitBranch",
+    "description": "2D phase-space (Lissajous / attractor) plot for any pair of scalar signals. Fading colored trail.",
+    "inputs": [
+      {
+        "id": "x",
+        "color": "scalar"
+      },
+      {
+        "id": "y",
+        "color": "scalar"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "_sec_labels",
+        "label": "Labels",
+        "type": "section"
+      },
+      {
+        "id": "title",
+        "label": "Title",
+        "type": "string",
+        "default": "Phase Space"
+      },
+      {
+        "id": "x_label",
+        "label": "X Label",
+        "type": "string",
+        "default": "X"
+      },
+      {
+        "id": "y_label",
+        "label": "Y Label",
+        "type": "string",
+        "default": "Y"
+      },
+      {
+        "id": "_sec_trail",
+        "label": "Trail",
+        "type": "section"
+      },
+      {
+        "id": "trail_color",
+        "label": "Trail Color",
+        "type": "color",
+        "default": "#00ffcc"
+      },
+      {
+        "id": "trail_len",
+        "label": "Trail Length",
+        "type": "int",
+        "default": 300,
+        "min": 10,
+        "max": 2000
+      },
+      {
+        "id": "_sec_size",
+        "label": "Size",
+        "type": "section"
+      },
+      {
+        "id": "width",
+        "label": "Width",
+        "type": "int",
+        "default": 380,
+        "min": 150,
+        "max": 800
+      },
+      {
+        "id": "height",
+        "label": "Height",
+        "type": "int",
+        "default": 380,
+        "min": 150,
+        "max": 800
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "imu_phase_dashboard",
+    "label": "IMU Phase Dashboard",
+    "category": "visualize",
+    "icon": "Activity",
+    "description": "6-channel phase-space dashboard for IMU (2×3 grid): Accel XY/XZ/YZ + Gyro XY/XZ/YZ. For M5StickC Plus2.",
+    "inputs": [
+      {
+        "id": "ax",
+        "color": "scalar",
+        "label": "Accel X"
+      },
+      {
+        "id": "ay",
+        "color": "scalar",
+        "label": "Accel Y"
+      },
+      {
+        "id": "az",
+        "color": "scalar",
+        "label": "Accel Z"
+      },
+      {
+        "id": "gx",
+        "color": "scalar",
+        "label": "Gyro X"
+      },
+      {
+        "id": "gy",
+        "color": "scalar",
+        "label": "Gyro Y"
+      },
+      {
+        "id": "gz",
+        "color": "scalar",
+        "label": "Gyro Z"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "trail_len",
+        "label": "Trail Length",
+        "type": "int",
+        "default": 300,
+        "min": 10,
+        "max": 2000
+      },
+      {
+        "id": "width",
+        "label": "Width",
+        "type": "int",
+        "default": 840,
+        "min": 450,
+        "max": 2400
+      },
+      {
+        "id": "height",
+        "label": "Height",
+        "type": "int",
+        "default": 597,
+        "min": 300,
+        "max": 1600
+      },
+      {
+        "id": "title",
+        "label": "Dashboard Title",
+        "type": "string",
+        "default": "IMU Phase Space — M5StickC Plus2"
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
   }
 ]

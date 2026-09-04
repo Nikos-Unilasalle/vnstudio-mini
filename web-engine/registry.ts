@@ -65,6 +65,17 @@ import { sciBoundaryF1, sciClusterHeatmap, sciGlcm, sciHausdorff, sciRegionClass
 import { genCanvas, genFeedback, genGrayScott } from './nodes/gen'
 import { pluginEvmColor, pluginEvmMotion } from './nodes/evm'
 import {
+  featListAggregator,
+  imuPhaseDashboard,
+  phaseSpace,
+  sciHeatmap,
+  sciKmeansList,
+  sciPlotter,
+  sciRobustStats,
+  sciStats,
+  vizCompareGrid,
+} from './nodes/analytics'
+import {
   maskFilterArea,
   maskOutline,
   mergePoints,
@@ -520,6 +531,16 @@ export const IMPLEMENTATIONS: Record<string, NodeImpl> = {
   plugin_invert_mask: pluginInvertMask,
   points_to_mask: pointsToMask,
   merge_points: mergePoints,
+
+  sci_plotter: sciPlotter,
+  sci_stats: sciStats,
+  sci_heatmap: sciHeatmap,
+  feat_list_aggregator: featListAggregator,
+  sci_kmeans_list: sciKmeansList,
+  sci_robust_stats: sciRobustStats,
+  viz_compare_grid: vizCompareGrid,
+  phase_space: phaseSpace,
+  imu_phase_dashboard: imuPhaseDashboard,
 }
 
 const schemaByType = new Map(SCHEMAS.map((s) => [s.type, s]))
