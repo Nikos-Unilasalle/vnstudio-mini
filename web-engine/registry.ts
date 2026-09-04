@@ -64,6 +64,16 @@ import { imageMoments, sciAnalysisReport, sciCalibration, sciInteractiveCalibrat
 import { sciBoundaryF1, sciClusterHeatmap, sciGlcm, sciHausdorff, sciRegionClassifier, sciRobustBbox } from './nodes/sciAdvanced'
 import { genCanvas, genFeedback, genGrayScott } from './nodes/gen'
 import { pluginEvmColor, pluginEvmMotion } from './nodes/evm'
+import {
+  bgSubKnn,
+  bgSubMog2,
+  filterBgSubtraction,
+  geomTrackLine,
+  geomTrackPolygon,
+  opticalFlowLk,
+  trackerSort,
+  trackerVisualize,
+} from './nodes/tracking'
 import { featFast, featHarris, featMatcher, featOrb, featSift } from './nodes/keypoints'
 import {
   featGaborBank,
@@ -447,6 +457,15 @@ export const IMPLEMENTATIONS: Record<string, NodeImpl> = {
   feat_skeleton: featSkeleton,
   feat_mask_stats: featMaskStats,
   feat_shape_gate: featShapeGate,
+
+  bg_sub_mog2: bgSubMog2,
+  bg_sub_knn: bgSubKnn,
+  filter_bg_subtraction: filterBgSubtraction,
+  optical_flow_lk: opticalFlowLk,
+  tracker_sort: trackerSort,
+  tracker_visualize: trackerVisualize,
+  geom_track_line: geomTrackLine,
+  geom_track_polygon: geomTrackPolygon,
 }
 
 const schemaByType = new Map(SCHEMAS.map((s) => [s.type, s]))

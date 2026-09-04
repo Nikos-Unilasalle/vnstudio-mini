@@ -275,7 +275,18 @@ export const SUPPORTED_TYPES = [
   'feat_skeleton',
   'feat_mask_stats',
   'feat_shape_gate',
+
+  // tracking / motion
+  'bg_sub_mog2',
+  'bg_sub_knn',
+  'filter_bg_subtraction',
+  'optical_flow_lk',
+  'tracker_sort',
+  'tracker_visualize',
+  'geom_track_line',
+  'geom_track_polygon',
 ]
+
 
 
 

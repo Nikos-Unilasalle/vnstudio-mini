@@ -14481,5 +14481,760 @@
     "variable_inputs": false,
     "hf_model": "",
     "hf_filename": ""
+  },
+  {
+    "type": "bg_sub_mog2",
+    "label": "Background Subtractor (MOG2)",
+    "category": "tracking",
+    "icon": "Layers",
+    "description": "Separates moving foreground objects from a static background (MOG2).",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "params": [
+      {
+        "id": "history",
+        "label": "History",
+        "type": "scalar",
+        "min": 1,
+        "max": 1000,
+        "default": 500
+      },
+      {
+        "id": "threshold",
+        "label": "Threshold",
+        "type": "scalar",
+        "min": 0,
+        "max": 100,
+        "default": 16
+      },
+      {
+        "id": "detect_shadows",
+        "label": "Shadows",
+        "type": "boolean",
+        "default": true
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "bg_sub_knn",
+    "label": "Background Subtractor (KNN)",
+    "category": "tracking",
+    "icon": "Layers",
+    "description": "Separates moving foreground objects using K-Nearest Neighbors approach.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "params": [
+      {
+        "id": "history",
+        "label": "History",
+        "type": "scalar",
+        "min": 1,
+        "max": 1000,
+        "default": 500
+      },
+      {
+        "id": "threshold",
+        "label": "Dist Thresh",
+        "type": "scalar",
+        "min": 0,
+        "max": 1000,
+        "default": 400
+      },
+      {
+        "id": "detect_shadows",
+        "label": "Shadows",
+        "type": "boolean",
+        "default": true
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "filter_bg_subtraction",
+    "label": "BG Removal",
+    "category": "tracking",
+    "icon": "Ghost",
+    "description": "Subtracts the static background to isolate only moving objects.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "params": [
+      {
+        "id": "history",
+        "min": 1,
+        "max": 1000,
+        "default": 500
+      },
+      {
+        "id": "threshold",
+        "min": 1,
+        "max": 100,
+        "default": 16
+      },
+      {
+        "id": "detectShadows",
+        "label": "Detect Shadows",
+        "type": "bool",
+        "default": true
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "optical_flow_lk",
+    "label": "Optical Flow (Lucas-Kanade)",
+    "category": "tracking",
+    "icon": "Move",
+    "description": "Sparse optical flow: Shi-Tomasi corner detection (goodFeaturesToTrack) tracked frame-to-frame with the pyramidal Lucas-Kanade method (calcOpticalFlowPyrLK). Stateful: keeps the previous frame and tracked points across frames in a 30fps stream.",
+    "inputs": [
+      {
+        "id": "image",
+        "label": "Input Frame",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "label": "Overlay",
+        "color": "image"
+      },
+      {
+        "id": "data",
+        "label": "Stats",
+        "color": "dict"
+      }
+    ],
+    "params": [
+      {
+        "id": "_sec_detection",
+        "label": "Detection",
+        "type": "section"
+      },
+      {
+        "id": "max_corners",
+        "label": "Max Corners",
+        "type": "int",
+        "min": 10,
+        "max": 1000,
+        "default": 200
+      },
+      {
+        "id": "quality",
+        "label": "Quality Level",
+        "type": "float",
+        "min": 0.01,
+        "max": 0.5,
+        "default": 0.3
+      },
+      {
+        "id": "min_distance",
+        "label": "Min Distance",
+        "type": "int",
+        "min": 1,
+        "max": 50,
+        "default": 7
+      },
+      {
+        "id": "win_size",
+        "label": "Window Size",
+        "type": "int",
+        "min": 5,
+        "max": 51,
+        "default": 15
+      },
+      {
+        "id": "redetect_every",
+        "label": "Redetect Every (frames)",
+        "type": "int",
+        "min": 1,
+        "max": 120,
+        "default": 20
+      },
+      {
+        "id": "_sec_display",
+        "label": "Display",
+        "type": "section"
+      },
+      {
+        "id": "draw",
+        "label": "Draw Mode",
+        "type": "enum",
+        "options": [
+          "Tracks",
+          "Arrows",
+          "Points"
+        ],
+        "default": "Tracks"
+      },
+      {
+        "id": "_sec_control",
+        "label": "Control",
+        "type": "section"
+      },
+      {
+        "id": "reset",
+        "label": "Reset Tracks",
+        "type": "trigger",
+        "default": false
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "tracker_sort",
+    "label": "Object Tracker (SORT)",
+    "category": "tracking",
+    "icon": "Crosshair",
+    "description": "Real-time multi-object tracking using SORT (Kalman Filter + Hungarian). Connect the 'objects_list' output from a YOLO or MediaPipe detector.",
+    "inputs": [
+      {
+        "id": "detections",
+        "color": "list"
+      },
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "tracks",
+        "color": "list"
+      },
+      {
+        "id": "track_0",
+        "color": "dict"
+      },
+      {
+        "id": "track_1",
+        "color": "dict"
+      },
+      {
+        "id": "track_2",
+        "color": "dict"
+      },
+      {
+        "id": "track_3",
+        "color": "dict"
+      },
+      {
+        "id": "track_4",
+        "color": "dict"
+      },
+      {
+        "id": "count",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "max_age",
+        "label": "Max Age (frames)",
+        "min": 1,
+        "max": 60,
+        "step": 1,
+        "default": 5
+      },
+      {
+        "id": "min_hits",
+        "label": "Min Hits",
+        "min": 1,
+        "max": 10,
+        "step": 1,
+        "default": 2
+      },
+      {
+        "id": "iou_threshold",
+        "label": "IOU Threshold (%)",
+        "min": 5,
+        "max": 95,
+        "step": 1,
+        "default": 30
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "tracker_visualize",
+    "label": "Track Visualizer",
+    "category": "tracking",
+    "icon": "Tv2",
+    "description": "Renders SORT/DeepSORT tracks: boxes coloured per ID, labels and trajectory trails.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      },
+      {
+        "id": "tracks",
+        "color": "list"
+      },
+      {
+        "id": "point",
+        "color": "dict"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "show_trail",
+        "label": "Show Trail",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "trail_length",
+        "label": "Trail Length (frames)",
+        "min": 2,
+        "max": 120,
+        "step": 1,
+        "default": 30
+      },
+      {
+        "id": "show_id",
+        "label": "Show Track ID",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "show_label",
+        "label": "Show Class Label",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "thickness",
+        "label": "Box Thickness",
+        "min": 1,
+        "max": 10,
+        "step": 1,
+        "default": 2
+      },
+      {
+        "id": "font_scale",
+        "label": "Font Scale (%)",
+        "min": 1,
+        "max": 100,
+        "step": 1,
+        "default": 40
+      },
+      {
+        "id": "fill_alpha",
+        "label": "Box Fill Alpha (%)",
+        "min": 0,
+        "max": 60,
+        "step": 1,
+        "default": 10
+      },
+      {
+        "id": "_sec_point",
+        "label": "Point Overlay",
+        "type": "section"
+      },
+      {
+        "id": "show_point",
+        "label": "Show Point",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "point_radius",
+        "label": "Point Radius",
+        "min": 1,
+        "max": 40,
+        "step": 1,
+        "default": 6
+      },
+      {
+        "id": "point_use_id_color",
+        "label": "Use ID color",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "point_r",
+        "label": "R",
+        "min": 0,
+        "max": 255,
+        "step": 1,
+        "default": 255
+      },
+      {
+        "id": "point_g",
+        "label": "G",
+        "min": 0,
+        "max": 255,
+        "step": 1,
+        "default": 255
+      },
+      {
+        "id": "point_b",
+        "label": "B",
+        "min": 0,
+        "max": 255,
+        "step": 1,
+        "default": 255
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "geom_track_line",
+    "label": "Line Tracker",
+    "category": "tracking",
+    "icon": "Maximize",
+    "description": "Calculates the distance in pixels between two tracked landmarks.",
+    "inputs": [
+      {
+        "id": "data",
+        "color": "dict"
+      },
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "distance",
+        "color": "scalar"
+      },
+      {
+        "id": "draw",
+        "color": "dict"
+      }
+    ],
+    "params": [
+      {
+        "id": "_sec_points",
+        "label": "Points",
+        "type": "section"
+      },
+      {
+        "id": "pt_a",
+        "min": 0,
+        "max": 477,
+        "step": 1,
+        "default": 4
+      },
+      {
+        "id": "pt_b",
+        "min": 0,
+        "max": 477,
+        "step": 1,
+        "default": 8
+      },
+      {
+        "id": "absolute",
+        "label": "Absolute Coords",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "_sec_display",
+        "label": "Display",
+        "type": "section"
+      },
+      {
+        "id": "thickness",
+        "min": 1,
+        "max": 20,
+        "step": 1,
+        "default": 4
+      },
+      {
+        "id": "r",
+        "min": 0,
+        "max": 255,
+        "step": 1,
+        "default": 0
+      },
+      {
+        "id": "g",
+        "min": 0,
+        "max": 255,
+        "step": 1,
+        "default": 255
+      },
+      {
+        "id": "b",
+        "min": 0,
+        "max": 255,
+        "step": 1,
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "geom_track_polygon",
+    "label": "Polygon Tracker",
+    "category": "tracking",
+    "icon": "Target",
+    "description": "Calculates the area of a zone defined by multiple tracked landmarks.",
+    "inputs": [
+      {
+        "id": "data",
+        "color": "dict"
+      },
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "area",
+        "color": "scalar"
+      },
+      {
+        "id": "draw",
+        "color": "dict"
+      }
+    ],
+    "params": [
+      {
+        "id": "_sec_points",
+        "label": "Points",
+        "type": "section"
+      },
+      {
+        "id": "pt_1",
+        "min": -1,
+        "max": 477,
+        "step": 1,
+        "default": 0
+      },
+      {
+        "id": "pt_2",
+        "min": -1,
+        "max": 477,
+        "step": 1,
+        "default": 5
+      },
+      {
+        "id": "pt_3",
+        "min": -1,
+        "max": 477,
+        "step": 1,
+        "default": 9
+      },
+      {
+        "id": "pt_4",
+        "min": -1,
+        "max": 477,
+        "step": 1,
+        "default": 13
+      },
+      {
+        "id": "pt_5",
+        "min": -1,
+        "max": 477,
+        "step": 1,
+        "default": 17
+      },
+      {
+        "id": "pt_6",
+        "min": -1,
+        "max": 477,
+        "step": 1,
+        "default": -1
+      },
+      {
+        "id": "pt_7",
+        "min": -1,
+        "max": 477,
+        "step": 1,
+        "default": -1
+      },
+      {
+        "id": "pt_8",
+        "min": -1,
+        "max": 477,
+        "step": 1,
+        "default": -1
+      },
+      {
+        "id": "pt_9",
+        "min": -1,
+        "max": 477,
+        "step": 1,
+        "default": -1
+      },
+      {
+        "id": "pt_10",
+        "min": -1,
+        "max": 477,
+        "step": 1,
+        "default": -1
+      },
+      {
+        "id": "_sec_options",
+        "label": "Options",
+        "type": "section"
+      },
+      {
+        "id": "absolute",
+        "label": "Absolute Coords",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "fill",
+        "label": "Fill",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "_sec_display",
+        "label": "Display",
+        "type": "section"
+      },
+      {
+        "id": "thickness",
+        "min": 1,
+        "max": 20,
+        "step": 1,
+        "default": 2
+      },
+      {
+        "id": "r",
+        "min": 0,
+        "max": 255,
+        "step": 1,
+        "default": 0
+      },
+      {
+        "id": "g",
+        "min": 0,
+        "max": 255,
+        "step": 1,
+        "default": 255
+      },
+      {
+        "id": "b",
+        "min": 0,
+        "max": 255,
+        "step": 1,
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
   }
 ]
