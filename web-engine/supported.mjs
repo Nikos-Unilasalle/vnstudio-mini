@@ -367,6 +367,15 @@ export const SUPPORTED_TYPES = [
   'ml_scatter_plot',
   'ml_histogram',
   'ml_corr_heatmap',
+
+  // supervised / unsupervised learning
+  'ml_kmeans',
+  'ml_pca',
+  'ml_train_test_split',
+  'ml_knn_classifier',
+  'ml_linear_regression',
+  'ml_cluster_validity',
+  'ml_classification_report',
 ]
 
 

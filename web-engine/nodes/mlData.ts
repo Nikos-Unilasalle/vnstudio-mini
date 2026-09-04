@@ -244,11 +244,11 @@ export const mlDataframeJoin: NodeImpl = (inputs, params, ctx) => {
 
 /* ------------------------------------------------------------------- plots */
 
-const PLOT_BG: [number, number, number] = [26, 26, 26]
-const PLOT_INK: [number, number, number] = [200, 200, 200]
-const PLOT_GRID: [number, number, number] = [55, 55, 55]
+export const PLOT_BG: [number, number, number] = [26, 26, 26]
+export const PLOT_INK: [number, number, number] = [200, 200, 200]
+export const PLOT_GRID: [number, number, number] = [55, 55, 55]
 
-interface Axes {
+export interface Axes {
   left: number
   top: number
   width: number
@@ -260,7 +260,7 @@ interface Axes {
 }
 
 /** Draws the plot frame with gridlines and tick labels, and returns the axes. */
-function drawAxes(cv: any, img: any, xMin: number, xMax: number, yMin: number, yMax: number, grid: boolean, title: string): Axes {
+export function drawAxes(cv: any, img: any, xMin: number, xMax: number, yMin: number, yMax: number, grid: boolean, title: string): Axes {
   const marginLeft = 54
   const marginRight = 14
   const marginTop = title ? 28 : 14
@@ -298,7 +298,7 @@ function drawAxes(cv: any, img: any, xMin: number, xMax: number, yMin: number, y
   return axes
 }
 
-function project(axes: Axes, x: number, y: number): [number, number] {
+export function project(axes: Axes, x: number, y: number): [number, number] {
   return [
     axes.left + Math.round(((x - axes.xMin) / (axes.xMax - axes.xMin)) * axes.width),
     axes.top + axes.height - Math.round(((y - axes.yMin) / (axes.yMax - axes.yMin)) * axes.height),
@@ -306,7 +306,7 @@ function project(axes: Axes, x: number, y: number): [number, number] {
 }
 
 /** Evenly spaced categorical colours, so classes stay distinguishable. */
-function classColour(cv: any, index: number, total: number): any {
+export function classColour(cv: any, index: number, total: number): any {
   const t = total > 1 ? index / (total - 1) : 0
   const [r, g, b] = viridisColor(Math.round(t * 255))
   return new cv.Scalar(b, g, r, 255)

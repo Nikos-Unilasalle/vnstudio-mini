@@ -67,6 +67,15 @@ import { pluginEvmColor, pluginEvmMotion } from './nodes/evm'
 import { sciDct, sciFft, sciIfft, sciSpectralGain } from './nodes/spectral'
 import { mlCorrHeatmap, mlDataframeJoin, mlDfFilter, mlDfStats, mlHistogram, mlScatterPlot } from './nodes/mlData'
 import {
+  mlClassificationReport,
+  mlClusterValidity,
+  mlKmeans,
+  mlKnnClassifier,
+  mlLinearRegression,
+  mlPca,
+  mlTrainTestSplit,
+} from './nodes/mlModels'
+import {
   featNdwi,
   featSpectralIndex,
   featWaterRefine,
@@ -610,6 +619,14 @@ export const IMPLEMENTATIONS: Record<string, NodeImpl> = {
   ml_scatter_plot: mlScatterPlot,
   ml_histogram: mlHistogram,
   ml_corr_heatmap: mlCorrHeatmap,
+
+  ml_kmeans: mlKmeans,
+  ml_pca: mlPca,
+  ml_train_test_split: mlTrainTestSplit,
+  ml_knn_classifier: mlKnnClassifier,
+  ml_linear_regression: mlLinearRegression,
+  ml_cluster_validity: mlClusterValidity,
+  ml_classification_report: mlClassificationReport,
 }
 
 const schemaByType = new Map(SCHEMAS.map((s) => [s.type, s]))

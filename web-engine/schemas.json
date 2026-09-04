@@ -20321,5 +20321,952 @@
     "variable_inputs": false,
     "hf_model": "",
     "hf_filename": ""
+  },
+  {
+    "type": "ml_kmeans",
+    "label": "K-Means",
+    "category": "Machine Learning",
+    "icon": "Target",
+    "description": "K-Means clustering. Slide k to watch clusters form in real time. 2 features → direct scatter + regions. N features → PCA 2D projection. Outputs inertia + silhouette score for elbow/quality analysis.",
+    "inputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame + cluster"
+      },
+      {
+        "id": "preview",
+        "color": "image",
+        "label": "Clusters"
+      },
+      {
+        "id": "elbow_plot",
+        "color": "image",
+        "label": "Elbow curve"
+      },
+      {
+        "id": "inertia",
+        "color": "scalar",
+        "label": "Inertia (WCSS)"
+      },
+      {
+        "id": "silhouette",
+        "color": "scalar",
+        "label": "Silhouette score"
+      },
+      {
+        "id": "df_meta",
+        "color": "dict",
+        "label": "DF Columns"
+      }
+    ],
+    "params": [
+      {
+        "id": "features",
+        "label": "Features (blank = all numeric)",
+        "type": "string",
+        "default": "",
+        "hints": "df_columns"
+      },
+      {
+        "id": "k",
+        "label": "k  (clusters)",
+        "type": "int",
+        "default": 3,
+        "min": 2,
+        "max": 20
+      },
+      {
+        "id": "standardize",
+        "label": "Standardize features",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "_sec_model",
+        "label": "Model",
+        "type": "section"
+      },
+      {
+        "id": "init",
+        "label": "Init method",
+        "type": "enum",
+        "options": [
+          "k-means++",
+          "random"
+        ],
+        "default": 0
+      },
+      {
+        "id": "max_iter",
+        "label": "Max iterations",
+        "type": "int",
+        "default": 300,
+        "min": 10,
+        "max": 1000
+      },
+      {
+        "id": "n_init",
+        "label": "N restarts",
+        "type": "int",
+        "default": 10,
+        "min": 1,
+        "max": 50
+      },
+      {
+        "id": "random_state",
+        "label": "Random seed",
+        "type": "int",
+        "default": 42,
+        "min": 0,
+        "max": 9999
+      },
+      {
+        "id": "_sec_elbow",
+        "label": "Elbow Curve",
+        "type": "section"
+      },
+      {
+        "id": "show_elbow",
+        "label": "Show elbow plot",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "k_max",
+        "label": "Elbow k max",
+        "type": "int",
+        "default": 10,
+        "min": 2,
+        "max": 30,
+        "show_if": {
+          "param": "show_elbow",
+          "value": true
+        }
+      },
+      {
+        "id": "_sec_viz",
+        "label": "Visualization",
+        "type": "section"
+      },
+      {
+        "id": "colormap",
+        "label": "Colormap",
+        "type": "enum",
+        "options": [
+          "Tab10",
+          "Set1",
+          "Set2",
+          "Viridis",
+          "Plasma"
+        ],
+        "default": 0
+      },
+      {
+        "id": "show_regions",
+        "label": "Show regions",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "boundary_res",
+        "label": "Region resolution",
+        "type": "int",
+        "default": 120,
+        "min": 40,
+        "max": 300
+      },
+      {
+        "id": "_sec_export",
+        "label": "Export",
+        "type": "section"
+      },
+      {
+        "id": "out_dpi",
+        "label": "DPI export (100=écran, 300=publication)",
+        "type": "int",
+        "default": 100,
+        "min": 72,
+        "max": 600
+      },
+      {
+        "id": "out_w",
+        "label": "Largeur export px  (0 = taille nœud)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 5000
+      },
+      {
+        "id": "out_h",
+        "label": "Hauteur export px  (0 = taille nœud)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 5000
+      }
+    ],
+    "resizable": true,
+    "min_width": 320,
+    "min_height": 260,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "ml_pca",
+    "label": "PCA",
+    "category": "Machine Learning",
+    "icon": "Aperture",
+    "description": "Principal Component Analysis. Reduces dimensionality, shows PC1 vs PC2 scatter and explained variance chart. Connect hue column to colour by class or cluster.",
+    "inputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "transformed",
+        "color": "data",
+        "label": "Projected DataFrame"
+      },
+      {
+        "id": "scatter",
+        "color": "image",
+        "label": "PC1 vs PC2"
+      },
+      {
+        "id": "variance_plot",
+        "color": "image",
+        "label": "Explained variance"
+      },
+      {
+        "id": "pc1_variance",
+        "color": "scalar",
+        "label": "PC1 variance %"
+      },
+      {
+        "id": "pc2_variance",
+        "color": "scalar",
+        "label": "PC2 variance %"
+      }
+    ],
+    "params": [
+      {
+        "id": "features",
+        "label": "Features (blank = all numeric)",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "n_components",
+        "label": "Components to compute",
+        "type": "int",
+        "default": 5,
+        "min": 2,
+        "max": 20
+      },
+      {
+        "id": "standardize",
+        "label": "Standardize (StandardScaler)",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "_sec_viz",
+        "label": "Visualization",
+        "type": "section"
+      },
+      {
+        "id": "hue_col",
+        "label": "Color by column",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "colormap",
+        "label": "Colormap",
+        "type": "enum",
+        "options": [
+          "Tab10",
+          "Set1",
+          "Set2",
+          "Viridis",
+          "Plasma"
+        ],
+        "default": 0
+      },
+      {
+        "id": "alpha",
+        "label": "Opacity",
+        "type": "float",
+        "default": 0.75,
+        "min": 0.1,
+        "max": 1,
+        "step": 0.05
+      },
+      {
+        "id": "dot_size",
+        "label": "Dot size",
+        "type": "int",
+        "default": 30,
+        "min": 5,
+        "max": 200
+      },
+      {
+        "id": "show_loadings",
+        "label": "Show loadings (biplot)",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "_sec_export",
+        "label": "Export",
+        "type": "section"
+      },
+      {
+        "id": "out_dpi",
+        "label": "DPI export (100=écran, 300=publication)",
+        "type": "int",
+        "default": 100,
+        "min": 72,
+        "max": 600
+      },
+      {
+        "id": "out_w",
+        "label": "Largeur export px  (0 = taille nœud)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 5000
+      },
+      {
+        "id": "out_h",
+        "label": "Hauteur export px  (0 = taille nœud)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 5000
+      }
+    ],
+    "resizable": true,
+    "min_width": 320,
+    "min_height": 260,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "ml_train_test_split",
+    "label": "Train / Test Split",
+    "category": "Machine Learning",
+    "icon": "Scissors",
+    "description": "Split a DataFrame into training and test sets. Connect train → model, test → evaluation.",
+    "inputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "train",
+        "color": "data",
+        "label": "Train set"
+      },
+      {
+        "id": "test",
+        "color": "data",
+        "label": "Test set"
+      },
+      {
+        "id": "train_count",
+        "color": "scalar",
+        "label": "Train rows"
+      },
+      {
+        "id": "test_count",
+        "color": "scalar",
+        "label": "Test rows"
+      },
+      {
+        "id": "preview",
+        "color": "image",
+        "label": "Split info"
+      }
+    ],
+    "params": [
+      {
+        "id": "_sec_split",
+        "label": "Split Config",
+        "type": "section"
+      },
+      {
+        "id": "test_size",
+        "label": "Test size (%)",
+        "type": "int",
+        "default": 20,
+        "min": 5,
+        "max": 50
+      },
+      {
+        "id": "stratify_col",
+        "label": "Stratify by",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "random_state",
+        "label": "Random seed",
+        "type": "int",
+        "default": 42,
+        "min": 0,
+        "max": 9999
+      },
+      {
+        "id": "shuffle",
+        "label": "Shuffle",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "_sec_filter",
+        "label": "Filter",
+        "type": "section"
+      },
+      {
+        "id": "filter_col",
+        "label": "Filter column (blank=none)",
+        "type": "string",
+        "default": "label"
+      },
+      {
+        "id": "filter_nodata",
+        "label": "Exclude value (unlabeled)",
+        "type": "float",
+        "default": -1
+      }
+    ],
+    "resizable": true,
+    "min_width": 260,
+    "min_height": 160,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "ml_knn_classifier",
+    "label": "KNN Classifier",
+    "category": "Machine Learning",
+    "icon": "Users",
+    "description": "K-Nearest Neighbors classifier. 2 features → decision boundary + scatter. N features → confusion matrix. Slide k to see how the boundary changes in real time.",
+    "inputs": [
+      {
+        "id": "train",
+        "color": "data",
+        "label": "Train set"
+      },
+      {
+        "id": "test",
+        "color": "data",
+        "label": "Test set"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "preview",
+        "color": "image",
+        "label": "Decision boundary / Confusion matrix"
+      },
+      {
+        "id": "accuracy",
+        "color": "scalar",
+        "label": "Test accuracy"
+      },
+      {
+        "id": "train_acc",
+        "color": "scalar",
+        "label": "Train accuracy"
+      },
+      {
+        "id": "report",
+        "color": "image",
+        "label": "Classification report"
+      },
+      {
+        "id": "report_data",
+        "color": "dict",
+        "label": "Report dict"
+      }
+    ],
+    "params": [
+      {
+        "id": "_sec_data",
+        "label": "Data",
+        "type": "section"
+      },
+      {
+        "id": "features",
+        "label": "Feature columns (comma-separated)",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "target",
+        "label": "Target column",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "_sec_model",
+        "label": "Model Config",
+        "type": "section"
+      },
+      {
+        "id": "k",
+        "label": "k (neighbors)",
+        "type": "int",
+        "default": 5,
+        "min": 1,
+        "max": 50
+      },
+      {
+        "id": "metric",
+        "label": "Distance metric",
+        "type": "enum",
+        "options": [
+          "euclidean",
+          "manhattan",
+          "chebyshev",
+          "minkowski"
+        ],
+        "default": 0
+      },
+      {
+        "id": "weights",
+        "label": "Weights",
+        "type": "enum",
+        "options": [
+          "uniform",
+          "distance"
+        ],
+        "default": 0
+      },
+      {
+        "id": "_sec_display",
+        "label": "Display",
+        "type": "section"
+      },
+      {
+        "id": "colormap",
+        "label": "Colormap",
+        "type": "enum",
+        "options": [
+          "tab10",
+          "Set1",
+          "Set2",
+          "viridis"
+        ],
+        "default": 0
+      },
+      {
+        "id": "boundary_res",
+        "label": "Boundary resolution",
+        "type": "int",
+        "default": 150,
+        "min": 50,
+        "max": 400
+      },
+      {
+        "id": "_sec_export",
+        "label": "Export",
+        "type": "section"
+      },
+      {
+        "id": "out_dpi",
+        "label": "Export DPI (100=screen, 300=publication)",
+        "type": "int",
+        "default": 100,
+        "min": 72,
+        "max": 600
+      },
+      {
+        "id": "out_w",
+        "label": "Export width px (0 = node size)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 5000
+      },
+      {
+        "id": "out_h",
+        "label": "Export height px (0 = node size)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 5000
+      }
+    ],
+    "resizable": true,
+    "min_width": 320,
+    "min_height": 260,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "ml_linear_regression",
+    "label": "Linear Regression",
+    "category": "Machine Learning",
+    "icon": "TrendingUp",
+    "description": "Linear regression: predicted vs actual scatter, residuals, and feature coefficients bar chart. Outputs: train/test R², RMSE.",
+    "inputs": [
+      {
+        "id": "train",
+        "color": "data",
+        "label": "Train set"
+      },
+      {
+        "id": "test",
+        "color": "data",
+        "label": "Test set"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "preview",
+        "color": "image",
+        "label": "Predicted vs Actual + Residuals"
+      },
+      {
+        "id": "coef_plot",
+        "color": "image",
+        "label": "Coefficients"
+      },
+      {
+        "id": "r2_test",
+        "color": "scalar",
+        "label": "R² test"
+      },
+      {
+        "id": "r2_train",
+        "color": "scalar",
+        "label": "R² train"
+      },
+      {
+        "id": "rmse",
+        "color": "scalar",
+        "label": "RMSE test"
+      }
+    ],
+    "params": [
+      {
+        "id": "_sec_data_lr",
+        "label": "Data",
+        "type": "section"
+      },
+      {
+        "id": "features",
+        "label": "Features (blank = all numeric)",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "target",
+        "label": "Target column",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "fit_intercept",
+        "label": "Fit intercept",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "standardize",
+        "label": "Standardize features",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "_sec_export_lr",
+        "label": "Export",
+        "type": "section"
+      },
+      {
+        "id": "out_dpi",
+        "label": "Export DPI (100=screen, 300=publication)",
+        "type": "int",
+        "default": 100,
+        "min": 72,
+        "max": 600
+      },
+      {
+        "id": "out_w",
+        "label": "Export width px (0 = node size)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 5000
+      },
+      {
+        "id": "out_h",
+        "label": "Export height px (0 = node size)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 5000
+      }
+    ],
+    "resizable": true,
+    "min_width": 320,
+    "min_height": 260,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "ml_cluster_validity",
+    "label": "Cluster Validity",
+    "category": "Machine Learning",
+    "icon": "Gauge",
+    "description": "Score a clustering to choose k. Feed a DataFrame with a cluster-label column (e.g. ml_kmeans table output). Outputs Calinski-Harabasz (↑ better), Davies-Bouldin (↓ better) and Dunn (↑ better). Compare across k to pick the best.",
+    "inputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame + cluster"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "calinski_harabasz",
+        "color": "scalar",
+        "label": "Calinski-Harabasz ↑"
+      },
+      {
+        "id": "davies_bouldin",
+        "color": "scalar",
+        "label": "Davies-Bouldin ↓"
+      },
+      {
+        "id": "dunn",
+        "color": "scalar",
+        "label": "Dunn ↑"
+      },
+      {
+        "id": "preview",
+        "color": "image",
+        "label": "Scores"
+      },
+      {
+        "id": "df_meta",
+        "color": "dict",
+        "label": "Scores dict"
+      }
+    ],
+    "params": [
+      {
+        "id": "cluster_col",
+        "label": "Cluster column",
+        "type": "string",
+        "default": "cluster",
+        "hints": "df_columns"
+      },
+      {
+        "id": "features",
+        "label": "Features (blank = all numeric)",
+        "type": "string",
+        "default": "",
+        "hints": "df_columns"
+      },
+      {
+        "id": "standardize",
+        "label": "Standardize features",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "show_plot",
+        "label": "Show score bars",
+        "type": "bool",
+        "default": true
+      }
+    ],
+    "resizable": true,
+    "min_width": 300,
+    "min_height": 220,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "ml_classification_report",
+    "label": "Classification Report",
+    "category": "Machine Learning",
+    "icon": "ClipboardList",
+    "description": "Render a publication-quality classification report from sklearn outputs. Top panel: 5×5 normalized confusion matrix (row-normalized, recall on diagonal, Blues colormap). Bottom panel: precision / recall / F1 / support table with F1 cells color-coded (green / amber / red). Target classes (e.g. 95=Mangroves, 60=Bare) starred and F1 scalars exposed for pipeline thresholding. Connect report_data + conf_matrix outputs from geo_rf_classifier.",
+    "inputs": [
+      {
+        "id": "report_data",
+        "color": "dict",
+        "label": "report_data (classification_report dict)"
+      },
+      {
+        "id": "conf_matrix",
+        "color": "data",
+        "label": "conf_matrix (normalized matrix dict)"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "report",
+        "color": "image",
+        "label": "Full report panel"
+      },
+      {
+        "id": "f1_main",
+        "color": "scalar",
+        "label": "F1 class target A"
+      },
+      {
+        "id": "f1_b",
+        "color": "scalar",
+        "label": "F1 class target B"
+      },
+      {
+        "id": "oa",
+        "color": "scalar",
+        "label": "Overall accuracy"
+      }
+    ],
+    "params": [
+      {
+        "id": "_sec_targets",
+        "label": "Target Classes",
+        "type": "section"
+      },
+      {
+        "id": "class_target_a",
+        "type": "string",
+        "default": "95",
+        "label": "Class target A (e.g. 95 = Mangroves)"
+      },
+      {
+        "id": "class_target_b",
+        "type": "string",
+        "default": "60",
+        "label": "Class target B (e.g. 60 = Bare/orpaillage)"
+      },
+      {
+        "id": "_sec_thresholds",
+        "label": "F1 Thresholds",
+        "type": "section"
+      },
+      {
+        "id": "f1_threshold_high",
+        "type": "float",
+        "default": 0.85,
+        "min": 0,
+        "max": 1,
+        "label": "F1 threshold high (green ≥ this)"
+      },
+      {
+        "id": "f1_threshold_low",
+        "type": "float",
+        "default": 0.75,
+        "min": 0,
+        "max": 1,
+        "label": "F1 threshold low (orange ≥ this, else red)"
+      },
+      {
+        "id": "_sec_display",
+        "label": "Display",
+        "type": "section"
+      },
+      {
+        "id": "class_labels",
+        "type": "string",
+        "default": "10=Trees,60=Bare,80=Water,90=Wetland,95=Mangroves",
+        "label": "Class labels (value=name, comma-sep)"
+      },
+      {
+        "id": "dpi",
+        "type": "int",
+        "default": 110,
+        "min": 72,
+        "max": 300,
+        "label": "Output DPI"
+      },
+      {
+        "id": "node_note",
+        "type": "string",
+        "default": "",
+        "label": "Note"
+      }
+    ],
+    "resizable": true,
+    "min_width": 320,
+    "min_height": 200,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
   }
 ]
