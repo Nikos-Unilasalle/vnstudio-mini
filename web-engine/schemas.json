@@ -11575,5 +11575,596 @@
     "variable_inputs": false,
     "hf_model": "",
     "hf_filename": ""
+  },
+  {
+    "type": "note",
+    "label": "Note",
+    "category": "canvas",
+    "icon": "StickyNote",
+    "description": "Adds a textual annotation or comment to the workspace.",
+    "inputs": [],
+    "outputs": [],
+    "params": [
+      {
+        "id": "text",
+        "label": "Text",
+        "type": "string",
+        "multiline": true,
+        "default": "Write something..."
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "reroute",
+    "label": "Reroute",
+    "category": "canvas",
+    "icon": "GitCommit",
+    "description": "Helper to organize connection lines and fan out signals.",
+    "inputs": [
+      {
+        "id": "in",
+        "color": "any"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "out",
+        "color": "any"
+      }
+    ],
+    "params": [],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "geom_flip",
+    "label": "Flip",
+    "category": "geometry",
+    "icon": "Move",
+    "description": "Inverts the image horizontally or vertically.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "flip_mode",
+        "label": "Flip (0=V, 1=H, -1=Both)",
+        "type": "int",
+        "default": 1
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "geom_resize",
+    "label": "Resize",
+    "category": "geometry",
+    "icon": "Scaling",
+    "description": "Reduces the image resolution to accelerate downstream processing.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "width",
+        "color": "scalar"
+      },
+      {
+        "id": "height",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "mode",
+        "label": "Mode",
+        "type": "enum",
+        "options": [
+          "Scale (%)",
+          "Width",
+          "Height",
+          "Exact"
+        ],
+        "default": 0
+      },
+      {
+        "id": "scale",
+        "label": "Scale",
+        "type": "float",
+        "default": 0.5,
+        "min": 0.01,
+        "max": 1,
+        "step": 0.01
+      },
+      {
+        "id": "width",
+        "label": "Width (px)",
+        "type": "int",
+        "default": 640,
+        "min": 1,
+        "max": 7680
+      },
+      {
+        "id": "height",
+        "label": "Height (px)",
+        "type": "int",
+        "default": 480,
+        "min": 1,
+        "max": 7680
+      },
+      {
+        "id": "interpolation",
+        "label": "Interpolation",
+        "type": "enum",
+        "options": [
+          "Auto (rec.)",
+          "Nearest",
+          "Linear",
+          "Cubic",
+          "Lanczos",
+          "Area"
+        ],
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "filter_color_mask",
+    "label": "Color Mask",
+    "category": "mask",
+    "icon": "Layers",
+    "description": "Creates a mask by isolating a range of colors (HSV or RGB distance).",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "mask",
+        "color": "mask"
+      },
+      {
+        "id": "masked",
+        "label": "Masked Image",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "mode",
+        "label": "Mode",
+        "type": "enum",
+        "options": [
+          "HSV Range",
+          "RGB Distance"
+        ],
+        "default": 0
+      },
+      {
+        "id": "color",
+        "label": "Target Color",
+        "type": "color",
+        "default": "#FF0000"
+      },
+      {
+        "id": "h_tol",
+        "label": "H Tolerance",
+        "type": "int",
+        "default": 10,
+        "min": 0,
+        "max": 90
+      },
+      {
+        "id": "s_tol",
+        "label": "S Tolerance",
+        "type": "int",
+        "default": 40,
+        "min": 0,
+        "max": 255
+      },
+      {
+        "id": "v_tol",
+        "label": "V Tolerance",
+        "type": "int",
+        "default": 40,
+        "min": 0,
+        "max": 255
+      },
+      {
+        "id": "threshold",
+        "label": "RGB Threshold",
+        "type": "int",
+        "default": 30,
+        "min": 0,
+        "max": 441
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "filter_morphology",
+    "label": "Morphology",
+    "category": "mask",
+    "icon": "Layers",
+    "description": "Dilation or erosion operations to clean up masks.",
+    "inputs": [
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "params": [
+      {
+        "id": "operation",
+        "label": "Operation",
+        "type": "enum",
+        "options": [
+          "Dilate",
+          "Erode"
+        ],
+        "default": 0
+      },
+      {
+        "id": "size",
+        "label": "Kernel Size",
+        "type": "scalar",
+        "min": 1,
+        "max": 51,
+        "default": 3
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "util_coord_to_mask",
+    "label": "Coord To Mask",
+    "category": "mask",
+    "icon": "Layers",
+    "description": "Transforms detection coordinates into a white mask.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      },
+      {
+        "id": "data",
+        "color": "any"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "params": [
+      {
+        "id": "width",
+        "label": "Width (if no img)",
+        "type": "int",
+        "default": 640
+      },
+      {
+        "id": "height",
+        "label": "Height (if no img)",
+        "type": "int",
+        "default": 480
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "util_mask_blend",
+    "label": "Mask Blend",
+    "category": "mask",
+    "icon": "Layers",
+    "description": "Combines two images using a binary mask as a transparency layer.",
+    "inputs": [
+      {
+        "id": "image_a",
+        "color": "image"
+      },
+      {
+        "id": "image_b",
+        "color": "image"
+      },
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "analysis_flow",
+    "label": "Optical Flow",
+    "category": "tracking",
+    "icon": "Wind",
+    "description": "Analyzes movement between frames using Farneback algorithm.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "data",
+        "color": "any"
+      }
+    ],
+    "params": [
+      {
+        "id": "preset",
+        "label": "Preset",
+        "type": "enum",
+        "options": [
+          "Standard",
+          "Precise / Slow",
+          "Fast",
+          "High Quality",
+          "Performance",
+          "Custom"
+        ],
+        "default": 0
+      },
+      {
+        "id": "pyr_scale",
+        "label": "Pyramid Scale",
+        "type": "float",
+        "default": 0.5
+      },
+      {
+        "id": "levels",
+        "label": "Levels",
+        "type": "int",
+        "default": 3
+      },
+      {
+        "id": "winsize",
+        "label": "Win Size",
+        "type": "int",
+        "default": 15
+      },
+      {
+        "id": "iterations",
+        "label": "Iterations",
+        "type": "int",
+        "default": 3
+      },
+      {
+        "id": "poly_n",
+        "label": "Poly N",
+        "type": "int",
+        "default": 5
+      },
+      {
+        "id": "poly_sigma",
+        "label": "Poly Sigma",
+        "type": "float",
+        "default": 1.2
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "analysis_flow_viz",
+    "label": "Flow Visualizer",
+    "category": "tracking",
+    "icon": "Eye",
+    "description": "Colorized visualization of optical flow data.",
+    "inputs": [
+      {
+        "id": "data",
+        "color": "any"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "analysis_monitor",
+    "label": "Monitor",
+    "category": "analysis",
+    "icon": "Target",
+    "description": "Universal measurement tool for flow, area, brightness, and counting objects.",
+    "inputs": [
+      {
+        "id": "data",
+        "color": "data"
+      },
+      {
+        "id": "image",
+        "color": "image"
+      },
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "scalar",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "mode",
+        "label": "Mode",
+        "type": "enum",
+        "options": [
+          "Auto",
+          "Flux (Motion)",
+          "Area (Mask)",
+          "Brightness",
+          "Red Channel",
+          "Green Channel",
+          "Blue Channel",
+          "Count (Elements)",
+          "Scalar Value"
+        ],
+        "default": 0
+      },
+      {
+        "id": "scale",
+        "label": "Scale Factor",
+        "type": "scalar",
+        "min": 0,
+        "max": 1000,
+        "default": 1
+      },
+      {
+        "id": "offset",
+        "label": "Offset",
+        "type": "scalar",
+        "min": -1000,
+        "max": 1000,
+        "default": 0
+      },
+      {
+        "id": "precision",
+        "label": "Decimals",
+        "type": "scalar",
+        "min": 0,
+        "max": 5,
+        "default": 3
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
   }
 ]

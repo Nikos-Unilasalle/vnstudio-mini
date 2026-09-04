@@ -64,6 +64,19 @@ import { imageMoments, sciAnalysisReport, sciCalibration, sciInteractiveCalibrat
 import { sciBoundaryF1, sciClusterHeatmap, sciGlcm, sciHausdorff, sciRegionClassifier, sciRobustBbox } from './nodes/sciAdvanced'
 import { genCanvas, genFeedback, genGrayScott } from './nodes/gen'
 import { pluginEvmColor, pluginEvmMotion } from './nodes/evm'
+import {
+  note,
+  reroute,
+  geomFlip,
+  geomResize,
+  filterColorMask,
+  filterMorphology,
+  utilCoordToMask,
+  utilMaskBlend,
+  analysisFlow,
+  analysisFlowViz,
+  analysisMonitor,
+} from './nodes/coreExtras'
 import { sciMEstimator, sciMadScale, sciRobustLocation, sciScalarList } from './nodes/robust1d'
 import {
   featSeedsFromBoundaries,
@@ -364,6 +377,18 @@ export const IMPLEMENTATIONS: Record<string, NodeImpl> = {
   data_inspector: dataInspector,
   output_display: outputDisplay,
   util_csv_export: utilCsvExport,
+
+  note: note,
+  reroute: reroute,
+  geom_flip: geomFlip,
+  geom_resize: geomResize,
+  filter_color_mask: filterColorMask,
+  filter_morphology: filterMorphology,
+  util_coord_to_mask: utilCoordToMask,
+  util_mask_blend: utilMaskBlend,
+  analysis_flow: analysisFlow,
+  analysis_flow_viz: analysisFlowViz,
+  analysis_monitor: analysisMonitor,
 }
 
 const schemaByType = new Map(SCHEMAS.map((s) => [s.type, s]))

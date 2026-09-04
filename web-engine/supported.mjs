@@ -232,4 +232,17 @@ export const SUPPORTED_TYPES = [
   'data_inspector',
   'output_display',
   'util_csv_export',
+  // core extras
+  'note',
+  'reroute',
+  'geom_flip',
+  'geom_resize',
+  'filter_color_mask',
+  'filter_morphology',
+  'util_coord_to_mask',
+  'util_mask_blend',
+  'analysis_flow',
+  'analysis_flow_viz',
+  'analysis_monitor',
 ]
+
