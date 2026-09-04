@@ -17829,5 +17829,881 @@
     "variable_inputs": false,
     "hf_model": "",
     "hf_filename": ""
+  },
+  {
+    "type": "filter_blob_filter",
+    "label": "Blob Filter",
+    "category": "mask",
+    "icon": "Filter",
+    "description": "Removes blobs based on area range from a binary mask. Eliminates noise or isolates specific objects.",
+    "inputs": [
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "mask",
+        "label": "Filtered Mask"
+      },
+      {
+        "id": "mask",
+        "color": "mask",
+        "label": "Mask (Legacy)"
+      },
+      {
+        "id": "count",
+        "color": "scalar",
+        "label": "Blob Count"
+      }
+    ],
+    "params": [
+      {
+        "id": "min_area",
+        "type": "int",
+        "default": 100,
+        "min": 1,
+        "max": 1000000,
+        "label": "Min Area (px²)"
+      },
+      {
+        "id": "max_area",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 1000000,
+        "label": "Max Area (0=off)"
+      },
+      {
+        "id": "circ_min",
+        "type": "float",
+        "default": 0,
+        "min": 0,
+        "max": 1,
+        "step": 0.01,
+        "label": "Circularity min"
+      },
+      {
+        "id": "circ_max",
+        "type": "float",
+        "default": 0,
+        "min": 0,
+        "max": 1,
+        "step": 0.01,
+        "label": "Circularity max (0=off)"
+      },
+      {
+        "id": "elong_min",
+        "type": "float",
+        "default": 1,
+        "min": 1,
+        "max": 100,
+        "step": 0.1,
+        "label": "Elongation min (major/minor)"
+      },
+      {
+        "id": "elong_max",
+        "type": "float",
+        "default": 0,
+        "min": 0,
+        "max": 100,
+        "step": 0.1,
+        "label": "Elongation max (0=off)"
+      },
+      {
+        "id": "threshold",
+        "type": "int",
+        "default": 127,
+        "min": 1,
+        "max": 254,
+        "label": "Binary Threshold"
+      },
+      {
+        "id": "connectivity",
+        "type": "int",
+        "default": 8,
+        "options": [
+          "4",
+          "8"
+        ],
+        "label": "Connectivity"
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "filter_morphology_smart",
+    "label": "Smart Morphology",
+    "category": "mask",
+    "icon": "Zap",
+    "description": "Erodes small zones and dilates large zones based on area threshold. Useful for noise removal and strengthening main features.",
+    "inputs": [
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "params": [
+      {
+        "id": "area_thresh_pct",
+        "label": "Area Threshold (%)",
+        "type": "scalar",
+        "min": 0,
+        "max": 10,
+        "default": 0.5
+      },
+      {
+        "id": "amount",
+        "label": "Amount (px)",
+        "type": "scalar",
+        "min": 1,
+        "max": 51,
+        "default": 3
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "cv_stereo",
+    "label": "Stereo Disparity",
+    "category": "geometry",
+    "icon": "Boxes",
+    "description": "Estimate a disparity (depth) map from a rectified stereo pair using StereoSGBM or StereoBM, rendered as a colored map.",
+    "inputs": [
+      {
+        "id": "left",
+        "label": "Left",
+        "color": "image"
+      },
+      {
+        "id": "right",
+        "label": "Right",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "label": "Disparity",
+        "color": "image"
+      },
+      {
+        "id": "disp_min",
+        "label": "Disparity Min (px)",
+        "color": "scalar"
+      },
+      {
+        "id": "disp_max",
+        "label": "Disparity Max (px)",
+        "color": "scalar"
+      },
+      {
+        "id": "data",
+        "label": "Params",
+        "color": "dict"
+      }
+    ],
+    "params": [
+      {
+        "id": "num_disparities",
+        "label": "Num Disparities",
+        "type": "int",
+        "min": 16,
+        "max": 256,
+        "default": 64
+      },
+      {
+        "id": "block_size",
+        "label": "Block Size",
+        "type": "int",
+        "min": 3,
+        "max": 15,
+        "default": 7
+      },
+      {
+        "id": "min_disparity",
+        "label": "Min Disparity",
+        "type": "int",
+        "min": 0,
+        "max": 64,
+        "default": 0
+      },
+      {
+        "id": "colormap",
+        "label": "Colormap",
+        "type": "enum",
+        "options": [
+          "Jet",
+          "Viridis",
+          "Gray"
+        ],
+        "default": "Jet"
+      },
+      {
+        "id": "use_sgbm",
+        "label": "Use SGBM",
+        "type": "bool",
+        "default": true
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "feat_grabcut",
+    "label": "GrabCut (Graph Cut)",
+    "category": "segmentation",
+    "icon": "Scissors",
+    "description": "Interactive foreground extraction using the GrabCut graph-cut (min-cut/max-flow) algorithm. Connect a Manual Points node: green points = keep (foreground), red points = remove (background). Init from a rectangle around the FG points, a centered box, free scribbles, or an input mask. Press Run (or enable Live).",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image",
+        "label": "Image"
+      },
+      {
+        "id": "points",
+        "color": "list",
+        "label": "Seeds (Manual Points)"
+      },
+      {
+        "id": "mask",
+        "color": "mask",
+        "label": "Init Mask (opt)"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image",
+        "label": "Overlay"
+      },
+      {
+        "id": "mask",
+        "color": "mask",
+        "label": "FG Mask"
+      },
+      {
+        "id": "cutout",
+        "color": "image",
+        "label": "Cutout"
+      },
+      {
+        "id": "count",
+        "color": "scalar",
+        "label": "FG Pixels"
+      }
+    ],
+    "params": [
+      {
+        "id": "init_mode",
+        "label": "Init Mode",
+        "type": "enum",
+        "options": [
+          "Rect from FG points",
+          "Center rect",
+          "Scribbles (points)",
+          "From input mask"
+        ],
+        "default": 0
+      },
+      {
+        "id": "rect_margin",
+        "label": "Rect Margin (%)",
+        "type": "number",
+        "min": 0,
+        "max": 40,
+        "default": 8
+      },
+      {
+        "id": "center_rect",
+        "label": "Center Rect (%)",
+        "type": "number",
+        "min": 10,
+        "max": 95,
+        "default": 70
+      },
+      {
+        "id": "brush",
+        "label": "Scribble Brush (px)",
+        "type": "number",
+        "min": 1,
+        "max": 80,
+        "default": 14
+      },
+      {
+        "id": "iterations",
+        "label": "Iterations",
+        "type": "int",
+        "min": 1,
+        "max": 15,
+        "default": 5
+      },
+      {
+        "id": "overlay_opacity",
+        "label": "Overlay Opacity (%)",
+        "type": "number",
+        "min": 0,
+        "max": 100,
+        "default": 50
+      },
+      {
+        "id": "fg_color",
+        "label": "FG Color",
+        "type": "color",
+        "default": "#22dd55"
+      },
+      {
+        "id": "show_contour",
+        "label": "Draw Contour",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "cutout_bg",
+        "label": "Cutout BG",
+        "type": "enum",
+        "options": [
+          "Black",
+          "White",
+          "Transparent (alpha)"
+        ],
+        "default": 0
+      },
+      {
+        "id": "live",
+        "label": "Live (auto-run)",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "run",
+        "label": "Run",
+        "type": "trigger",
+        "default": false
+      }
+    ],
+    "resizable": true,
+    "min_width": 240,
+    "min_height": 200,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "feat_active_contour",
+    "label": "Active Contour (Snake)",
+    "category": "segmentation",
+    "icon": "PenTool",
+    "description": "Deformable 'snake' segmentation: an initial contour relaxes onto object boundaries by minimizing internal (smoothness) + external (image) energy. Methods: classic Snake, Morphological Chan-Vese (region), and geodesic active contour (edges). Initialize with Manual Points, a mask, or a shape. Press Run (or enable Live).",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image",
+        "label": "Image"
+      },
+      {
+        "id": "points",
+        "color": "list",
+        "label": "Init Points"
+      },
+      {
+        "id": "mask",
+        "color": "mask",
+        "label": "Init Mask (opt)"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image",
+        "label": "Overlay"
+      },
+      {
+        "id": "mask",
+        "color": "mask",
+        "label": "Region Mask"
+      },
+      {
+        "id": "contour",
+        "color": "list",
+        "label": "Contour"
+      },
+      {
+        "id": "count",
+        "color": "scalar",
+        "label": "Area (px)"
+      }
+    ],
+    "params": [
+      {
+        "id": "method",
+        "label": "Method",
+        "type": "enum",
+        "options": [
+          "Classic Snake",
+          "Morph. Chan-Vese",
+          "Morph. GAC (edges)"
+        ],
+        "default": 1
+      },
+      {
+        "id": "init_shape",
+        "label": "Init (no points/mask)",
+        "type": "enum",
+        "options": [
+          "Circle",
+          "Ellipse",
+          "Full frame"
+        ],
+        "default": 0
+      },
+      {
+        "id": "init_radius",
+        "label": "Init Size (%)",
+        "type": "number",
+        "min": 5,
+        "max": 98,
+        "default": 45
+      },
+      {
+        "id": "iterations",
+        "label": "Iterations",
+        "type": "int",
+        "min": 10,
+        "max": 600,
+        "default": 150
+      },
+      {
+        "id": "pre_blur",
+        "label": "Pre-blur (sigma)",
+        "type": "float",
+        "min": 0,
+        "max": 8,
+        "default": 2
+      },
+      {
+        "id": "_sec_forces",
+        "label": "Contour Forces",
+        "type": "section"
+      },
+      {
+        "id": "smoothing",
+        "label": "Smoothing",
+        "type": "int",
+        "min": 0,
+        "max": 4,
+        "default": 1
+      },
+      {
+        "id": "alpha",
+        "label": "Alpha (tension)",
+        "type": "float",
+        "min": 0.001,
+        "max": 0.5,
+        "default": 0.015
+      },
+      {
+        "id": "beta",
+        "label": "Beta (stiffness)",
+        "type": "float",
+        "min": 0.1,
+        "max": 50,
+        "default": 10
+      },
+      {
+        "id": "w_edge",
+        "label": "Edge Attraction",
+        "type": "float",
+        "min": -5,
+        "max": 5,
+        "default": 1
+      },
+      {
+        "id": "cv_lambda",
+        "label": "CV In/Out Balance",
+        "type": "float",
+        "min": 0.25,
+        "max": 4,
+        "default": 1
+      },
+      {
+        "id": "balloon",
+        "label": "GAC Balloon",
+        "type": "float",
+        "min": -2,
+        "max": 2,
+        "default": -1
+      },
+      {
+        "id": "_sec_display",
+        "label": "Display",
+        "type": "section"
+      },
+      {
+        "id": "contour_color",
+        "label": "Contour Color",
+        "type": "color",
+        "default": "#ff3355"
+      },
+      {
+        "id": "thickness",
+        "label": "Thickness",
+        "type": "int",
+        "min": 1,
+        "max": 6,
+        "default": 2
+      },
+      {
+        "id": "fill_opacity",
+        "label": "Fill Opacity (%)",
+        "type": "number",
+        "min": 0,
+        "max": 100,
+        "default": 22
+      },
+      {
+        "id": "show_init",
+        "label": "Show Init",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "_sec_control",
+        "label": "Control",
+        "type": "section"
+      },
+      {
+        "id": "live",
+        "label": "Live (auto-run)",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "run",
+        "label": "Run",
+        "type": "trigger",
+        "default": false
+      }
+    ],
+    "resizable": true,
+    "min_width": 240,
+    "min_height": 220,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "cv_ransac",
+    "label": "RANSAC Homography",
+    "category": "keypoints",
+    "icon": "GitMerge",
+    "description": "Homography / affine estimation between two matched, feature-detected images. Matches SIFT/ORB descriptors, then estimates H either robustly (RANSAC, rejects outlier matches) or with the Ordinary method (no outlier rejection — a single bad match can wreck the fit, ch8 §8.7). Warp Image 1 into Image 2's reference frame. Optional GeoTIFF input: warps all bands with H (attach ref GeoTIFF's transform separately).",
+    "inputs": [
+      {
+        "id": "kp1",
+        "color": "list",
+        "label": "Keypoints 1"
+      },
+      {
+        "id": "kp2",
+        "color": "list",
+        "label": "Keypoints 2"
+      },
+      {
+        "id": "des1",
+        "color": "any",
+        "label": "Descriptors 1"
+      },
+      {
+        "id": "des2",
+        "color": "any",
+        "label": "Descriptors 2"
+      },
+      {
+        "id": "img1",
+        "color": "image",
+        "label": "Image 1 (source)"
+      },
+      {
+        "id": "img2",
+        "color": "image",
+        "label": "Image 2 (reference)"
+      },
+      {
+        "id": "geotiff",
+        "color": "geotiff",
+        "label": "GeoTIFF bands (optional)"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "warped",
+        "color": "image",
+        "label": "Warped (img1 → img2)"
+      },
+      {
+        "id": "overlay",
+        "color": "image",
+        "label": "Inlier match overlay"
+      },
+      {
+        "id": "homography",
+        "color": "any",
+        "label": "H matrix (3×3 list)"
+      },
+      {
+        "id": "inliers",
+        "color": "scalar",
+        "label": "Inlier count"
+      },
+      {
+        "id": "geotiff_out",
+        "color": "geotiff",
+        "label": "GeoTIFF warped"
+      }
+    ],
+    "params": [
+      {
+        "id": "norm",
+        "label": "Descriptor norm",
+        "type": "enum",
+        "options": [
+          "L2 — SIFT/SURF",
+          "Hamming — ORB/BRIEF"
+        ],
+        "default": 0
+      },
+      {
+        "id": "ratio",
+        "label": "Lowe's ratio",
+        "type": "float",
+        "min": 0.5,
+        "max": 1,
+        "step": 0.01,
+        "default": 0.75
+      },
+      {
+        "id": "ransac_thresh",
+        "label": "RANSAC threshold",
+        "type": "float",
+        "min": 0.5,
+        "max": 20,
+        "step": 0.5,
+        "default": 5
+      },
+      {
+        "id": "min_inliers",
+        "label": "Min inliers",
+        "type": "int",
+        "min": 4,
+        "max": 500,
+        "default": 10
+      },
+      {
+        "id": "model",
+        "label": "Model",
+        "type": "enum",
+        "options": [
+          "Homography (8-DOF)",
+          "Partial Affine (4-DOF)"
+        ],
+        "default": 0
+      },
+      {
+        "id": "method",
+        "label": "Estimation Method",
+        "type": "enum",
+        "options": [
+          "RANSAC (robust)",
+          "Ordinary (Least Squares)"
+        ],
+        "default": 0
+      },
+      {
+        "id": "max_display",
+        "label": "Max drawn matches",
+        "type": "int",
+        "min": 1,
+        "max": 300,
+        "default": 60
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "cv_montecarlo_cluster",
+    "label": "Monte-Carlo Cluster",
+    "category": "segmentation",
+    "icon": "Dices",
+    "description": "Probabilistic clustering by Monte-Carlo voting. Draws N random sub-samples of pixels INSIDE the ROI mask (whole frame if none), fits a small KMeans on each draw, applies it to the whole frame and votes for one anchored target cluster. Outputs a 0..1 probability heatmap, expert on ambiguous zones. Generic: any feature image (RGB, spectral indices, filter banks) + any ROI. Target cluster anchored by reference channel + high/low rule.",
+    "inputs": [
+      {
+        "id": "image",
+        "label": "Features",
+        "color": "image"
+      },
+      {
+        "id": "roi",
+        "label": "ROI Mask",
+        "color": "mask"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "label": "Heatmap",
+        "color": "image"
+      },
+      {
+        "id": "probability",
+        "label": "Probability",
+        "color": "mask"
+      },
+      {
+        "id": "prob_raw",
+        "label": "Prob 0..1",
+        "color": "any"
+      },
+      {
+        "id": "stats",
+        "label": "Stats",
+        "color": "dict"
+      }
+    ],
+    "params": [
+      {
+        "id": "_sec_sampling",
+        "label": "Sampling",
+        "type": "section"
+      },
+      {
+        "id": "n_iterations",
+        "label": "Iterations",
+        "type": "int",
+        "default": 40,
+        "min": 5,
+        "max": 300
+      },
+      {
+        "id": "subsample",
+        "label": "Subsample (%)",
+        "type": "float",
+        "default": 30,
+        "min": 1,
+        "max": 100,
+        "step": 1
+      },
+      {
+        "id": "_sec_clustering",
+        "label": "Clustering",
+        "type": "section"
+      },
+      {
+        "id": "n_clusters",
+        "label": "Clusters (K)",
+        "type": "int",
+        "default": 2,
+        "min": 2,
+        "max": 12
+      },
+      {
+        "id": "ref_channel",
+        "label": "Anchor Channel",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 31
+      },
+      {
+        "id": "anchor_rule",
+        "label": "Target Cluster",
+        "type": "enum",
+        "options": [
+          "Highest on channel",
+          "Lowest on channel"
+        ],
+        "default": 0
+      },
+      {
+        "id": "_sec_display",
+        "label": "Display",
+        "type": "section"
+      },
+      {
+        "id": "colormap",
+        "label": "Colormap",
+        "type": "enum",
+        "options": [
+          "Inferno",
+          "Viridis",
+          "Jet",
+          "Ocean"
+        ],
+        "default": 0
+      },
+      {
+        "id": "seed",
+        "label": "Random Seed",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 9999
+      }
+    ],
+    "resizable": true,
+    "min_width": 240,
+    "min_height": 200,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
   }
 ]

@@ -334,7 +334,17 @@ export const SUPPORTED_TYPES = [
   'util_snapshot',
   'export_crops',
   'obj_extractor',
+
+  // advanced segmentation
+  'filter_blob_filter',
+  'filter_morphology_smart',
+  'cv_stereo',
+  'feat_grabcut',
+  'feat_active_contour',
+  'cv_ransac',
+  'cv_montecarlo_cluster',
 ]
+
 
 
 

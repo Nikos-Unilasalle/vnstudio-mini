@@ -65,6 +65,15 @@ import { sciBoundaryF1, sciClusterHeatmap, sciGlcm, sciHausdorff, sciRegionClass
 import { genCanvas, genFeedback, genGrayScott } from './nodes/gen'
 import { pluginEvmColor, pluginEvmMotion } from './nodes/evm'
 import {
+  cvMontecarloCluster,
+  cvRansac,
+  cvStereo,
+  featActiveContour,
+  featGrabcut,
+  filterBlobFilter,
+  filterMorphologySmart,
+} from './nodes/segAdvanced'
+import {
   colorInput,
   exportCrops,
   objExtractor,
@@ -560,6 +569,14 @@ export const IMPLEMENTATIONS: Record<string, NodeImpl> = {
   util_snapshot: utilSnapshot,
   export_crops: exportCrops,
   obj_extractor: objExtractor,
+
+  filter_blob_filter: filterBlobFilter,
+  filter_morphology_smart: filterMorphologySmart,
+  cv_stereo: cvStereo,
+  feat_grabcut: featGrabcut,
+  feat_active_contour: featActiveContour,
+  cv_ransac: cvRansac,
+  cv_montecarlo_cluster: cvMontecarloCluster,
 }
 
 const schemaByType = new Map(SCHEMAS.map((s) => [s.type, s]))
