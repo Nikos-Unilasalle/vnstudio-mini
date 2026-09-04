@@ -65,6 +65,24 @@ import { sciBoundaryF1, sciClusterHeatmap, sciGlcm, sciHausdorff, sciRegionClass
 import { genCanvas, genFeedback, genGrayScott } from './nodes/gen'
 import { pluginEvmColor, pluginEvmMotion } from './nodes/evm'
 import {
+  dfCollect,
+  dfColumnList,
+  dfEditor,
+  dfExport,
+  dfFillna,
+  dfFromList,
+  dfGroupby,
+  dfMerge,
+  dfNewCol,
+  dfPlot,
+  dfRename,
+  dfSample,
+  dfSelect,
+  dfSlice,
+  dfSort,
+  dfToDataframe,
+} from './nodes/dataframe'
+import {
   note,
   reroute,
   geomFlip,
@@ -389,6 +407,23 @@ export const IMPLEMENTATIONS: Record<string, NodeImpl> = {
   analysis_flow: analysisFlow,
   analysis_flow_viz: analysisFlowViz,
   analysis_monitor: analysisMonitor,
+
+  df_from_list: dfFromList,
+  df_to_dataframe: dfToDataframe,
+  df_column_list: dfColumnList,
+  df_select: dfSelect,
+  df_sort: dfSort,
+  df_sample: dfSample,
+  df_slice: dfSlice,
+  df_groupby: dfGroupby,
+  df_merge: dfMerge,
+  df_fillna: dfFillna,
+  df_new_col: dfNewCol,
+  df_rename: dfRename,
+  df_collect: dfCollect,
+  df_editor: dfEditor,
+  df_export: dfExport,
+  df_plot: dfPlot,
 }
 
 const schemaByType = new Map(SCHEMAS.map((s) => [s.type, s]))

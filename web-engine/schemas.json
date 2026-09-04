@@ -12166,5 +12166,1368 @@
     "variable_inputs": false,
     "hf_model": "",
     "hf_filename": ""
+  },
+  {
+    "type": "df_from_list",
+    "label": "List → DataFrame",
+    "category": "DataFrame",
+    "icon": "Table2",
+    "description": "Builds a table from one or more lists — one column per connected input. Optionally adds a frame index and a time column, so a recorded series can be plotted against seconds rather than sample number.",
+    "inputs": [
+      {
+        "id": "list",
+        "color": "list",
+        "label": "List"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "df_meta",
+        "color": "dict",
+        "label": "DF Metadata"
+      },
+      {
+        "id": "rows",
+        "color": "scalar",
+        "label": "Rows"
+      }
+    ],
+    "params": [
+      {
+        "id": "name",
+        "label": "Column names (comma-separated)",
+        "type": "string",
+        "default": "valeur"
+      },
+      {
+        "id": "add_index",
+        "label": "Add frame index",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "fps",
+        "label": "Time column at N fps (0 = none)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 240
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": true,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "df_to_dataframe",
+    "label": "Dict to DataFrame",
+    "category": "DataFrame",
+    "icon": "Table",
+    "description": "Builds a DataFrame from a dict. Scalar values give one row (one column per key); list/array values give one row each and scalars are broadcast to match. Key/Value mode emits a 2-column (metric, value) table instead. Connect to DF Collect or DF Export.",
+    "inputs": [
+      {
+        "id": "dict_in",
+        "color": "dict",
+        "label": "Dict"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "data",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "df_meta",
+        "color": "dict",
+        "label": "DF Metadata"
+      }
+    ],
+    "params": [
+      {
+        "id": "orient",
+        "label": "Layout",
+        "type": "enum",
+        "options": [
+          "Columns (keys = columns)",
+          "Key/Value rows"
+        ],
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "df_column_list",
+    "label": "DF Column → List",
+    "category": "DataFrame",
+    "icon": "List",
+    "description": "Extract one DataFrame column, as a list (array) and as a single-column DataFrame. Reusable everywhere a 'list' is accepted — wire it into DataFrame Plot X/Y, a Plotter, or stats. Blank column = the first one. Optionally drop NaNs and coerce to numeric.",
+    "inputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "list",
+        "color": "list",
+        "label": "Values"
+      },
+      {
+        "id": "table",
+        "color": "data",
+        "label": "Column (DF)"
+      },
+      {
+        "id": "count",
+        "color": "scalar",
+        "label": "Count"
+      },
+      {
+        "id": "df_meta",
+        "color": "dict",
+        "label": "Columns"
+      }
+    ],
+    "params": [
+      {
+        "id": "column",
+        "label": "Column",
+        "type": "string",
+        "default": "",
+        "hints": "df_columns"
+      },
+      {
+        "id": "dropna",
+        "label": "Drop NaN",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "numeric",
+        "label": "Coerce to numeric",
+        "type": "bool",
+        "default": false
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "df_select",
+    "label": "DF Select",
+    "category": "DataFrame",
+    "icon": "Columns",
+    "description": "Keep specific columns, drop others, or rename them. Columns: comma-separated names. Drop: columns to remove. Rename: old:new,old2:new2.",
+    "inputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "preview",
+        "color": "image",
+        "label": "Preview"
+      },
+      {
+        "id": "row_count",
+        "color": "scalar",
+        "label": "Rows"
+      },
+      {
+        "id": "col_count",
+        "color": "scalar",
+        "label": "Cols"
+      },
+      {
+        "id": "df_meta",
+        "color": "dict",
+        "label": "DF Metadata"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "params": [
+      {
+        "id": "keep",
+        "label": "Keep Columns (blank = all)",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "drop",
+        "label": "Drop Columns",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "rename",
+        "label": "Rename  (old:new, …)",
+        "type": "string",
+        "default": ""
+      }
+    ],
+    "resizable": true,
+    "min_width": 260,
+    "min_height": 160,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "df_sort",
+    "label": "DF Sort",
+    "category": "DataFrame",
+    "icon": "ArrowUpDown",
+    "description": "Sort rows by one or more columns. Column: comma-separated names for multi-level sort.",
+    "inputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "preview",
+        "color": "image",
+        "label": "Preview"
+      },
+      {
+        "id": "df_meta",
+        "color": "dict",
+        "label": "DF Metadata"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "params": [
+      {
+        "id": "by",
+        "label": "Sort By (column name)",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "ascending",
+        "label": "Ascending",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "na_pos",
+        "label": "NaN position (first/last)",
+        "type": "enum",
+        "options": [
+          "last",
+          "first"
+        ],
+        "default": 0
+      }
+    ],
+    "resizable": true,
+    "min_width": 240,
+    "min_height": 160,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "df_sample",
+    "label": "DF Sample",
+    "category": "DataFrame",
+    "icon": "Rows",
+    "description": "Extract a subset of rows: head (first N), tail (last N), random sample, or slice (start:end).",
+    "inputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "preview",
+        "color": "image",
+        "label": "Preview"
+      },
+      {
+        "id": "row_count",
+        "color": "scalar",
+        "label": "Rows"
+      },
+      {
+        "id": "df_meta",
+        "color": "dict",
+        "label": "DF Metadata"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "params": [
+      {
+        "id": "mode",
+        "label": "Mode",
+        "type": "enum",
+        "options": [
+          "head",
+          "tail",
+          "sample",
+          "slice"
+        ],
+        "default": 0
+      },
+      {
+        "id": "n",
+        "label": "N rows (head/tail/sample)",
+        "type": "int",
+        "default": 10,
+        "min": 1,
+        "max": 100000
+      },
+      {
+        "id": "_sec_slice",
+        "label": "Slice",
+        "type": "section"
+      },
+      {
+        "id": "start",
+        "label": "Start index (slice)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 100000
+      },
+      {
+        "id": "end",
+        "label": "End index   (slice)",
+        "type": "int",
+        "default": 10,
+        "min": 1,
+        "max": 100000
+      },
+      {
+        "id": "_sec_sampling",
+        "label": "Sampling",
+        "type": "section"
+      },
+      {
+        "id": "seed",
+        "label": "Random seed (sample)",
+        "type": "int",
+        "default": 42,
+        "min": 0,
+        "max": 9999
+      }
+    ],
+    "resizable": true,
+    "min_width": 240,
+    "min_height": 160,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "df_slice",
+    "label": "DF Slice",
+    "category": "DataFrame",
+    "icon": "Scissors",
+    "description": "Keep a contiguous range of rows, by position (rows 10 to 200). End = -1 means the last row; negative positions count from the end (Start -100, End -1 = the last 100 rows). Step > 1 keeps every Nth row. Start / End can also be driven by wired scalars.",
+    "inputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "start",
+        "color": "scalar",
+        "label": "Start"
+      },
+      {
+        "id": "end",
+        "color": "scalar",
+        "label": "End"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "preview",
+        "color": "image",
+        "label": "Preview"
+      },
+      {
+        "id": "row_count",
+        "color": "scalar",
+        "label": "Rows"
+      },
+      {
+        "id": "df_meta",
+        "color": "dict",
+        "label": "DF Metadata"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "params": [
+      {
+        "id": "start",
+        "label": "Start Row (0-based, incl.)",
+        "type": "int",
+        "default": 0,
+        "min": -10000000,
+        "max": 10000000
+      },
+      {
+        "id": "end",
+        "label": "End Row (incl., -1 = last)",
+        "type": "int",
+        "default": -1,
+        "min": -10000000,
+        "max": 10000000
+      },
+      {
+        "id": "step",
+        "label": "Step (1 = every row)",
+        "type": "int",
+        "default": 1,
+        "min": 1,
+        "max": 10000
+      },
+      {
+        "id": "reset_index",
+        "label": "Renumber index from 0",
+        "type": "bool",
+        "default": false
+      }
+    ],
+    "resizable": true,
+    "min_width": 260,
+    "min_height": 160,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "df_groupby",
+    "label": "DF GroupBy",
+    "category": "DataFrame",
+    "icon": "Group",
+    "description": "Group rows by a column and aggregate numeric columns. Result is a new DataFrame with one row per group.",
+    "inputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "Result DataFrame"
+      },
+      {
+        "id": "preview",
+        "color": "image",
+        "label": "Preview"
+      },
+      {
+        "id": "row_count",
+        "color": "scalar",
+        "label": "Groups"
+      },
+      {
+        "id": "df_meta",
+        "color": "dict",
+        "label": "DF Metadata"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "params": [
+      {
+        "id": "by",
+        "label": "Group By column",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "agg",
+        "label": "Aggregation",
+        "type": "enum",
+        "options": [
+          "mean",
+          "sum",
+          "count",
+          "min",
+          "max",
+          "std",
+          "median",
+          "nunique"
+        ],
+        "default": 0
+      },
+      {
+        "id": "cols",
+        "label": "Agg Columns (blank=all)",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "reset_index",
+        "label": "Reset Index",
+        "type": "bool",
+        "default": true
+      }
+    ],
+    "resizable": true,
+    "min_width": 240,
+    "min_height": 180,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "df_merge",
+    "label": "DF Merge",
+    "category": "DataFrame",
+    "icon": "Merge",
+    "description": "Merge two DataFrames on key columns (SQL-style join). Connect left and right DataFrames.",
+    "inputs": [
+      {
+        "id": "left",
+        "color": "data",
+        "label": "Left DF"
+      },
+      {
+        "id": "right",
+        "color": "data",
+        "label": "Right DF"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "Merged DataFrame"
+      },
+      {
+        "id": "preview",
+        "color": "image",
+        "label": "Preview"
+      },
+      {
+        "id": "row_count",
+        "color": "scalar",
+        "label": "Rows"
+      },
+      {
+        "id": "df_meta",
+        "color": "dict",
+        "label": "DF Metadata"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "params": [
+      {
+        "id": "left_on",
+        "label": "Left key column",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "right_on",
+        "label": "Right key column",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "how",
+        "label": "Join type",
+        "type": "enum",
+        "options": [
+          "inner",
+          "left",
+          "right",
+          "outer"
+        ],
+        "default": 0
+      }
+    ],
+    "resizable": true,
+    "min_width": 260,
+    "min_height": 160,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "df_fillna",
+    "label": "DF Fill NA",
+    "category": "DataFrame",
+    "icon": "Eraser",
+    "description": "Handle missing values: fill with constant, statistics, forward/back fill, or drop rows/columns.",
+    "inputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "preview",
+        "color": "image",
+        "label": "Preview"
+      },
+      {
+        "id": "null_count",
+        "color": "scalar",
+        "label": "Nulls before"
+      },
+      {
+        "id": "df_meta",
+        "color": "dict",
+        "label": "DF Metadata"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "params": [
+      {
+        "id": "strategy",
+        "label": "Strategy",
+        "type": "enum",
+        "options": [
+          "value",
+          "mean",
+          "median",
+          "mode",
+          "ffill",
+          "bfill",
+          "drop_rows",
+          "drop_cols"
+        ],
+        "default": 0
+      },
+      {
+        "id": "value",
+        "label": "Fill value (strategy=value)",
+        "type": "string",
+        "default": "0"
+      },
+      {
+        "id": "columns",
+        "label": "Columns (blank = all)",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "thresh",
+        "label": "Min non-null (drop_cols only)",
+        "type": "int",
+        "default": 1,
+        "min": 1,
+        "max": 100000
+      }
+    ],
+    "resizable": true,
+    "min_width": 240,
+    "min_height": 180,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "df_new_col",
+    "label": "DF New Column",
+    "category": "DataFrame",
+    "icon": "PlusSquare",
+    "description": "Add a computed column using a Python expression. Use df['col'] to reference columns. Example: df['a'] + df['b'].",
+    "inputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "preview",
+        "color": "image",
+        "label": "Preview"
+      },
+      {
+        "id": "df_meta",
+        "color": "dict",
+        "label": "DF Metadata"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "params": [
+      {
+        "id": "name",
+        "label": "New column name",
+        "type": "string",
+        "default": "new_col"
+      },
+      {
+        "id": "expr",
+        "label": "Expression",
+        "type": "code",
+        "default": "df['col_a'] + df['col_b']"
+      }
+    ],
+    "resizable": true,
+    "min_width": 260,
+    "min_height": 160,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "df_rename",
+    "label": "DF Rename",
+    "category": "DataFrame",
+    "icon": "Type",
+    "description": "Rename columns. Format: old:new,old2:new2. Leave blank to pass through unchanged.",
+    "inputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "preview",
+        "color": "image",
+        "label": "Preview"
+      },
+      {
+        "id": "df_meta",
+        "color": "dict",
+        "label": "DF Metadata"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "params": [
+      {
+        "id": "map",
+        "label": "Rename map  (old:new, …)",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "strip_spaces",
+        "label": "Strip spaces in column names",
+        "type": "bool",
+        "default": false
+      }
+    ],
+    "resizable": true,
+    "min_width": 240,
+    "min_height": 140,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "df_collect",
+    "label": "DF Collect",
+    "category": "DataFrame",
+    "icon": "Layers",
+    "description": "Accumulates incoming DataFrames into one growing table. Auto-captures whenever the 'seq' input changes (e.g. a folder iterator's index) — perfect for batch pipelines. Without 'seq' connected, use the Capture trigger manually. Connect to DF Export at the end.",
+    "inputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "seq",
+        "color": "scalar",
+        "label": "Sequence (auto-capture on change)"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "data",
+        "color": "data"
+      }
+    ],
+    "params": [
+      {
+        "id": "capture",
+        "label": "Capture Now",
+        "type": "trigger",
+        "default": 0
+      },
+      {
+        "id": "reset",
+        "label": "Clear",
+        "type": "trigger",
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "df_editor",
+    "label": "DF Editor",
+    "category": "DataFrame",
+    "icon": "Edit3",
+    "description": "Interactive DataFrame cell editor. Double-click cells to modify values.",
+    "inputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "df_meta",
+        "color": "dict",
+        "label": "DF Metadata"
+      },
+      {
+        "id": "preview",
+        "color": "image",
+        "label": "Preview"
+      }
+    ],
+    "params": [
+      {
+        "id": "edits",
+        "label": "Edits JSON",
+        "type": "string",
+        "default": "[]"
+      },
+      {
+        "id": "row_offset",
+        "label": "First row shown",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 10000000
+      },
+      {
+        "id": "max_rows",
+        "label": "Rows in editor",
+        "type": "int",
+        "default": 500,
+        "min": 10,
+        "max": 5000
+      }
+    ],
+    "resizable": true,
+    "min_width": 260,
+    "min_height": 180,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "df_export",
+    "label": "DF Export",
+    "category": "DataFrame",
+    "icon": "Save",
+    "description": "Save a DataFrame to CSV, Excel, JSON or Parquet. Trigger the Save button once to write the file. Connect the Filename input to override the base name (e.g. from a Folder Images filename) — the folder and extension from File Path are kept.",
+    "inputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "filename",
+        "color": "string",
+        "label": "Filename"
+      }
+    ],
+    "outputs": [],
+    "params": [
+      {
+        "id": "save",
+        "label": "Save",
+        "type": "trigger",
+        "default": 0
+      },
+      {
+        "id": "_sec_export",
+        "label": "Export Config",
+        "type": "section"
+      },
+      {
+        "id": "path",
+        "label": "File Path",
+        "type": "string",
+        "default": "output.csv"
+      },
+      {
+        "id": "format",
+        "label": "Format",
+        "type": "enum",
+        "options": [
+          "CSV",
+          "Excel (.xlsx)",
+          "JSON",
+          "Parquet"
+        ],
+        "default": 0
+      },
+      {
+        "id": "separator",
+        "label": "CSV Separator",
+        "type": "string",
+        "default": ","
+      },
+      {
+        "id": "index",
+        "label": "Write Index",
+        "type": "bool",
+        "default": false
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "df_plot",
+    "label": "DataFrame Plot",
+    "category": "DataFrame",
+    "icon": "ChartLine",
+    "description": "Generic DataFrame chart. One node, many chart types (line, bar, scatter, histogram, box, area, pie) with styling options. Renders in the node body and outputs an image. Either connect a DataFrame + pick X/Y column names, or wire raw X/Y arrays directly (e.g. CSV Reader columns). X/Y inputs win over the table.",
+    "inputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "x",
+        "color": "list",
+        "label": "X values"
+      },
+      {
+        "id": "y",
+        "color": "list",
+        "label": "Y values"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image",
+        "label": "Plot"
+      },
+      {
+        "id": "df_meta",
+        "color": "dict",
+        "label": "Columns"
+      }
+    ],
+    "params": [
+      {
+        "id": "chart_type",
+        "label": "Chart type",
+        "type": "enum",
+        "options": [
+          "Line",
+          "Bar",
+          "Scatter",
+          "Histogram",
+          "Box",
+          "Area",
+          "Pie"
+        ],
+        "default": 0
+      },
+      {
+        "id": "x_col",
+        "label": "X column (category / axis / labels)",
+        "type": "string",
+        "default": "",
+        "hints": "df_columns"
+      },
+      {
+        "id": "y_cols",
+        "label": "Y columns (comma-separated)",
+        "type": "string",
+        "default": "",
+        "hints": "df_columns"
+      },
+      {
+        "id": "hue_col",
+        "label": "Color by (hue)",
+        "type": "string",
+        "default": "",
+        "hints": "df_columns",
+        "show_if": {
+          "param": "chart_type",
+          "value": 2
+        }
+      },
+      {
+        "id": "bins",
+        "label": "Bins",
+        "type": "int",
+        "default": 30,
+        "min": 5,
+        "max": 200,
+        "show_if": {
+          "param": "chart_type",
+          "value": 3
+        }
+      },
+      {
+        "id": "horizontal",
+        "label": "Horizontal bars",
+        "type": "bool",
+        "default": false,
+        "show_if": {
+          "param": "chart_type",
+          "value": 1
+        }
+      },
+      {
+        "id": "stacked",
+        "label": "Stacked",
+        "type": "bool",
+        "default": false,
+        "show_if": {
+          "param": "chart_type",
+          "value": 1
+        }
+      },
+      {
+        "id": "sort_x",
+        "label": "Sort by X",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "max_points",
+        "label": "Max points (0=all)",
+        "type": "int",
+        "default": 5000,
+        "min": 0,
+        "max": 100000
+      },
+      {
+        "id": "_sec_appearance",
+        "label": "Appearance",
+        "type": "section"
+      },
+      {
+        "id": "colormap",
+        "label": "Colormap",
+        "type": "enum",
+        "options": [
+          "Tab10",
+          "Set1",
+          "Set2",
+          "Viridis",
+          "Plasma",
+          "Coolwarm",
+          "RdYlGn"
+        ],
+        "default": 0
+      },
+      {
+        "id": "alpha",
+        "label": "Opacity",
+        "type": "float",
+        "default": 0.85,
+        "min": 0.1,
+        "max": 1,
+        "step": 0.05
+      },
+      {
+        "id": "marker_size",
+        "label": "Marker / line size",
+        "type": "int",
+        "default": 40,
+        "min": 1,
+        "max": 250
+      },
+      {
+        "id": "title",
+        "label": "Title",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "grid",
+        "label": "Grid",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "legend",
+        "label": "Legend",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "x_log",
+        "label": "Log X",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "y_log",
+        "label": "Log Y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "_sec_export",
+        "label": "Export",
+        "type": "section"
+      },
+      {
+        "id": "export_bg",
+        "label": "Background",
+        "type": "enum",
+        "options": [
+          "White",
+          "Transparent"
+        ],
+        "default": 0
+      },
+      {
+        "id": "out_dpi",
+        "label": "DPI (100=screen, 300=pub)",
+        "type": "int",
+        "default": 100,
+        "min": 72,
+        "max": 600
+      },
+      {
+        "id": "out_w",
+        "label": "Width px (0 = node size)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 5000
+      },
+      {
+        "id": "out_h",
+        "label": "Height px (0 = node size)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 5000
+      }
+    ],
+    "resizable": true,
+    "min_width": 320,
+    "min_height": 260,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
   }
 ]

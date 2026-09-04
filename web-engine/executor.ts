@@ -36,6 +36,30 @@ function portIdOf(handle: string | null | undefined, fallback: string): string {
   return index >= 0 ? handle.slice(index + 2) : handle
 }
 
+/**
+ * Whether a non-primitive output is worth publishing to the UI.
+ *
+ * Node components read structured outputs through `useNodeData` — the DataFrame
+ * inspector wants `df_meta`, the detection nodes want their lists. But the whole
+ * `nodesData` map is structured-cloned to the main thread every frame, so the
+ * desktop engine caps what it forwards, and this matches those caps: no Mats
+ * (they are WASM handles and would not survive the trip anyway), lists up to
+ * 2000 items, dicts up to 64 keys.
+ */
+function isPublishableStructure(value: unknown, depth = 0): boolean {
+  if (value === null || value === undefined) return true
+  const type = typeof value
+  if (type === 'number' || type === 'string' || type === 'boolean') return true
+  // Functions and symbols cannot be cloned, and neither can a Mat.
+  if (type !== 'object' || isMat(value)) return false
+  // A structure this deep is not something a node component renders; refusing it
+  // also bounds the cost of this check on every output of every node, every frame.
+  if (depth >= 4) return false
+  if (Array.isArray(value)) return value.length <= 2000 && value.every((item) => isPublishableStructure(item, depth + 1))
+  const keys = Object.keys(value)
+  return keys.length <= 64 && keys.every((key) => isPublishableStructure((value as Record<string, unknown>)[key], depth + 1))
+}
+
 function topologicalOrder(nodes: GraphNode[], edges: GraphEdge[]): string[] {
   const executable = nodes.filter((n) => !NON_EXECUTING.has(n.type))
   const ids = new Set(executable.map((n) => n.id))
@@ -181,7 +205,9 @@ export class GraphExecutor {
           setPreview(await matToBase64(this.cv, main))
         }
         for (const [port, value] of Object.entries(outputs)) {
-          if (typeof value === 'number' || typeof value === 'string' || typeof value === 'boolean') {
+          // Primitives always; structures only when they can survive the clone
+          // to the main thread (see isPublishableStructure).
+          if (value !== null && value !== undefined && isPublishableStructure(value)) {
             nodesData[`${nodeId}:${port}`] = value
           }
         }

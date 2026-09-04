@@ -100,8 +100,19 @@ export function removeVirtualFile(path: string): void {
   }
 }
 
-/** Triggers a real browser download — how "saving to disk" surfaces on the web. */
+/**
+ * Triggers a real browser download — how "saving to disk" surfaces on the web.
+ *
+ * Every node implementation runs inside the graph Worker, which has no DOM, so
+ * the anchor-click trick below throws there. When that is where we are, the
+ * bytes are handed to the main thread instead (see useVisionEngine's `download`
+ * case), which performs the same click.
+ */
 export function downloadFile(filename: string, contents: string | ArrayBuffer, mime: string): void {
+  if (typeof document === 'undefined') {
+    ;(self as unknown as { postMessage: (m: unknown) => void }).postMessage({ type: 'download', filename, contents, mime })
+    return
+  }
   const blob = contents instanceof ArrayBuffer ? new Blob([contents], { type: mime }) : new Blob([contents], { type: mime })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')

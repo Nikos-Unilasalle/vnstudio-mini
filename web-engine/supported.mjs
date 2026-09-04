@@ -244,5 +244,23 @@ export const SUPPORTED_TYPES = [
   'analysis_flow',
   'analysis_flow_viz',
   'analysis_monitor',
+  // dataframe
+  'df_from_list',
+  'df_to_dataframe',
+  'df_column_list',
+  'df_select',
+  'df_sort',
+  'df_sample',
+  'df_slice',
+  'df_groupby',
+  'df_merge',
+  'df_fillna',
+  'df_new_col',
+  'df_rename',
+  'df_collect',
+  'df_editor',
+  'df_export',
+  'df_plot',
 ]
+
 

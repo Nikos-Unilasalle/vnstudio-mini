@@ -31,6 +31,8 @@ export type WorkerResponse =
   | { type: 'load-error'; message: string }
   | { type: 'result'; requestId: number; nodesData: Record<string, unknown>; frame: string | null; errors: Record<string, string> }
   | { type: 'run-error'; requestId: number; message: string }
+  // A node asked to save a file; only the main thread has the DOM to do it.
+  | { type: 'download'; filename: string; contents: string | ArrayBuffer; mime: string }
 
 let executor: GraphExecutor | null = null
 
@@ -59,7 +61,20 @@ self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
 
   try {
     const result = await executor.run(message.nodes, message.edges, message.previewNodeId, message.frames)
-    postMessage({ type: 'result', requestId: message.requestId, ...result } satisfies WorkerResponse)
+    try {
+      postMessage({ type: 'result', requestId: message.requestId, ...result } satisfies WorkerResponse)
+    } catch {
+      // Something in nodesData refused to clone. The executor screens for that,
+      // but a node returning an exotic value must degrade to a frame without
+      // live data rather than killing the run.
+      postMessage({
+        type: 'result',
+        requestId: message.requestId,
+        nodesData: {},
+        frame: result.frame,
+        errors: result.errors,
+      } satisfies WorkerResponse)
+    }
   } catch (error) {
     const text = error instanceof Error ? error.message : String(error)
     postMessage({ type: 'run-error', requestId: message.requestId, message: text } satisfies WorkerResponse)

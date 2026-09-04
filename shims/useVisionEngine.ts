@@ -121,6 +121,18 @@ export function useVisionEngine(onCapture?: (nodeId: string, base64: string) => 
           pendingRuns.current.delete(message.requestId)
           break
         }
+        case 'download': {
+          // The worker has no DOM, so export nodes send the bytes here instead.
+          const blob = new Blob([message.contents], { type: message.mime })
+          const url = URL.createObjectURL(blob)
+          const anchor = document.createElement('a')
+          anchor.href = url
+          anchor.download = message.filename.split('/').pop() || 'download'
+          anchor.click()
+          setTimeout(() => URL.revokeObjectURL(url), 1000)
+          pushNotification(`Fichier enregistré : ${anchor.download}`, 'info', 3000)
+          break
+        }
       }
     }
 
