@@ -75,6 +75,7 @@ import {
   mlPca,
   mlTrainTestSplit,
 } from './nodes/mlModels'
+import { mlBestParams, mlDecisionTree, mlRandomForest, mlRobustLine } from './nodes/mlTrees'
 import {
   featNdwi,
   featSpectralIndex,
@@ -627,6 +628,10 @@ export const IMPLEMENTATIONS: Record<string, NodeImpl> = {
   ml_linear_regression: mlLinearRegression,
   ml_cluster_validity: mlClusterValidity,
   ml_classification_report: mlClassificationReport,
+  ml_decision_tree: mlDecisionTree,
+  ml_random_forest: mlRandomForest,
+  ml_robust_line: mlRobustLine,
+  ml_best_params: mlBestParams,
 }
 
 const schemaByType = new Map(SCHEMAS.map((s) => [s.type, s]))

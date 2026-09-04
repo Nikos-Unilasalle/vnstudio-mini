@@ -739,3 +739,150 @@ export function shuffledIndices(n: number, seed: number): number[] {
   }
   return order
 }
+
+/* ------------------------------------------------- robust straight-line fits */
+
+/** Ordinary least squares on one predictor: the polyfit degree-1 baseline. */
+export function lineFitL2(x: number[], y: number[]): { slope: number; intercept: number } {
+  const n = x.length
+  if (n < 2) return { slope: 0, intercept: 0 }
+  const meanX = x.reduce((a, b) => a + b, 0) / n
+  const meanY = y.reduce((a, b) => a + b, 0) / n
+  let covariance = 0
+  let variance = 0
+  for (let i = 0; i < n; i++) {
+    covariance += (x[i] - meanX) * (y[i] - meanY)
+    variance += (x[i] - meanX) ** 2
+  }
+  const slope = variance > 0 ? covariance / variance : 0
+  return { slope, intercept: meanY - slope * meanX }
+}
+
+/**
+ * Huber regression, minimising sklearn's own objective
+ *
+ *   Σ ( σ + H_ε((x_i·w + c − y_i)/σ)·σ ) + α‖w‖²,   H_ε(z) = z² for |z| < ε,
+ *                                                            2ε|z| − ε² beyond
+ *
+ * jointly over the slope, the intercept and the scale σ. sklearn hands this to
+ * L-BFGS-B; the objective is convex, so gradient descent with a backtracking
+ * line search reaches the same optimum. Fitting σ rather than fixing it at the
+ * MAD is what makes the result match the desktop instead of merely resembling it.
+ */
+export function lineFitHuber(x: number[], y: number[], epsilon: number, alpha = 1e-4): { slope: number; intercept: number } {
+  const n = x.length
+  if (n < 2) return { slope: 0, intercept: 0 }
+  const eps = Math.max(1.0001, epsilon)
+
+  const start = lineFitL2(x, y)
+  const residuals = x.map((xi, i) => Math.abs(y[i] - (start.slope * xi + start.intercept)))
+  const sorted = [...residuals].sort((a, b) => a - b)
+  // A scale of zero would divide by nothing, so a perfect fit starts at 1.
+  let scale = Math.max(1e-6, sorted[Math.floor(n / 2)] || 1)
+  let slope = start.slope
+  let intercept = start.intercept
+
+  const objectiveAndGradient = (w: number, c: number, s: number): { value: number; gw: number; gc: number; gs: number } => {
+    let value = alpha * w * w
+    let gw = 2 * alpha * w
+    let gc = 0
+    let gs = 0
+    for (let i = 0; i < n; i++) {
+      const residual = w * x[i] + c - y[i]
+      const z = residual / s
+      if (Math.abs(z) < eps) {
+        value += s + (z * z) * s
+        // d/dw of (r²/σ) is 2r·x/σ; d/dσ of (σ + r²/σ) is 1 − r²/σ².
+        gw += (2 * residual * x[i]) / s
+        gc += (2 * residual) / s
+        gs += 1 - z * z
+      } else {
+        value += s + (2 * eps * Math.abs(z) - eps * eps) * s
+        const sign = residual >= 0 ? 1 : -1
+        gw += 2 * eps * sign * x[i]
+        gc += 2 * eps * sign
+        gs += 1 - eps * eps
+      }
+    }
+    return { value, gw, gc, gs }
+  }
+
+  let step = 1e-3
+  let current = objectiveAndGradient(slope, intercept, scale)
+  for (let iteration = 0; iteration < 4000; iteration++) {
+    const gradientNorm = Math.hypot(current.gw, current.gc, current.gs)
+    if (gradientNorm < 1e-11) break
+
+    let taken = false
+    for (let attempt = 0; attempt < 40; attempt++) {
+      const w = slope - step * current.gw
+      const c = intercept - step * current.gc
+      // σ must stay positive; the barrier is a floor rather than a penalty.
+      const s = Math.max(1e-9, scale - step * current.gs)
+      const trial = objectiveAndGradient(w, c, s)
+      if (trial.value < current.value) {
+        slope = w
+        intercept = c
+        scale = s
+        current = trial
+        step *= 1.6
+        taken = true
+        break
+      }
+      step *= 0.4
+    }
+    if (!taken) break
+  }
+  return { slope, intercept }
+}
+
+/**
+ * Theil-Sen, in sklearn's formulation: fit a line through every pair of points,
+ * then take the spatial (L1) median of those (intercept, slope) estimates by
+ * Weiszfeld iteration. That is the same as `TheilSenRegressor` for a single
+ * predictor, where n_subsamples is 2 and the whole population of pairs fits
+ * under max_subpopulation.
+ */
+export function lineFitTheilSen(x: number[], y: number[]): { slope: number; intercept: number } {
+  const n = x.length
+  if (n < 2) return { slope: 0, intercept: 0 }
+  const estimates: [number, number][] = []
+  for (let i = 0; i < n; i++) {
+    for (let j = i + 1; j < n; j++) {
+      const dx = x[j] - x[i]
+      if (Math.abs(dx) < 1e-12) continue
+      const slope = (y[j] - y[i]) / dx
+      estimates.push([y[i] - slope * x[i], slope])
+    }
+  }
+  if (estimates.length === 0) return lineFitL2(x, y)
+
+  // Weiszfeld: start at the componentwise median, then iterate the
+  // inverse-distance-weighted mean until it stops moving.
+  const axis = (k: number) => {
+    const values = estimates.map((e) => e[k]).sort((a, b) => a - b)
+    const mid = values.length >> 1
+    return values.length % 2 ? values[mid] : (values[mid - 1] + values[mid]) / 2
+  }
+  let point: [number, number] = [axis(0), axis(1)]
+  for (let iteration = 0; iteration < 300; iteration++) {
+    let weightSum = 0
+    let sumA = 0
+    let sumB = 0
+    let atVertex = false
+    for (const [a, b] of estimates) {
+      const distance = Math.hypot(a - point[0], b - point[1])
+      if (distance < 1e-12) { atVertex = true; continue }
+      const weight = 1 / distance
+      weightSum += weight
+      sumA += a * weight
+      sumB += b * weight
+    }
+    if (weightSum === 0 || atVertex) break
+    const next: [number, number] = [sumA / weightSum, sumB / weightSum]
+    const moved = Math.hypot(next[0] - point[0], next[1] - point[1])
+    point = next
+    if (moved < 1e-12) break
+  }
+  return { intercept: point[0], slope: point[1] }
+}

@@ -21268,5 +21268,541 @@
     "variable_inputs": false,
     "hf_model": "",
     "hf_filename": ""
+  },
+  {
+    "type": "ml_decision_tree",
+    "label": "Decision Tree",
+    "category": "Machine Learning",
+    "icon": "GitBranch",
+    "description": "Decision Tree. Use max_depth slider to control model complexity. Plots the full decision tree and feature importances.",
+    "inputs": [
+      {
+        "id": "train",
+        "color": "data",
+        "label": "Train set"
+      },
+      {
+        "id": "test",
+        "color": "data",
+        "label": "Test set"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "tree_plot",
+        "color": "image",
+        "label": "Decision Tree Plot"
+      },
+      {
+        "id": "importance",
+        "color": "image",
+        "label": "Feature Importances"
+      },
+      {
+        "id": "accuracy",
+        "color": "scalar",
+        "label": "Test accuracy"
+      },
+      {
+        "id": "train_acc",
+        "color": "scalar",
+        "label": "Train accuracy"
+      },
+      {
+        "id": "depth",
+        "color": "scalar",
+        "label": "Actual depth"
+      }
+    ],
+    "params": [
+      {
+        "id": "_sec_data_dt",
+        "label": "Data",
+        "type": "section"
+      },
+      {
+        "id": "features",
+        "label": "Features (blank = all numeric)",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "target",
+        "label": "Target column",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "_sec_model_dt",
+        "label": "Model Config",
+        "type": "section"
+      },
+      {
+        "id": "max_depth",
+        "label": "Max depth (0 = unlimited)",
+        "type": "int",
+        "default": 4,
+        "min": 0,
+        "max": 20
+      },
+      {
+        "id": "criterion",
+        "label": "Criterion",
+        "type": "enum",
+        "options": [
+          "gini",
+          "entropy",
+          "log_loss"
+        ],
+        "default": 0
+      },
+      {
+        "id": "min_samples_split",
+        "label": "Min samples split",
+        "type": "int",
+        "default": 2,
+        "min": 2,
+        "max": 50
+      },
+      {
+        "id": "colormap",
+        "label": "Colormap (tree)",
+        "type": "enum",
+        "options": [
+          "Tab10",
+          "Set1",
+          "Set2",
+          "Viridis",
+          "Plasma"
+        ],
+        "default": 3
+      },
+      {
+        "id": "_sec_export_dt",
+        "label": "Export",
+        "type": "section"
+      },
+      {
+        "id": "out_dpi",
+        "label": "Export DPI (100=screen, 300=publication)",
+        "type": "int",
+        "default": 100,
+        "min": 72,
+        "max": 600
+      },
+      {
+        "id": "out_w",
+        "label": "Export width px (0 = node size)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 5000
+      },
+      {
+        "id": "out_h",
+        "label": "Export height px (0 = node size)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 5000
+      }
+    ],
+    "resizable": true,
+    "min_width": 320,
+    "min_height": 260,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "ml_random_forest",
+    "label": "Random Forest",
+    "category": "Machine Learning",
+    "icon": "TreePine",
+    "description": "Random Forest classifier. Confusion matrix + per-class report. Feature importance bar chart. Slide n_estimators or max_depth to see the effect in real time.",
+    "inputs": [
+      {
+        "id": "train",
+        "color": "data",
+        "label": "Train set"
+      },
+      {
+        "id": "test",
+        "color": "data",
+        "label": "Test set"
+      },
+      {
+        "id": "predict_table",
+        "color": "data",
+        "label": "Full table (predict all pixels)"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "preview",
+        "color": "image",
+        "label": "Confusion matrix"
+      },
+      {
+        "id": "importance",
+        "color": "image",
+        "label": "Feature importance"
+      },
+      {
+        "id": "accuracy",
+        "color": "scalar",
+        "label": "Test accuracy"
+      },
+      {
+        "id": "train_acc",
+        "color": "scalar",
+        "label": "Train accuracy"
+      },
+      {
+        "id": "oob_score",
+        "color": "scalar",
+        "label": "OOB score"
+      },
+      {
+        "id": "report",
+        "color": "image",
+        "label": "Classification report"
+      },
+      {
+        "id": "report_data",
+        "color": "dict",
+        "label": "Report dict"
+      },
+      {
+        "id": "predictions",
+        "color": "data",
+        "label": "Predictions (all pixels)"
+      }
+    ],
+    "params": [
+      {
+        "id": "_sec_rf_data",
+        "label": "Data",
+        "type": "section"
+      },
+      {
+        "id": "features",
+        "label": "Feature columns (comma-separated, blank=auto)",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "target",
+        "label": "Target column",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "_sec_rf_training",
+        "label": "Training",
+        "type": "section"
+      },
+      {
+        "id": "n_estimators",
+        "label": "Num trees",
+        "type": "int",
+        "default": 100,
+        "min": 1,
+        "max": 500
+      },
+      {
+        "id": "max_depth",
+        "label": "Max depth  (0 = none)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 50
+      },
+      {
+        "id": "min_samples_split",
+        "label": "Min samples split",
+        "type": "int",
+        "default": 2,
+        "min": 2,
+        "max": 50
+      },
+      {
+        "id": "criterion",
+        "label": "Criterion",
+        "type": "enum",
+        "options": [
+          "gini",
+          "entropy",
+          "log_loss"
+        ],
+        "default": 0
+      },
+      {
+        "id": "max_features",
+        "label": "Max features / tree",
+        "type": "enum",
+        "options": [
+          "sqrt",
+          "log2",
+          "none (all)"
+        ],
+        "default": 0
+      },
+      {
+        "id": "bootstrap",
+        "label": "Bootstrap",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "oob",
+        "label": "OOB score (needs bootstrap)",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "random_state",
+        "label": "Random seed",
+        "type": "int",
+        "default": 42,
+        "min": 0,
+        "max": 9999
+      },
+      {
+        "id": "_sec_rf_display",
+        "label": "Display",
+        "type": "section"
+      },
+      {
+        "id": "colormap",
+        "label": "Colormap",
+        "type": "enum",
+        "options": [
+          "tab10",
+          "Set1",
+          "Set2",
+          "viridis"
+        ],
+        "default": 0
+      },
+      {
+        "id": "top_n_feat",
+        "label": "Top N features in chart",
+        "type": "int",
+        "default": 20,
+        "min": 1,
+        "max": 100
+      },
+      {
+        "id": "_sec_rf_export",
+        "label": "Export",
+        "type": "section"
+      },
+      {
+        "id": "out_dpi",
+        "label": "Export DPI (100=screen, 300=publication)",
+        "type": "int",
+        "default": 100,
+        "min": 72,
+        "max": 600
+      },
+      {
+        "id": "out_w",
+        "label": "Export width px (0 = node size)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 5000
+      },
+      {
+        "id": "out_h",
+        "label": "Export height px (0 = node size)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 5000
+      }
+    ],
+    "resizable": true,
+    "min_width": 320,
+    "min_height": 260,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "ml_robust_line",
+    "label": "Robust Line Fit",
+    "category": "Machine Learning",
+    "icon": "TrendingUp",
+    "description": "Fits a straight line to scatter data under a chosen loss: Least Squares (L2), Huber, or Theil-Sen (median). Robust modes ignore a few wild outliers that drag the L2 line off the trend. Feed it either a DataFrame (two numeric columns) or an image of a scatter chart — dark marker blobs are detected and their centroids become the data points. Overlays the fit on the scatter and reports the slope.",
+    "inputs": [
+      {
+        "id": "table",
+        "label": "DataFrame (opt)",
+        "color": "data"
+      },
+      {
+        "id": "image",
+        "label": "Chart Image (opt)",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "label": "Plot",
+        "color": "image"
+      },
+      {
+        "id": "slope",
+        "label": "Slope",
+        "color": "scalar"
+      },
+      {
+        "id": "intercept",
+        "label": "Intercept",
+        "color": "scalar"
+      },
+      {
+        "id": "n_points",
+        "label": "Points",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "x_col",
+        "label": "X Column (table mode)",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "y_col",
+        "label": "Y Column (table mode)",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "mode",
+        "label": "Fit",
+        "type": "enum",
+        "options": [
+          "Least Squares (L2)",
+          "Huber",
+          "Theil-Sen (median)"
+        ],
+        "default": 0
+      },
+      {
+        "id": "huber_delta",
+        "label": "Huber Tolerance",
+        "type": "float",
+        "default": 1.35,
+        "min": 1,
+        "max": 10,
+        "step": 0.05
+      },
+      {
+        "id": "_sec_image",
+        "label": "Chart Image Mode",
+        "type": "section"
+      },
+      {
+        "id": "marker_thresh",
+        "label": "Marker Darkness",
+        "type": "int",
+        "default": 128,
+        "min": 1,
+        "max": 254
+      },
+      {
+        "id": "min_blob_px",
+        "label": "Min Marker Area (px)",
+        "type": "int",
+        "default": 4,
+        "min": 1,
+        "max": 500
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "ml_best_params",
+    "label": "Parameter Optimizer",
+    "category": "Machine Learning",
+    "icon": "Target",
+    "description": "Tracks training metrics and calculates the best epoch based on user-defined weights.",
+    "inputs": [
+      {
+        "id": "counter",
+        "color": "scalar",
+        "label": "Counter"
+      },
+      {
+        "id": "metrics_dict",
+        "color": "dict",
+        "label": "Metrics Dict"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "best_step",
+        "color": "scalar",
+        "label": "Best Step"
+      },
+      {
+        "id": "best_values",
+        "color": "dict",
+        "label": "Best Values"
+      }
+    ],
+    "params": [
+      {
+        "id": "reset",
+        "label": "Reset History",
+        "type": "trigger",
+        "default": 0
+      },
+      {
+        "id": "port_labels",
+        "label": "Port Labels Mapping",
+        "type": "string",
+        "default": "{}"
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": true,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
   }
 ]

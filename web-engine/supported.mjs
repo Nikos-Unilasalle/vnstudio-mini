@@ -376,6 +376,10 @@ export const SUPPORTED_TYPES = [
   'ml_linear_regression',
   'ml_cluster_validity',
   'ml_classification_report',
+  'ml_decision_tree',
+  'ml_random_forest',
+  'ml_robust_line',
+  'ml_best_params',
 ]
 
 
