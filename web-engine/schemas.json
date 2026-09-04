@@ -15786,5 +15786,766 @@
     "variable_inputs": false,
     "hf_model": "",
     "hf_filename": ""
+  },
+  {
+    "type": "util_fill_holes",
+    "label": "Fill Holes",
+    "category": "mask",
+    "icon": "ShieldCheck",
+    "description": "Fills holes (black areas) inside white objects in a binary mask.",
+    "inputs": [
+      {
+        "id": "mask",
+        "color": "any"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "params": [],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "util_colormap",
+    "label": "Apply Colormap",
+    "category": "color",
+    "icon": "Palette",
+    "description": "Applies a scientific colormap (Heatmap, Jet, Magma) to a grayscale image.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "any"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "map",
+        "label": "Colormap",
+        "type": "enum",
+        "options": [
+          "Jet",
+          "Heatmap (HOT)",
+          "Magma",
+          "Viridis",
+          "Inferno",
+          "Cividis",
+          "Rainbow"
+        ],
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "util_image_math",
+    "label": "Image Math",
+    "category": "image",
+    "icon": "Zap",
+    "description": "Applies mathematical power operation (gamma) to image pixels.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "any"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "power",
+        "label": "Power (Gamma)",
+        "type": "float",
+        "default": 1,
+        "min": 0.1,
+        "max": 5
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "util_draw_contours",
+    "label": "Draw Contours",
+    "category": "draw",
+    "icon": "PenTool",
+    "description": "Draws a list of contours onto an image or a new black background.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "any"
+      },
+      {
+        "id": "contours",
+        "color": "contours"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "color",
+        "label": "Color",
+        "type": "color",
+        "default": "#00FF00"
+      },
+      {
+        "id": "thickness",
+        "label": "Thickness",
+        "type": "int",
+        "default": 2,
+        "min": -1,
+        "max": 20
+      },
+      {
+        "id": "background",
+        "label": "New Background",
+        "type": "boolean",
+        "default": false
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "util_label_filter_area",
+    "label": "Label Area Filter",
+    "category": "mask",
+    "icon": "Target",
+    "description": "Filters a label image (from Segmenter) by area. More precise than filtering a binary mask.",
+    "inputs": [
+      {
+        "id": "labels",
+        "color": "any"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "params": [
+      {
+        "id": "min_area_pct",
+        "label": "Min Area (%)",
+        "type": "number",
+        "default": 0.1,
+        "min": 0,
+        "max": 20,
+        "step": 0.05
+      },
+      {
+        "id": "min_area_px",
+        "label": "Min Area (px)",
+        "type": "number",
+        "default": 0,
+        "min": 0,
+        "max": 500000,
+        "step": 100
+      },
+      {
+        "id": "mode",
+        "label": "Mode",
+        "type": "enum",
+        "options": [
+          "Keep Matches",
+          "Remove Matches"
+        ],
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "mask_filter_area",
+    "label": "Mask Area Filter",
+    "category": "mask",
+    "icon": "Filter",
+    "description": "Filters connected components (blobs) based on their area as a % of the image. Adaptive to resolution.",
+    "inputs": [
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "params": [
+      {
+        "id": "_sec_area",
+        "label": "Area Threshold",
+        "type": "section"
+      },
+      {
+        "id": "min_area_pct",
+        "label": "Min Area (%)",
+        "type": "number",
+        "default": 0.1,
+        "min": 0,
+        "max": 20,
+        "step": 0.05
+      },
+      {
+        "id": "min_area_px",
+        "label": "Min Area (px)",
+        "type": "number",
+        "default": 0,
+        "min": 0,
+        "max": 500000,
+        "step": 100
+      },
+      {
+        "id": "_sec_options",
+        "label": "Options",
+        "type": "section"
+      },
+      {
+        "id": "fill_holes",
+        "label": "Fill Holes (Contours mode)",
+        "type": "boolean",
+        "default": false
+      },
+      {
+        "id": "invert",
+        "label": "Invert Input",
+        "type": "boolean",
+        "default": false
+      },
+      {
+        "id": "mode",
+        "label": "Mode",
+        "type": "enum",
+        "options": [
+          "Keep Matches",
+          "Remove Matches"
+        ],
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "util_image_masking",
+    "label": "Image Masking",
+    "category": "mask",
+    "icon": "Layers",
+    "description": "Applies a binary mask to an image. Pixels outside the mask are filled with a specific background color.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      },
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "bg_color",
+        "label": "BG Color",
+        "type": "color",
+        "default": "#000000"
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "mask_outline",
+    "label": "Mask Outline",
+    "category": "mask",
+    "icon": "Square",
+    "description": "Extracts the outline (boundary) from a binary mask. Useful for drawing borders around detected objects.",
+    "inputs": [
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "params": [
+      {
+        "id": "thickness",
+        "label": "Thickness (px)",
+        "type": "int",
+        "default": 2,
+        "min": 1,
+        "max": 21
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "util_mask_band",
+    "label": "Mask Band",
+    "category": "mask",
+    "icon": "AlignCenter",
+    "description": "Extracts a band (start% → end%) from an image and/or mask along H or V axis. Values outside the band are zeroed. Use to isolate longitudinal zones.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      },
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "image",
+        "color": "image"
+      },
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "params": [
+      {
+        "id": "start_pct",
+        "label": "Start %",
+        "type": "float",
+        "default": 0,
+        "min": 0,
+        "max": 100
+      },
+      {
+        "id": "end_pct",
+        "label": "End %",
+        "type": "float",
+        "default": 50,
+        "min": 0,
+        "max": 100
+      },
+      {
+        "id": "axis",
+        "label": "Axis",
+        "type": "enum",
+        "default": 0,
+        "options": [
+          "Horizontal (rows)",
+          "Vertical (cols)"
+        ]
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "util_split_half",
+    "label": "Split Half",
+    "category": "mask",
+    "icon": "Columns2",
+    "description": "Splits an image and/or mask into two halves along H or V axis at a given % position. Values outside each half are zeroed (spatial positions preserved). Useful for medial/lateral or anterior/posterior asymmetry analysis.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      },
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "first_image",
+        "color": "image"
+      },
+      {
+        "id": "second_image",
+        "color": "image"
+      },
+      {
+        "id": "first_mask",
+        "color": "mask"
+      },
+      {
+        "id": "second_mask",
+        "color": "mask"
+      }
+    ],
+    "params": [
+      {
+        "id": "axis",
+        "label": "Axis",
+        "type": "enum",
+        "default": 1,
+        "options": [
+          "Horizontal (top / bottom)",
+          "Vertical (left / right)"
+        ]
+      },
+      {
+        "id": "position",
+        "label": "Split %",
+        "type": "float",
+        "default": 50,
+        "min": 0,
+        "max": 100
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "util_compose",
+    "label": "Compose",
+    "category": "utility",
+    "icon": "Layout",
+    "description": "Combines two images: side-by-side, split view, blend, difference, or checkerboard.",
+    "inputs": [
+      {
+        "id": "image_a",
+        "color": "image"
+      },
+      {
+        "id": "image_b",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "mode",
+        "label": "Mode",
+        "type": "enum",
+        "options": [
+          "Side by Side",
+          "Top / Bottom",
+          "Split H",
+          "Split V",
+          "Alpha Blend",
+          "Difference",
+          "Checkerboard"
+        ],
+        "default": 0
+      },
+      {
+        "id": "split_pos",
+        "label": "Split / Tile %",
+        "type": "scalar",
+        "min": 1,
+        "max": 99,
+        "default": 50
+      },
+      {
+        "id": "gap",
+        "label": "Gap / Line (px)",
+        "type": "scalar",
+        "min": 0,
+        "max": 40,
+        "default": 2
+      },
+      {
+        "id": "alpha",
+        "label": "Alpha (A)",
+        "type": "scalar",
+        "min": 0,
+        "max": 1,
+        "default": 0.5
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "plugin_image_to_mask",
+    "label": "Image to Mask",
+    "category": "mask",
+    "icon": "Layers",
+    "description": "Converts any image to a binary mask using its brightness.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "params": [],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "plugin_invert_mask",
+    "label": "Invert Mask",
+    "category": "mask",
+    "icon": "Layers",
+    "description": "Inverts a binary mask (black becomes white and vice versa).",
+    "inputs": [
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "mask"
+      }
+    ],
+    "params": [],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "points_to_mask",
+    "label": "Points to Mask",
+    "category": "mask",
+    "icon": "Target",
+    "description": "Convert a list of points into a binary mask. Each point is drawn as a filled circle.",
+    "inputs": [
+      {
+        "id": "points",
+        "color": "list"
+      },
+      {
+        "id": "reference",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "params": [
+      {
+        "id": "radius",
+        "label": "Point Radius (px)",
+        "type": "number",
+        "default": 5,
+        "min": 1,
+        "max": 500
+      },
+      {
+        "id": "width",
+        "label": "Width (if no ref)",
+        "type": "number",
+        "default": 640,
+        "min": 1,
+        "max": 8000
+      },
+      {
+        "id": "height",
+        "label": "Height (if no ref)",
+        "type": "number",
+        "default": 480,
+        "min": 1,
+        "max": 8000
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "merge_points",
+    "label": "Merge Points",
+    "category": "tracking",
+    "icon": "Target",
+    "description": "",
+    "inputs": [
+      {
+        "id": "points",
+        "color": "list"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "points",
+        "color": "list"
+      },
+      {
+        "id": "keypoints",
+        "color": "list"
+      },
+      {
+        "id": "count",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "threshold",
+        "type": "number",
+        "default": 20,
+        "min": 1,
+        "max": 200,
+        "label": "Merge Radius (px)"
+      },
+      {
+        "id": "image_width",
+        "type": "number",
+        "default": 640,
+        "min": 1,
+        "max": 4000,
+        "label": "Image Width"
+      },
+      {
+        "id": "image_height",
+        "type": "number",
+        "default": 480,
+        "min": 1,
+        "max": 4000,
+        "label": "Image Height"
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
   }
 ]

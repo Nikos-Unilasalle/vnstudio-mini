@@ -296,7 +296,25 @@ export const SUPPORTED_TYPES = [
   'bbox_transform',
   'box_selection',
   'util_coord_center',
+
+  // mask / utility
+  'util_fill_holes',
+  'util_colormap',
+  'util_image_math',
+  'util_draw_contours',
+  'util_label_filter_area',
+  'mask_filter_area',
+  'util_image_masking',
+  'mask_outline',
+  'util_mask_band',
+  'util_split_half',
+  'util_compose',
+  'plugin_image_to_mask',
+  'plugin_invert_mask',
+  'points_to_mask',
+  'merge_points',
 ]
+
 
 
 

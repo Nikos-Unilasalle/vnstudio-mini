@@ -65,6 +65,23 @@ import { sciBoundaryF1, sciClusterHeatmap, sciGlcm, sciHausdorff, sciRegionClass
 import { genCanvas, genFeedback, genGrayScott } from './nodes/gen'
 import { pluginEvmColor, pluginEvmMotion } from './nodes/evm'
 import {
+  maskFilterArea,
+  maskOutline,
+  mergePoints,
+  pluginImageToMask,
+  pluginInvertMask,
+  pointsToMask,
+  utilColormap,
+  utilCompose,
+  utilDrawContours,
+  utilFillHoles,
+  utilImageMasking,
+  utilImageMath,
+  utilLabelFilterArea,
+  utilMaskBand,
+  utilSplitHalf,
+} from './nodes/maskUtils'
+import {
   bboxTransform,
   boxSelection,
   geomApproxPoly,
@@ -487,6 +504,22 @@ export const IMPLEMENTATIONS: Record<string, NodeImpl> = {
   bbox_transform: bboxTransform,
   box_selection: boxSelection,
   util_coord_center: utilCoordCenter,
+
+  util_fill_holes: utilFillHoles,
+  util_colormap: utilColormap,
+  util_image_math: utilImageMath,
+  util_draw_contours: utilDrawContours,
+  util_label_filter_area: utilLabelFilterArea,
+  mask_filter_area: maskFilterArea,
+  util_image_masking: utilImageMasking,
+  mask_outline: maskOutline,
+  util_mask_band: utilMaskBand,
+  util_split_half: utilSplitHalf,
+  util_compose: utilCompose,
+  plugin_image_to_mask: pluginImageToMask,
+  plugin_invert_mask: pluginInvertMask,
+  points_to_mask: pointsToMask,
+  merge_points: mergePoints,
 }
 
 const schemaByType = new Map(SCHEMAS.map((s) => [s.type, s]))
