@@ -15236,5 +15236,555 @@
     "variable_inputs": false,
     "hf_model": "",
     "hf_filename": ""
+  },
+  {
+    "type": "geom_approx_poly",
+    "label": "Approx. Polygon",
+    "category": "geometry",
+    "icon": "Shapes",
+    "description": "Simplifies a contour into a polygon with fewer vertices.",
+    "inputs": [
+      {
+        "id": "contour",
+        "color": "dict"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "approx_contour",
+        "color": "dict"
+      }
+    ],
+    "params": [
+      {
+        "id": "epsilon_pct",
+        "label": "Precision %",
+        "type": "scalar",
+        "min": 0,
+        "max": 10,
+        "default": 2
+      },
+      {
+        "id": "closed",
+        "label": "Closed",
+        "type": "boolean",
+        "default": true
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "geom_fit_shape",
+    "label": "Fit Shape",
+    "category": "geometry",
+    "icon": "Square",
+    "description": "Calculates the bounding box or minimum area rectangle for a contour.",
+    "inputs": [
+      {
+        "id": "contour",
+        "color": "dict"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "bbox",
+        "color": "dict"
+      },
+      {
+        "id": "min_rect",
+        "color": "dict"
+      }
+    ],
+    "params": [
+      {
+        "id": "padding",
+        "label": "Padding",
+        "type": "scalar",
+        "min": 0,
+        "max": 0.1,
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "geom_warp_affine",
+    "label": "Warp Affine",
+    "category": "geometry",
+    "icon": "Move",
+    "description": "Applies a 2x3 affine transformation matrix to the image.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      },
+      {
+        "id": "matrix",
+        "color": "any"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "geom_rotate_no_crop",
+    "label": "Rotate (No Crop)",
+    "category": "geometry",
+    "icon": "RotateCw",
+    "description": "Rotates the image while expanding the canvas to keep all pixels visible.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "angle",
+        "label": "Angle",
+        "type": "scalar",
+        "min": -180,
+        "max": 180,
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "geom_perspective",
+    "label": "Perspective Warp",
+    "category": "geometry",
+    "icon": "Maximize",
+    "description": "Straightens a distorted area into a flat rectangle using 4 reference points.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      },
+      {
+        "id": "src_pts",
+        "color": "list"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "width",
+        "label": "Out Width",
+        "type": "scalar",
+        "min": 100,
+        "max": 2000,
+        "default": 800
+      },
+      {
+        "id": "height",
+        "label": "Out Height",
+        "type": "scalar",
+        "min": 100,
+        "max": 2000,
+        "default": 600
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "util_manual_points",
+    "label": "Manual 4 Points",
+    "category": "geometry",
+    "icon": "MousePointer",
+    "description": "Allows manual definition of 4 reference points on the image for calculations.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      },
+      {
+        "id": "p1",
+        "color": "dict"
+      },
+      {
+        "id": "p2",
+        "color": "dict"
+      },
+      {
+        "id": "p3",
+        "color": "dict"
+      },
+      {
+        "id": "p4",
+        "color": "dict"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "points",
+        "color": "list"
+      }
+    ],
+    "params": [
+      {
+        "id": "x1",
+        "label": "P1 X",
+        "type": "scalar",
+        "min": 0,
+        "max": 1,
+        "step": 0.001,
+        "default": 0.1
+      },
+      {
+        "id": "y1",
+        "label": "P1 Y",
+        "type": "scalar",
+        "min": 0,
+        "max": 1,
+        "step": 0.001,
+        "default": 0.1
+      },
+      {
+        "id": "x2",
+        "label": "P2 X",
+        "type": "scalar",
+        "min": 0,
+        "max": 1,
+        "step": 0.001,
+        "default": 0.9
+      },
+      {
+        "id": "y2",
+        "label": "P2 Y",
+        "type": "scalar",
+        "min": 0,
+        "max": 1,
+        "step": 0.001,
+        "default": 0.1
+      },
+      {
+        "id": "x3",
+        "label": "P3 X",
+        "type": "scalar",
+        "min": 0,
+        "max": 1,
+        "step": 0.001,
+        "default": 0.9
+      },
+      {
+        "id": "y3",
+        "label": "P3 Y",
+        "type": "scalar",
+        "min": 0,
+        "max": 1,
+        "step": 0.001,
+        "default": 0.9
+      },
+      {
+        "id": "x4",
+        "label": "P4 X",
+        "type": "scalar",
+        "min": 0,
+        "max": 1,
+        "step": 0.001,
+        "default": 0.1
+      },
+      {
+        "id": "y4",
+        "label": "P4 Y",
+        "type": "scalar",
+        "min": 0,
+        "max": 1,
+        "step": 0.001,
+        "default": 0.9
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "bbox_transform",
+    "label": "BBox Transform",
+    "category": "analysis",
+    "icon": "Scaling",
+    "description": "Resize (enlarge/reduce) and size-filter bounding boxes. Accepts a boxes list or a single box dict (Grounding DINO / YOLO format). Resize by percent of box size or by pixels per side; filter by area (% of image or px²) or by width/height in px. Connect the source image for pixel-based modes.",
+    "inputs": [
+      {
+        "id": "boxes_list",
+        "color": "list",
+        "label": "Boxes List"
+      },
+      {
+        "id": "box",
+        "color": "dict",
+        "label": "Single Box (optional)"
+      },
+      {
+        "id": "image",
+        "color": "image",
+        "label": "Image (for px modes)"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "boxes_list",
+        "color": "list",
+        "label": "Boxes List"
+      },
+      {
+        "id": "main",
+        "color": "image",
+        "label": "Overlay"
+      },
+      {
+        "id": "count",
+        "color": "scalar",
+        "label": "Count"
+      }
+    ],
+    "params": [
+      {
+        "id": "resize_mode",
+        "label": "Resize Mode",
+        "type": "enum",
+        "options": [
+          "Percent (% of box)",
+          "Pixels (per side)"
+        ],
+        "default": 0
+      },
+      {
+        "id": "resize_amount",
+        "label": "Resize Amount (+grow / -shrink)",
+        "type": "float",
+        "default": 0,
+        "min": -100,
+        "max": 500,
+        "step": 1
+      },
+      {
+        "id": "clamp",
+        "label": "Clamp to Image Bounds",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "filter_mode",
+        "label": "Size Filter",
+        "type": "enum",
+        "options": [
+          "None",
+          "Area % of image",
+          "Area px²",
+          "Width & Height px"
+        ],
+        "default": 0
+      },
+      {
+        "id": "min_size",
+        "label": "Min Size",
+        "type": "float",
+        "default": 0,
+        "min": 0,
+        "max": 1000000,
+        "step": 1
+      },
+      {
+        "id": "max_size",
+        "label": "Max Size (0 = no max)",
+        "type": "float",
+        "default": 0,
+        "min": 0,
+        "max": 1000000,
+        "step": 1
+      },
+      {
+        "id": "draw",
+        "label": "Draw Overlay",
+        "type": "bool",
+        "default": true
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "box_selection",
+    "label": "Box Selection",
+    "category": "analysis",
+    "icon": "SquareMousePointer",
+    "description": "Select a single box from a boxes list. Pick by index, or by ranking (largest / smallest area, highest score). Outputs one box dict ready for SAM (single box mode) or Auto Cropper. Connect an image for preview.",
+    "inputs": [
+      {
+        "id": "boxes_list",
+        "color": "list",
+        "label": "Boxes List"
+      },
+      {
+        "id": "image",
+        "color": "image",
+        "label": "Image (preview)"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "box",
+        "color": "dict",
+        "label": "Selected Box"
+      },
+      {
+        "id": "main",
+        "color": "image",
+        "label": "Overlay"
+      },
+      {
+        "id": "index",
+        "color": "scalar",
+        "label": "Index"
+      }
+    ],
+    "params": [
+      {
+        "id": "mode",
+        "label": "Select By",
+        "type": "enum",
+        "options": [
+          "Index",
+          "Largest Area",
+          "Smallest Area",
+          "Highest Score"
+        ],
+        "default": 0
+      },
+      {
+        "id": "index",
+        "label": "Index (0-based)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 9999
+      },
+      {
+        "id": "thickness",
+        "label": "Outline Thickness",
+        "type": "int",
+        "default": 3,
+        "min": 1,
+        "max": 10
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "util_coord_center",
+    "label": "Coord Center",
+    "category": "utility",
+    "icon": "Target",
+    "description": "Calculates the center point of a coordinate dictionary (bounding box).",
+    "inputs": [
+      {
+        "id": "data",
+        "color": "dict"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "cx",
+        "color": "scalar"
+      },
+      {
+        "id": "cy",
+        "color": "scalar"
+      },
+      {
+        "id": "dict",
+        "color": "dict"
+      }
+    ],
+    "params": [],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
   }
 ]

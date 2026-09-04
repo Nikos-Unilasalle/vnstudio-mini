@@ -285,7 +285,19 @@ export const SUPPORTED_TYPES = [
   'tracker_visualize',
   'geom_track_line',
   'geom_track_polygon',
+
+  // geometry (advanced) / boxes
+  'geom_approx_poly',
+  'geom_fit_shape',
+  'geom_warp_affine',
+  'geom_rotate_no_crop',
+  'geom_perspective',
+  'util_manual_points',
+  'bbox_transform',
+  'box_selection',
+  'util_coord_center',
 ]
+
 
 
 

@@ -65,6 +65,17 @@ import { sciBoundaryF1, sciClusterHeatmap, sciGlcm, sciHausdorff, sciRegionClass
 import { genCanvas, genFeedback, genGrayScott } from './nodes/gen'
 import { pluginEvmColor, pluginEvmMotion } from './nodes/evm'
 import {
+  bboxTransform,
+  boxSelection,
+  geomApproxPoly,
+  geomFitShape,
+  geomPerspective,
+  geomRotateNoCrop,
+  geomWarpAffine,
+  utilCoordCenter,
+  utilManualPoints,
+} from './nodes/geometryAdv'
+import {
   bgSubKnn,
   bgSubMog2,
   filterBgSubtraction,
@@ -466,6 +477,16 @@ export const IMPLEMENTATIONS: Record<string, NodeImpl> = {
   tracker_visualize: trackerVisualize,
   geom_track_line: geomTrackLine,
   geom_track_polygon: geomTrackPolygon,
+
+  geom_approx_poly: geomApproxPoly,
+  geom_fit_shape: geomFitShape,
+  geom_warp_affine: geomWarpAffine,
+  geom_rotate_no_crop: geomRotateNoCrop,
+  geom_perspective: geomPerspective,
+  util_manual_points: utilManualPoints,
+  bbox_transform: bboxTransform,
+  box_selection: boxSelection,
+  util_coord_center: utilCoordCenter,
 }
 
 const schemaByType = new Map(SCHEMAS.map((s) => [s.type, s]))
