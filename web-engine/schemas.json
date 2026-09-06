@@ -23386,5 +23386,69 @@
     "variable_inputs": false,
     "hf_model": "",
     "hf_filename": ""
+  },
+  {
+    "type": "tool_annotator",
+    "label": "Annotator",
+    "category": "draw",
+    "icon": "PenTool",
+    "description": "Interactive drawing layer. Brush, lines, arrows, rectangles, ellipses, circles and text over an image or a solid background — built-in editor.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "annotations",
+        "label": "Annotations",
+        "type": "string",
+        "default": "[]"
+      },
+      {
+        "id": "with_background",
+        "label": "Use Input Image",
+        "type": "boolean",
+        "default": true
+      },
+      {
+        "id": "bg_color",
+        "label": "Background Color",
+        "type": "color",
+        "default": "#0c0c0c"
+      },
+      {
+        "id": "canvas_w",
+        "label": "Board Width",
+        "type": "int",
+        "default": 640,
+        "min": 64,
+        "max": 4096
+      },
+      {
+        "id": "canvas_h",
+        "label": "Board Height",
+        "type": "int",
+        "default": 480,
+        "min": 64,
+        "max": 4096
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
   }
 ]

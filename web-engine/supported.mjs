@@ -403,6 +403,7 @@ export const SUPPORTED_TYPES = [
   'sci_visual_measure',
   'sci_index_painter',
   'pbr_material_gen',
+  'tool_annotator',
 ]
 
 

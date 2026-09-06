@@ -86,7 +86,7 @@ import {
 } from './nodes/measureSci'
 import { mlBarChart, mlCsvReader, mlSklearnDataset, mlSvmClassifier } from './nodes/mlExtras'
 import { mlLossExplorer, mlTrainingMonitor, utilMonteCarloPropagation } from './nodes/mlTeaching'
-import { manualPoints, pbrMaterialGen, sciIndexPainter, sciVisualMeasure } from './nodes/interactive'
+import { manualPoints, pbrMaterialGen, sciIndexPainter, sciVisualMeasure, toolAnnotator } from './nodes/interactive'
 import {
   featNdwi,
   featSpectralIndex,
@@ -663,6 +663,7 @@ export const IMPLEMENTATIONS: Record<string, NodeImpl> = {
   sci_visual_measure: sciVisualMeasure,
   sci_index_painter: sciIndexPainter,
   pbr_material_gen: pbrMaterialGen,
+  tool_annotator: toolAnnotator,
 }
 
 const schemaByType = new Map(SCHEMAS.map((s) => [s.type, s]))

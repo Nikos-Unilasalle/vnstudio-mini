@@ -8,6 +8,7 @@
  */
 import type { NodeImpl } from '../types'
 import { applyColormap, infernoColor, jetColor, plasmaColor, turboColor, viridisColor } from '../colormaps'
+import { drawArrowedLine } from '../cvUtils'
 
 /** HERSHEY_SIMPLEX metrics, standing in for the absent `cv.getTextSize`. */
 function textSize(text: string, scale: number): { width: number; height: number } {
@@ -239,6 +240,91 @@ export const sciIndexPainter: NodeImpl = (inputs, params, ctx) => {
   norm.delete()
 
   return { index, labels, main: preview, preview }
+}
+
+/* ---------------------------------------------------------------- annotator */
+
+/** `#rrggbb` to a BGR triple, falling back to white as the desktop does. */
+function parseColour(raw: unknown): [number, number, number] {
+  const hex = String(raw ?? '').replace(/^#/, '')
+  if (hex.length !== 6) return [255, 255, 255]
+  const r = parseInt(hex.slice(0, 2), 16)
+  const g = parseInt(hex.slice(2, 4), 16)
+  const b = parseInt(hex.slice(4, 6), 16)
+  return [r, g, b].some(Number.isNaN) ? [255, 255, 255] : [b, g, r]
+}
+
+export const toolAnnotator: NodeImpl = (inputs, params, ctx) => {
+  const cv = ctx.cv
+  const image = (inputs.image ?? inputs.main) as any
+  const hasImage = Boolean(image) && typeof image?.cols === 'number'
+  // The desktop reads this param loosely: anything but "false"/"0"/"no" is on.
+  const raw = String(params.with_background ?? true).toLowerCase()
+  const withBackground = !['false', '0', 'no'].includes(raw)
+  const [bb, bg, br] = parseColour(params.bg_color ?? '#0c0c0c')
+
+  let canvas: any
+  let w: number
+  let h: number
+  if (hasImage && withBackground) {
+    canvas = ctx.track(toBgr8(cv, image))
+    w = canvas.cols
+    h = canvas.rows
+  } else {
+    // A solid board, sized to the input when one is connected.
+    w = hasImage ? image.cols : Math.max(64, Math.round(Number(params.canvas_w ?? 640)))
+    h = hasImage ? image.rows : Math.max(64, Math.round(Number(params.canvas_h ?? 480)))
+    canvas = ctx.track(new cv.Mat(h, w, cv.CV_8UC3, new cv.Scalar(bb, bg, br, 255)))
+  }
+
+  const font = cv.FONT_HERSHEY_SIMPLEX
+  for (const entry of parseJsonArray(params.annotations)) {
+    if (!entry || typeof entry !== 'object') continue
+    const annotation = entry as Record<string, unknown>
+    const tool = String(annotation.tool ?? 'brush')
+    const [cb, cg, cr] = parseColour(annotation.color ?? '#ffffff')
+    const colour = new cv.Scalar(cb, cg, cr, 255)
+    const size = Math.max(1, Math.round(Number(annotation.size ?? 3)))
+    // OpenCV reads a thickness of -1 as "filled".
+    const thickness = annotation.fill ? -1 : size
+    const relative = Array.isArray(annotation.pts) ? (annotation.pts as [number, number][]) : []
+    const pixel = (p: [number, number]) => new cv.Point(Math.trunc(Number(p[0]) * w), Math.trunc(Number(p[1]) * h))
+
+    if (tool === 'brush' && relative.length > 1) {
+      for (let i = 1; i < relative.length; i++) {
+        cv.line(canvas, pixel(relative[i - 1]), pixel(relative[i]), colour, size, cv.LINE_AA)
+      }
+    } else if (tool === 'line' && relative.length >= 2) {
+      cv.line(canvas, pixel(relative[0]), pixel(relative[relative.length - 1]), colour, size, cv.LINE_AA)
+    } else if (tool === 'arrow' && relative.length >= 2) {
+      drawArrowedLine(cv, canvas, pixel(relative[0]), pixel(relative[relative.length - 1]), colour, size, 0.25)
+    } else if (tool === 'rect' && relative.length >= 2) {
+      cv.rectangle(canvas, pixel(relative[0]), pixel(relative[relative.length - 1]), colour, thickness, cv.LINE_AA)
+    } else if (tool === 'ellipse' && relative.length >= 2) {
+      const x1 = Number(relative[0][0]) * w
+      const y1 = Number(relative[0][1]) * h
+      const x2 = Number(relative[relative.length - 1][0]) * w
+      const y2 = Number(relative[relative.length - 1][1]) * h
+      cv.ellipse(canvas, new cv.Point(Math.trunc((x1 + x2) / 2), Math.trunc((y1 + y2) / 2)),
+        new cv.Size(Math.max(1, Math.trunc(Math.abs(x2 - x1) / 2)), Math.max(1, Math.trunc(Math.abs(y2 - y1) / 2))),
+        0, 0, 360, colour, thickness, cv.LINE_AA)
+    } else if (tool === 'circle' && relative.length > 0) {
+      // The radius follows the brush size as a percentage of the short side.
+      const radius = Math.max(1, Math.trunc((size * Math.min(w, h)) / 100))
+      cv.circle(canvas, pixel(relative[0]), radius, colour, thickness, cv.LINE_AA)
+    } else if (tool === 'text' && relative.length > 0) {
+      const point = pixel(relative[0])
+      const text = String(annotation.text ?? '')
+      const scale = Math.max(0.4, size * 0.15)
+      const stroke = Math.max(1, Math.trunc(size / 4))
+      // A dark shadow first, so the label stays readable over any background.
+      cv.putText(canvas, text, new cv.Point(point.x + 1, point.y + 1), font, scale,
+        new cv.Scalar(0, 0, 0, 255), stroke + 1, cv.LINE_AA)
+      cv.putText(canvas, text, point, font, scale, colour, stroke, cv.LINE_AA)
+    }
+  }
+
+  return { main: canvas }
 }
 
 /* ---------------------------------------------------- PBR material generator */
