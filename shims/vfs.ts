@@ -12,12 +12,46 @@ const STORAGE_PREFIX = 'vnstudio-vfs:'
 const binaryFiles = new Map<string, { data: ArrayBuffer; mime: string; url: string }>()
 const textFiles = new Map<string, string>()
 
+/**
+ * Bumped on every text write, so the engine hook can ship the store to the
+ * graph Worker only when it has actually changed rather than on every frame.
+ */
+let textVersion = 0
+
+export function textFilesVersion(): number {
+  return textVersion
+}
+
+/**
+ * Every text file the Worker might need to read, as a plain object it can be
+ * handed by structured clone. Node code runs in the Worker, which has neither
+ * this module's Map nor localStorage, so a file the user dropped is invisible
+ * there until it is sent across.
+ */
+export function snapshotTextFiles(): Record<string, string> {
+  const out: Record<string, string> = {}
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      if (key?.startsWith(STORAGE_PREFIX)) {
+        const value = localStorage.getItem(key)
+        if (value !== null) out[key.slice(STORAGE_PREFIX.length)] = value
+      }
+    }
+  } catch {
+    // localStorage unavailable; the in-memory entries below still travel.
+  }
+  for (const [path, contents] of textFiles) out[path] = contents
+  return out
+}
+
 function storageKey(path: string): string {
   return STORAGE_PREFIX + path
 }
 
 export function writeVirtualFile(path: string, contents: string): void {
   textFiles.set(path, contents)
+  textVersion++
   try {
     localStorage.setItem(storageKey(path), contents)
   } catch {
@@ -92,7 +126,7 @@ export function removeVirtualFile(path: string): void {
   const entry = binaryFiles.get(path)
   if (entry) URL.revokeObjectURL(entry.url)
   binaryFiles.delete(path)
-  textFiles.delete(path)
+  if (textFiles.delete(path)) textVersion++
   try {
     localStorage.removeItem(storageKey(path))
   } catch {

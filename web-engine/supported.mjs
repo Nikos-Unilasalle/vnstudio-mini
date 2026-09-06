@@ -392,6 +392,7 @@ export const SUPPORTED_TYPES = [
   // datasets, charts and the SVM
   'ml_sklearn_dataset',
   'ml_bar_chart',
+  'ml_csv_reader',
   'ml_svm_classifier',
   'ml_loss_explorer',
   'ml_training_monitor',

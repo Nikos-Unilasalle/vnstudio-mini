@@ -10,7 +10,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createNodesDataStore } from '../src/context/NodesDataContext'
-import { resolveMediaUrl } from './vfs'
+import { resolveMediaUrl, snapshotTextFiles, textFilesVersion } from './vfs'
 import { MediaFrameSource } from './mediaFrameSource'
 import type { WorkerRequest, WorkerResponse } from '../web-engine/worker'
 import type { GraphEdge, GraphNode } from '../web-engine/executor'
@@ -54,6 +54,8 @@ export function useVisionEngine(onCapture?: (nodeId: string, base64: string) => 
     new Map<number, { resolve: (r: { nodesData: Record<string, unknown>; frame: string | null; errors: Record<string, string> }) => void; reject: (e: Error) => void }>()
   )
   const nextRequestId = useRef(1)
+  // -1 forces the first run to carry the whole text store.
+  const sentTextVersion = useRef(-1)
 
   const graphRef = useRef<{ nodes: GraphNode[]; edges: GraphEdge[] }>({ nodes: [], edges: [] })
   const previewNodeRef = useRef<string | null>(null)
@@ -153,10 +155,16 @@ export function useVisionEngine(onCapture?: (nodeId: string, base64: string) => 
 
       const requestId = nextRequestId.current++
       const bitmaps = Object.values(frames).map((f) => f.bitmap)
+      // A loaded CSV can be megabytes; cloning it into the Worker on every
+      // frame would cost more than the graph does, so it travels only when the
+      // virtual filesystem has actually changed.
+      const version = textFilesVersion()
+      const textFiles = version !== sentTextVersion.current ? snapshotTextFiles() : undefined
+      sentTextVersion.current = version
 
       return new Promise<{ nodesData: Record<string, unknown>; frame: string | null; errors: Record<string, string> }>((resolve, reject) => {
         pendingRuns.current.set(requestId, { resolve, reject })
-        const request: WorkerRequest = { type: 'run', requestId, nodes, edges, previewNodeId, frames }
+        const request: WorkerRequest = { type: 'run', requestId, nodes, edges, previewNodeId, frames, textFiles }
         worker.postMessage(request, bitmaps)
       })
     },

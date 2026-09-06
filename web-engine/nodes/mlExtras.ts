@@ -3,7 +3,9 @@
  */
 import type { NodeImpl, RunContext } from '../types'
 import DATASETS from '../datasets.json'
-import { DataFrame, dfMeta, isDf, isNumericColumn, makeDf, previewSize, resolveColumn, splitList } from '../dataframe'
+import { DataFrame, dfMeta, isDf, isNumericColumn, makeDf, previewSize, renderDfTable, resolveColumn, splitList } from '../dataframe'
+import { parseCsv } from '../csv'
+import { listTextFiles, readTextFile } from '../textFiles'
 import { classificationReport, confusionMatrix, makeMatrix, Matrix } from '../ml'
 import { Kernel, svmFit, svmPredict, svmPredictOne, supportVectorCount } from '../svm'
 import { Axes, classColour, drawAxes, PLOT_BG, PLOT_INK, project } from './mlData'
@@ -101,6 +103,56 @@ export const mlSklearnDataset: NodeImpl = (inputs, params, ctx) => {
     col_count: df.columns.length,
     img_size: [w, h],
     df_meta: dfMeta(df),
+  }
+}
+
+/* --------------------------------------------------------------- CSV reader */
+
+const SEPARATORS = [',', ';', '\t', '|']
+
+export const mlCsvReader: NodeImpl = (inputs, params, ctx) => {
+  const cv = ctx.cv
+  const path = String(params.path ?? 'data.csv').trim()
+  const separator = SEPARATORS[Math.round(Number(params.separator ?? 0))] ?? ','
+  const maxRows = Math.round(Number(params.max_rows ?? 0))
+  const [w, h] = previewSize(inputs.img_size, { width: 420, height: 240, ...params })
+
+  const text = readTextFile(path)
+  if (text === null) {
+    const known = listTextFiles()
+    return {
+      main: infoPanel(cv, ctx, [
+        `File not found: ${path}`,
+        '',
+        'Drop a .csv onto the window, or open one from the',
+        'file dialog, then set this path to match.',
+        ...(known.length > 0 ? ['', 'Loaded files:', ...known.slice(0, 6).map((f) => `  ${f}`)] : []),
+      ], w, h, 'CSV Reader'),
+      row_count: 0,
+      col_count: 0,
+    }
+  }
+
+  // Reparsing a large file on every frame would dominate the run, so the
+  // result is cached until the path, separator, row cap or contents change.
+  const cacheKey = `${ctx.nodeId}:csv`
+  const signature = `${path}|${separator}|${maxRows}|${text.length}`
+  let cached = ctx.state.get(cacheKey) as { signature: string; df: DataFrame } | undefined
+  if (!cached || cached.signature !== signature) {
+    cached = { signature, df: parseCsv(text, { separator, maxRows }) }
+    ctx.state.set(cacheKey, cached)
+  }
+  const df = cached.df
+  const name = path.split('/').pop() || path
+
+  return {
+    table: df,
+    main: ctx.track(renderDfTable(cv, df, w, h, name)),
+    preview: ctx.track(renderDfTable(cv, df, w, h, name)),
+    row_count: df.rows.length,
+    col_count: df.columns.length,
+    df_meta: dfMeta(df),
+    img_size: [w, h],
   }
 }
 

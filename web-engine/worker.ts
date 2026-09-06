@@ -12,6 +12,7 @@ import { loadOpenCv } from './opencv'
 import { GraphExecutor, type GraphEdge, type GraphNode } from './executor'
 import { SCHEMAS } from './registry'
 import type { CapturedFrame } from './types'
+import { setTextFiles } from './textFiles'
 
 export type WorkerRequest =
   | { type: 'init' }
@@ -22,6 +23,8 @@ export type WorkerRequest =
       edges: GraphEdge[]
       previewNodeId: string | null
       frames: Record<string, CapturedFrame>
+      /** Only present when the store changed since the last run. */
+      textFiles?: Record<string, string>
     }
 
 export type WorkerResponse =
@@ -58,6 +61,10 @@ self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
     postMessage({ type: 'run-error', requestId: message.requestId, message: 'OpenCV n’est pas encore prêt.' } satisfies WorkerResponse)
     return
   }
+
+  // The snapshot arrives only when it has changed, so an unchanged store is
+  // simply left in place rather than re-sent with every frame.
+  if (message.textFiles) setTextFiles(message.textFiles)
 
   try {
     const result = await executor.run(message.nodes, message.edges, message.previewNodeId, message.frames)

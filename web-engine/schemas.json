@@ -22550,6 +22550,89 @@
     "hf_filename": ""
   },
   {
+    "type": "ml_csv_reader",
+    "label": "CSV Reader",
+    "category": "DataFrame",
+    "icon": "FileText",
+    "description": "Load a CSV file as a DataFrame. Connect to DF Filter or DF Stats.",
+    "inputs": [],
+    "outputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "preview",
+        "color": "image",
+        "label": "Preview"
+      },
+      {
+        "id": "row_count",
+        "color": "scalar",
+        "label": "Rows"
+      },
+      {
+        "id": "col_count",
+        "color": "scalar",
+        "label": "Cols"
+      },
+      {
+        "id": "df_meta",
+        "color": "dict",
+        "label": "DF Metadata"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "params": [
+      {
+        "id": "path",
+        "label": "File Path",
+        "type": "string",
+        "default": "data.csv"
+      },
+      {
+        "id": "separator",
+        "label": "Separator",
+        "type": "enum",
+        "options": [
+          "Comma (,)",
+          "Semicolon (;)",
+          "Tab (\\t)",
+          "Pipe (|)"
+        ],
+        "default": 0
+      },
+      {
+        "id": "max_rows",
+        "label": "Max Rows (0 = all)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 100000
+      },
+      {
+        "id": "reload",
+        "label": "Reload",
+        "type": "trigger",
+        "default": 0
+      }
+    ],
+    "resizable": true,
+    "min_width": 290,
+    "min_height": 200,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
     "type": "ml_svm_classifier",
     "label": "SVM Classifier",
     "category": "Machine Learning",

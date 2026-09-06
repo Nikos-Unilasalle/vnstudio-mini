@@ -84,7 +84,7 @@ import {
   sciExportParticles,
   sciMarkerAnalysis,
 } from './nodes/measureSci'
-import { mlBarChart, mlSklearnDataset, mlSvmClassifier } from './nodes/mlExtras'
+import { mlBarChart, mlCsvReader, mlSklearnDataset, mlSvmClassifier } from './nodes/mlExtras'
 import { mlLossExplorer, mlTrainingMonitor, utilMonteCarloPropagation } from './nodes/mlTeaching'
 import { manualPoints, pbrMaterialGen, sciIndexPainter, sciVisualMeasure } from './nodes/interactive'
 import {
@@ -653,6 +653,7 @@ export const IMPLEMENTATIONS: Record<string, NodeImpl> = {
 
   ml_sklearn_dataset: mlSklearnDataset,
   ml_bar_chart: mlBarChart,
+  ml_csv_reader: mlCsvReader,
   ml_svm_classifier: mlSvmClassifier,
   ml_loss_explorer: mlLossExplorer,
   ml_training_monitor: mlTrainingMonitor,
