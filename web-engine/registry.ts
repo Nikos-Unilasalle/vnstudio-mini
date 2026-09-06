@@ -84,6 +84,7 @@ import {
   sciExportParticles,
   sciMarkerAnalysis,
 } from './nodes/measureSci'
+import { mlBarChart, mlSklearnDataset, mlSvmClassifier } from './nodes/mlExtras'
 import {
   featNdwi,
   featSpectralIndex,
@@ -647,6 +648,10 @@ export const IMPLEMENTATIONS: Record<string, NodeImpl> = {
   sci_export_particles: sciExportParticles,
   cv_mean_shift: cvMeanShift,
   feat_visual_size_gate: featVisualSizeGate,
+
+  ml_sklearn_dataset: mlSklearnDataset,
+  ml_bar_chart: mlBarChart,
+  ml_svm_classifier: mlSvmClassifier,
 }
 
 const schemaByType = new Map(SCHEMAS.map((s) => [s.type, s]))

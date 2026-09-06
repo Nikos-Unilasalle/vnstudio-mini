@@ -388,6 +388,11 @@ export const SUPPORTED_TYPES = [
   'sci_export_particles',
   'cv_mean_shift',
   'feat_visual_size_gate',
+
+  // datasets, charts and the SVM
+  'ml_sklearn_dataset',
+  'ml_bar_chart',
+  'ml_svm_classifier',
 ]
 
 

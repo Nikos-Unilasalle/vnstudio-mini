@@ -22311,5 +22311,425 @@
     "variable_inputs": false,
     "hf_model": "",
     "hf_filename": ""
+  },
+  {
+    "type": "ml_sklearn_dataset",
+    "label": "Sklearn Dataset",
+    "category": "DataFrame",
+    "icon": "Database",
+    "description": "Loads a demo scikit-learn dataset. Target column is always named 'target' (text labels for classification). Ideal for quick starts without a CSV file.",
+    "inputs": [],
+    "outputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "Full DataFrame"
+      },
+      {
+        "id": "preview",
+        "color": "image",
+        "label": "Info panel"
+      },
+      {
+        "id": "row_count",
+        "color": "scalar",
+        "label": "Row count"
+      },
+      {
+        "id": "col_count",
+        "color": "scalar",
+        "label": "Column count"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "params": [
+      {
+        "id": "dataset",
+        "label": "Dataset",
+        "type": "enum",
+        "options": [
+          "iris",
+          "wine",
+          "breast_cancer",
+          "diabetes (regression)",
+          "digits",
+          "california_housing (regression)"
+        ],
+        "default": 0
+      }
+    ],
+    "resizable": true,
+    "min_width": 260,
+    "min_height": 180,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "ml_bar_chart",
+    "label": "Bar Chart",
+    "category": "DataFrame",
+    "icon": "BarChart2",
+    "description": "Universal bar chart. Accepts a DataFrame (set x_col + y_col) OR a plain dict ({label: value}). Supports grouped bars (hue_col), horizontal/vertical layout, sorted display, error bars, and a second series overlay for comparison. Ideal for: F1-per-class ablation, feature importance, area statistics.",
+    "inputs": [
+      {
+        "id": "table",
+        "color": "data",
+        "label": "DataFrame"
+      },
+      {
+        "id": "data_b",
+        "color": "dict",
+        "label": "Dict B (comparison overlay)"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image",
+        "label": "Bar chart"
+      }
+    ],
+    "params": [
+      {
+        "id": "x_col",
+        "label": "Category column (DataFrame)",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "y_col",
+        "label": "Value column (DataFrame)",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "hue_col",
+        "label": "Group by (hue)",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "dict_key_a",
+        "label": "Dict A label (legend)",
+        "type": "string",
+        "default": "Series A"
+      },
+      {
+        "id": "dict_key_b",
+        "label": "Dict B label (legend)",
+        "type": "string",
+        "default": "Series B"
+      },
+      {
+        "id": "_sec_layout",
+        "label": "Layout",
+        "type": "section"
+      },
+      {
+        "id": "orientation",
+        "label": "Orientation",
+        "type": "enum",
+        "options": [
+          "Vertical",
+          "Horizontal"
+        ],
+        "default": 0
+      },
+      {
+        "id": "sorted",
+        "label": "Sort by value",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "show_values",
+        "label": "Show value labels",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "title",
+        "label": "Title",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "xlabel",
+        "label": "X axis label",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "ylabel",
+        "label": "Y axis label",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "_sec_style",
+        "label": "Style",
+        "type": "section"
+      },
+      {
+        "id": "colormap",
+        "label": "Colormap",
+        "type": "enum",
+        "options": [
+          "Tab10",
+          "Set2",
+          "Set1",
+          "Viridis",
+          "Plasma",
+          "RdYlGn",
+          "Coolwarm"
+        ],
+        "default": 0
+      },
+      {
+        "id": "bar_width",
+        "label": "Bar width",
+        "type": "float",
+        "default": 0.75,
+        "min": 0.1,
+        "max": 1
+      },
+      {
+        "id": "alpha",
+        "label": "Opacity",
+        "type": "float",
+        "default": 0.85,
+        "min": 0.1,
+        "max": 1
+      },
+      {
+        "id": "_sec_export",
+        "label": "Export",
+        "type": "section"
+      },
+      {
+        "id": "out_dpi",
+        "label": "DPI (100=screen, 300=print)",
+        "type": "int",
+        "default": 100,
+        "min": 72,
+        "max": 600
+      },
+      {
+        "id": "out_w",
+        "label": "Width px  (0 = node width)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 5000
+      },
+      {
+        "id": "out_h",
+        "label": "Height px (0 = node height)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 5000
+      }
+    ],
+    "resizable": true,
+    "min_width": 300,
+    "min_height": 240,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "ml_svm_classifier",
+    "label": "SVM Classifier",
+    "category": "Machine Learning",
+    "icon": "Zap",
+    "description": "Support Vector Machine. 2 features → decision boundary. N features → confusion matrix. Adjust C (regularization) and kernel to explore margins.",
+    "inputs": [
+      {
+        "id": "train",
+        "color": "data",
+        "label": "Train set"
+      },
+      {
+        "id": "test",
+        "color": "data",
+        "label": "Test set"
+      },
+      {
+        "id": "img_size",
+        "color": "list",
+        "label": "Img Size"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "preview",
+        "color": "image",
+        "label": "Decision Boundary / Confusion Matrix"
+      },
+      {
+        "id": "accuracy",
+        "color": "scalar",
+        "label": "Test accuracy"
+      },
+      {
+        "id": "train_acc",
+        "color": "scalar",
+        "label": "Train accuracy"
+      },
+      {
+        "id": "report",
+        "color": "image",
+        "label": "Classification report"
+      },
+      {
+        "id": "report_data",
+        "color": "dict",
+        "label": "Report dict"
+      }
+    ],
+    "params": [
+      {
+        "id": "_sec_data_svm",
+        "label": "Data",
+        "type": "section"
+      },
+      {
+        "id": "features",
+        "label": "Features (blank = all numeric)",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "target",
+        "label": "Target column",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "_sec_model_svm",
+        "label": "Model Config",
+        "type": "section"
+      },
+      {
+        "id": "C",
+        "label": "C (regularization)",
+        "type": "float",
+        "default": 1,
+        "min": 0.001,
+        "max": 1000
+      },
+      {
+        "id": "kernel",
+        "label": "Kernel",
+        "type": "enum",
+        "options": [
+          "rbf",
+          "linear",
+          "poly",
+          "sigmoid"
+        ],
+        "default": 0
+      },
+      {
+        "id": "gamma",
+        "label": "Gamma",
+        "type": "enum",
+        "options": [
+          "scale",
+          "auto"
+        ],
+        "default": 0
+      },
+      {
+        "id": "degree",
+        "label": "Degree (poly only)",
+        "type": "int",
+        "default": 3,
+        "min": 2,
+        "max": 6
+      },
+      {
+        "id": "standardize",
+        "label": "Standardize features",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "_sec_display_svm",
+        "label": "Display",
+        "type": "section"
+      },
+      {
+        "id": "colormap",
+        "label": "Colormap (tree)",
+        "type": "enum",
+        "options": [
+          "Tab10",
+          "Set1",
+          "Set2",
+          "Viridis",
+          "Plasma"
+        ],
+        "default": 0
+      },
+      {
+        "id": "boundary_res",
+        "label": "Boundary resolution",
+        "type": "int",
+        "default": 120,
+        "min": 40,
+        "max": 300
+      },
+      {
+        "id": "_sec_export_svm",
+        "label": "Export",
+        "type": "section"
+      },
+      {
+        "id": "out_dpi",
+        "label": "Export DPI (100=screen, 300=publication)",
+        "type": "int",
+        "default": 100,
+        "min": 72,
+        "max": 600
+      },
+      {
+        "id": "out_w",
+        "label": "Export width px (0 = node size)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 5000
+      },
+      {
+        "id": "out_h",
+        "label": "Export height px (0 = node size)",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 5000
+      }
+    ],
+    "resizable": true,
+    "min_width": 320,
+    "min_height": 260,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
   }
 ]
