@@ -22993,5 +22993,315 @@
     "variable_inputs": false,
     "hf_model": "",
     "hf_filename": ""
+  },
+  {
+    "type": "manual_points",
+    "label": "Manual Points (Analysis)",
+    "category": "analysis",
+    "icon": "MousePointer",
+    "description": "Interactive point placement tool. Click on the preview to place foreground points, right-click to place background points. Use as input prompt for the SAM Segmenter. Points are stored in normalized [0-1] coordinates.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image",
+        "label": "Annotated"
+      },
+      {
+        "id": "points",
+        "color": "points",
+        "label": "Points List"
+      },
+      {
+        "id": "count",
+        "color": "scalar",
+        "label": "Count"
+      }
+    ],
+    "params": [
+      {
+        "id": "points",
+        "label": "Points",
+        "type": "string",
+        "default": "[]"
+      },
+      {
+        "id": "point_radius",
+        "label": "Point Radius",
+        "type": "number",
+        "default": 8,
+        "min": 2,
+        "max": 30
+      },
+      {
+        "id": "show_labels",
+        "label": "Show Labels",
+        "type": "boolean",
+        "default": true
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "sci_visual_measure",
+    "label": "Ruler",
+    "category": "measure",
+    "icon": "Ruler",
+    "description": "Measures the physical length and angle of a hand-drawn line.\n\nConnect a Calibration factor to get real-world units, or leave unconnected for pixels.",
+    "inputs": [
+      {
+        "id": "image",
+        "label": "Image",
+        "color": "image"
+      },
+      {
+        "id": "factor",
+        "label": "Px/Unit",
+        "color": "scalar"
+      },
+      {
+        "id": "unit",
+        "label": "Unit",
+        "color": "scalar"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "label": "Preview",
+        "color": "image"
+      },
+      {
+        "id": "length",
+        "label": "Length",
+        "color": "scalar"
+      },
+      {
+        "id": "angle",
+        "label": "Angle (°)",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "points",
+        "label": "Measure Line",
+        "type": "string",
+        "default": "[]"
+      },
+      {
+        "id": "unit",
+        "label": "Unit Name",
+        "type": "string",
+        "default": "px"
+      },
+      {
+        "id": "angle_ref",
+        "label": "0° is",
+        "type": "enum",
+        "options": [
+          "Horizontal (Right)",
+          "Vertical (Up)"
+        ],
+        "default": 0
+      }
+    ],
+    "resizable": true,
+    "min_width": 260,
+    "min_height": 200,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "sci_index_painter",
+    "label": "Index Painter",
+    "category": "measure",
+    "icon": "Palette",
+    "description": "Interactive scientific index map painter. Draw regions on a blank canvas and assign a float scalar value to each class. Output is float32 compatible with sci_colormap, sci_roi_stats, and spectral index nodes. Default classes map to NDVI semantics (−1…+1). Use for ground truth generation, synthetic spectral maps, weight maps, and ROI seeding.",
+    "inputs": [],
+    "outputs": [
+      {
+        "id": "index",
+        "color": "image",
+        "label": "Index (float32)"
+      },
+      {
+        "id": "labels",
+        "color": "markers",
+        "label": "Labels (uint8)"
+      }
+    ],
+    "params": [
+      {
+        "id": "classes",
+        "label": "Classes",
+        "type": "string",
+        "default": "[{\"label\": \"Water\", \"value\": -0.5, \"color\": \"#2196f3\"}, {\"label\": \"Bare Soil\", \"value\": 0.1, \"color\": \"#ff9800\"}, {\"label\": \"Sparse Veg\", \"value\": 0.4, \"color\": \"#8bc34a\"}, {\"label\": \"Dense Veg\", \"value\": 0.8, \"color\": \"#2e7d32\"}, {\"label\": \"Urban\", \"value\": -0.1, \"color\": \"#9e9e9e\"}]"
+      },
+      {
+        "id": "strokes",
+        "label": "Strokes",
+        "type": "string",
+        "default": "[]"
+      },
+      {
+        "id": "width",
+        "label": "Width",
+        "type": "int",
+        "default": 512,
+        "min": 64,
+        "max": 2048
+      },
+      {
+        "id": "height",
+        "label": "Height",
+        "type": "int",
+        "default": 512,
+        "min": 64,
+        "max": 2048
+      },
+      {
+        "id": "bg_value",
+        "label": "BG Value",
+        "type": "float",
+        "default": 0,
+        "min": -2,
+        "max": 2,
+        "step": 0.01
+      },
+      {
+        "id": "colormap",
+        "label": "Colormap",
+        "type": "enum",
+        "options": [
+          "RdYlGn",
+          "Viridis",
+          "Inferno",
+          "Plasma",
+          "Jet",
+          "Turbo",
+          "Gray"
+        ],
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "pbr_material_gen",
+    "label": "PBR Material Generator",
+    "category": "image",
+    "icon": "Layers",
+    "description": "Generates PBR material maps from a single image: Albedo, Normal Map, Roughness, Height, and Ambient Occlusion. Algorithmic mode runs in real-time. AI Enhanced uses Depth Anything V2 Small for higher-quality depth-based normals and height map.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image",
+        "label": "Image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "albedo",
+        "color": "image",
+        "label": "Albedo"
+      },
+      {
+        "id": "normal",
+        "color": "image",
+        "label": "Normal Map"
+      },
+      {
+        "id": "roughness",
+        "color": "image",
+        "label": "Roughness"
+      },
+      {
+        "id": "height",
+        "color": "image",
+        "label": "Height"
+      },
+      {
+        "id": "ao",
+        "color": "image",
+        "label": "AO"
+      }
+    ],
+    "params": [
+      {
+        "id": "mode",
+        "label": "Mode",
+        "type": "enum",
+        "options": [
+          "Algorithmic",
+          "AI Enhanced"
+        ],
+        "default": 0
+      },
+      {
+        "id": "normal_strength",
+        "label": "Normal Strength",
+        "type": "float",
+        "min": 0.5,
+        "max": 15,
+        "default": 4
+      },
+      {
+        "id": "roughness_radius",
+        "label": "Roughness Radius",
+        "type": "int",
+        "min": 2,
+        "max": 24,
+        "default": 6
+      },
+      {
+        "id": "invert_roughness",
+        "label": "Invert Roughness",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "ao_radius",
+        "label": "AO Radius",
+        "type": "int",
+        "min": 4,
+        "max": 64,
+        "default": 16
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
   }
 ]

@@ -396,6 +396,12 @@ export const SUPPORTED_TYPES = [
   'ml_loss_explorer',
   'ml_training_monitor',
   'util_monte_carlo_propagation',
+
+  // interactive tools and material maps
+  'manual_points',
+  'sci_visual_measure',
+  'sci_index_painter',
+  'pbr_material_gen',
 ]
 
 
