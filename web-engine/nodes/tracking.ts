@@ -1,6 +1,7 @@
 import type { NodeImpl, RunContext } from '../types'
 import { drawArrowedLine, drawPolyline, toBgr, toGray } from '../cvUtils'
 import { Box, RawTrack, SortTracker } from '../sort'
+import { pyRound } from '../dataframe'
 
 /**
  * `cv.TERM_CRITERIA_*` are not exported by this OpenCV build (they read back as
@@ -356,7 +357,7 @@ export const opticalFlowLk: NodeImpl = (inputs, params, ctx) => {
   state.prevGray = gray
   state.frame += 1
 
-  const data = { n_tracked: tracked, mean_displacement: Math.round(meanDisplacement * 1000) / 1000 }
+  const data = { n_tracked: tracked, mean_displacement: pyRound(meanDisplacement, 3) }
   ctx.emit('n_tracked', tracked)
   return { main: overlay, data }
 }

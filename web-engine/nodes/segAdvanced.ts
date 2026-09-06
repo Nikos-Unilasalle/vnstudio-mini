@@ -1,6 +1,7 @@
 import type { NodeImpl } from '../types'
 import { toBgr, toGray } from '../cvUtils'
 import { applyColormap, infernoColor, jetColor, oceanColor, viridisColor } from '../colormaps'
+import { pyRound } from '../dataframe'
 
 /** #rrggbb → BGR. */
 function hexToBgr(raw: unknown, fallback: [number, number, number]): [number, number, number] {
@@ -321,8 +322,8 @@ export const cvStereo: NodeImpl = (inputs, params, ctx) => {
 
   return {
     main: out,
-    disp_min: Math.round(lo * 100) / 100,
-    disp_max: Math.round(hi * 100) / 100,
+    disp_min: pyRound(lo, 2),
+    disp_max: pyRound(hi, 2),
     data: { num_disparities: numDisparities, block_size: blockSize },
   }
 }
@@ -1270,7 +1271,7 @@ export const cvMontecarloCluster: NodeImpl = (inputs, params, ctx) => {
     stats: {
       iterations,
       clusters: k,
-      mean_probability: Math.round((sum / n) * 1e4) / 1e4,
+      mean_probability: pyRound(sum / n, 4),
       // Pixels the rounds disagreed about: the honest measure of how stable
       // the segmentation actually is.
       uncertain_pct: Math.round((uncertain / n) * 1000) / 10,

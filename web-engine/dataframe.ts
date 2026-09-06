@@ -310,3 +310,24 @@ export function aggregate(values: unknown[], how: string): unknown {
       return null
   }
 }
+
+/**
+ * Python's `round(value, digits)`, which rounds half to even.
+ *
+ * `Math.round` rounds half up, so a value that lands exactly on a half — a
+ * dyadic rational such as 0.03125 at four decimals — comes out one unit above
+ * what the desktop publishes. The cases are rare but they are visible, so the
+ * ported nodes round the way Python does.
+ */
+export function pyRound(value: number, digits = 0): number {
+  if (!Number.isFinite(value)) return value
+  const factor = 10 ** digits
+  const scaled = value * factor
+  const floor = Math.floor(scaled)
+  const fraction = scaled - floor
+  let rounded: number
+  if (fraction > 0.5) rounded = floor + 1
+  else if (fraction < 0.5) rounded = floor
+  else rounded = floor % 2 === 0 ? floor : floor + 1
+  return rounded / factor
+}

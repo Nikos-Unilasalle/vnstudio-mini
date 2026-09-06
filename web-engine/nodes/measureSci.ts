@@ -3,7 +3,7 @@
  * calibration, particle export, mean-shift segmentation and the visual size gate.
  */
 import type { NodeImpl, RunContext } from '../types'
-import { makeDf } from '../dataframe'
+import { makeDf, pyRound } from '../dataframe'
 import { pyrMeanShiftFiltering } from '../meanShift'
 import { buildZip, ZipEntry } from '../zip'
 import { downloadFile } from '../../shims/vfs'
@@ -307,8 +307,8 @@ export const sciAxisCalibration: NodeImpl = (inputs, params) => {
     const x = interpolate(Number(p.x), xPixel1, xValue1, xPixel2, xValue2)
     const y = interpolate(Number(p.y), yPixel1, yValue1, yPixel2, yValue2)
     const record: Record<string, unknown> = {
-      [xCol]: isDate ? formatDate(x, dateFormat) : Math.round(x * 1e6) / 1e6,
-      [yCol]: Math.round(y * 1e6) / 1e6,
+      [xCol]: isDate ? formatDate(x, dateFormat) : pyRound(x, 6),
+      [yCol]: pyRound(y, 6),
     }
     if (label) record[labelCol] = String(label)
     return record
@@ -554,8 +554,8 @@ export const featVisualSizeGate: NodeImpl = (inputs, params, ctx) => {
     mask_rej: maskRejected,
     main: preview,
     count: keptId.size,
-    ref_area: Math.round(reference * 10) / 10,
-    median_area: Math.round(median * 10) / 10,
+    ref_area: pyRound(reference, 1),
+    median_area: pyRound(median, 1),
   }
 }
 

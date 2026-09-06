@@ -5,7 +5,7 @@
  * OpenCV; the fitting itself lives in `../tree` and `../ml`.
  */
 import type { NodeImpl, RunContext } from '../types'
-import { DataFrame, isDf, isNumericColumn, makeDf, previewSize, resolveColumn, splitList } from '../dataframe'
+import { DataFrame, isDf, isNumericColumn, makeDf, previewSize, resolveColumn, splitList, pyRound } from '../dataframe'
 import {
   classificationReport,
   confusionMatrix,
@@ -430,8 +430,8 @@ export const mlRobustLine: NodeImpl = (inputs, params, ctx) => {
   return {
     main: img,
     // The desktop rounds both to five decimals before publishing them.
-    slope: Math.round(fit.slope * 1e5) / 1e5,
-    intercept: Math.round(fit.intercept * 1e5) / 1e5,
+    slope: pyRound(fit.slope, 5),
+    intercept: pyRound(fit.intercept, 5),
     n_points: x.length,
   }
 }

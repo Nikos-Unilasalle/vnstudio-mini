@@ -14,6 +14,7 @@ import {
   renderDfTable,
   resolveColumn,
   splitList,
+  pyRound,
 } from '../dataframe'
 
 function tableIn(inputs: Record<string, unknown>): DataFrame | null {
@@ -127,7 +128,7 @@ export const mlDfStats: NodeImpl = (inputs, params, ctx) => {
         else if (label === '50%') value = quantile(sorted, 0.5)
         else if (label === '75%') value = quantile(sorted, 0.75)
         else value = sorted[sorted.length - 1] ?? 0
-        row[c] = Math.round(value * 1e4) / 1e4
+        row[c] = pyRound(value, 4)
       }
       return row
     })
@@ -573,5 +574,5 @@ export const mlCorrHeatmap: NodeImpl = (inputs, params, ctx) => {
 
   void cellText
   void applyColormap
-  return { main: img, matrix: matrix.map((row) => row.map((v) => Math.round(v * 1e4) / 1e4)), columns: cols }
+  return { main: img, matrix: matrix.map((row) => row.map((v) => pyRound(v, 4))), columns: cols }
 }

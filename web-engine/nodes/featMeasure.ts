@@ -2,6 +2,7 @@ import type { NodeImpl } from '../types'
 import { toBgr, toGray } from '../cvUtils'
 import { applyColormap, magmaColor, plasmaColor, viridisColor, infernoColor } from '../colormaps'
 import { gaborKernel } from './imageFx'
+import { pyRound } from '../dataframe'
 
 /** Min/max of a Float32Array, the input every normalisation here needs. */
 function extent(data: Float32Array | Float64Array): [number, number] {
@@ -119,7 +120,7 @@ export const featMaskStats: NodeImpl = (inputs, params, ctx) => {
 
   binary.delete()
 
-  const areaPct = Math.round((100 * area) / refArea * 100) / 100
+  const areaPct = pyRound((100 * area) / refArea, 2)
   const bboxW = area > 0 ? maxX - minX : 0
   const bboxH = area > 0 ? maxY - minY : 0
 
@@ -127,8 +128,8 @@ export const featMaskStats: NodeImpl = (inputs, params, ctx) => {
     stats: {
       area_px: area,
       area_pct: areaPct,
-      centroid_x: Math.round(cx * 10) / 10,
-      centroid_y: Math.round(cy * 10) / 10,
+      centroid_x: pyRound(cx, 1),
+      centroid_y: pyRound(cy, 1),
       bbox_w: bboxW,
       bbox_h: bboxH,
     },
@@ -210,7 +211,7 @@ export const featSkeleton: NodeImpl = (inputs, params, ctx) => {
   dt.delete()
   gray.delete()
 
-  return { main: vis, branch_count: branchCount, max_radius: Math.round(maxRadius * 100) / 100 }
+  return { main: vis, branch_count: branchCount, max_radius: pyRound(maxRadius, 2) }
 }
 
 /* --------------------------------------------------------- structure tensor */
@@ -448,7 +449,7 @@ export const featRansacLine: NodeImpl = (inputs, params, ctx) => {
   cv.putText(overlay, label, at, cv.FONT_HERSHEY_SIMPLEX, 0.55, new cv.Scalar(0, 0, 0, 255), 3, cv.LINE_AA)
   cv.putText(overlay, label, at, cv.FONT_HERSHEY_SIMPLEX, 0.55, green, 1, cv.LINE_AA)
 
-  return { main: overlay, inliers, angle: Math.round(angle * 100) / 100, n_points: pts.length }
+  return { main: overlay, inliers, angle: pyRound(angle, 2), n_points: pts.length }
 }
 
 /* -------------------------------------------------------------------- HOG */

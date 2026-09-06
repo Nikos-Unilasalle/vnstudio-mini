@@ -85,6 +85,7 @@ import {
   sciMarkerAnalysis,
 } from './nodes/measureSci'
 import { mlBarChart, mlSklearnDataset, mlSvmClassifier } from './nodes/mlExtras'
+import { mlLossExplorer, mlTrainingMonitor, utilMonteCarloPropagation } from './nodes/mlTeaching'
 import {
   featNdwi,
   featSpectralIndex,
@@ -652,6 +653,9 @@ export const IMPLEMENTATIONS: Record<string, NodeImpl> = {
   ml_sklearn_dataset: mlSklearnDataset,
   ml_bar_chart: mlBarChart,
   ml_svm_classifier: mlSvmClassifier,
+  ml_loss_explorer: mlLossExplorer,
+  ml_training_monitor: mlTrainingMonitor,
+  util_monte_carlo_propagation: utilMonteCarloPropagation,
 }
 
 const schemaByType = new Map(SCHEMAS.map((s) => [s.type, s]))

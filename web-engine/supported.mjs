@@ -393,6 +393,9 @@ export const SUPPORTED_TYPES = [
   'ml_sklearn_dataset',
   'ml_bar_chart',
   'ml_svm_classifier',
+  'ml_loss_explorer',
+  'ml_training_monitor',
+  'util_monte_carlo_propagation',
 ]
 
 

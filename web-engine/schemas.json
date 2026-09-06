@@ -22731,5 +22731,267 @@
     "variable_inputs": false,
     "hf_model": "",
     "hf_filename": ""
+  },
+  {
+    "type": "ml_loss_explorer",
+    "label": "Loss Explorer",
+    "category": "Machine Learning",
+    "icon": "TrendingDown",
+    "description": "Plot a training loss and its gradient (ch15). Pick a loss and the node draws cost + gradient over the loss's natural input axis, marking the operating point. Sweep the hyper-parameter (gamma/alpha/beta/tau) to see the gradient saturate, explode or flatten:\n• Cross-Entropy — gradient = y_hat - y on the logit axis.\n• Dice — soft Dice vs predicted probability.\n• Focal — (1-pt)^gamma damps easy examples.\n• Smooth L1 (Huber) — L2 near 0, L1 far (vs pure L2).\n• GIoU — flat IoU loss vs sloped GIoU as boxes separate.\n• InfoNCE — positive probability and cost vs temperature tau.",
+    "inputs": [],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image",
+        "label": "Plot"
+      },
+      {
+        "id": "loss",
+        "color": "scalar",
+        "label": "Loss"
+      },
+      {
+        "id": "grad",
+        "color": "scalar",
+        "label": "Gradient"
+      },
+      {
+        "id": "data",
+        "color": "dict",
+        "label": "Info"
+      }
+    ],
+    "params": [
+      {
+        "id": "loss",
+        "label": "Loss",
+        "type": "enum",
+        "options": [
+          "Cross-Entropy",
+          "Dice",
+          "Focal",
+          "Smooth L1 (Huber)",
+          "GIoU",
+          "InfoNCE"
+        ],
+        "default": 0
+      },
+      {
+        "id": "point",
+        "label": "Operating Point",
+        "type": "float",
+        "default": 0.5,
+        "min": 0.01,
+        "max": 0.99,
+        "step": 0.01
+      },
+      {
+        "id": "gamma",
+        "label": "Focal gamma",
+        "type": "float",
+        "default": 2,
+        "min": 0,
+        "max": 5,
+        "step": 0.5
+      },
+      {
+        "id": "alpha",
+        "label": "Focal alpha",
+        "type": "float",
+        "default": 0.25,
+        "min": 0,
+        "max": 1,
+        "step": 0.05
+      },
+      {
+        "id": "beta",
+        "label": "Huber beta",
+        "type": "float",
+        "default": 1,
+        "min": 0.1,
+        "max": 5,
+        "step": 0.1
+      },
+      {
+        "id": "tau",
+        "label": "InfoNCE tau",
+        "type": "float",
+        "default": 0.5,
+        "min": 0.05,
+        "max": 2,
+        "step": 0.05
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "ml_training_monitor",
+    "label": "Training Monitor",
+    "category": "Machine Learning",
+    "icon": "TrendingDown",
+    "description": "Visualizes train/validation loss curves. Displays the best epoch and final values.",
+    "inputs": [
+      {
+        "id": "loss_history",
+        "color": "dict",
+        "label": "Loss History"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "preview",
+        "color": "image",
+        "label": "Preview"
+      },
+      {
+        "id": "best_epoch",
+        "color": "scalar",
+        "label": "Best Epoch"
+      },
+      {
+        "id": "final_train_loss",
+        "color": "scalar",
+        "label": "Final Train Loss"
+      },
+      {
+        "id": "final_val_loss",
+        "color": "scalar",
+        "label": "Final Val Loss"
+      }
+    ],
+    "params": [
+      {
+        "id": "log_scale",
+        "label": "Log scale Y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "id": "show_best",
+        "label": "Mark best epoch",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "smooth",
+        "label": "Smoothing (window)",
+        "type": "int",
+        "default": 1,
+        "min": 1,
+        "max": 20
+      }
+    ],
+    "resizable": true,
+    "min_width": 300,
+    "min_height": 200,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "util_monte_carlo_propagation",
+    "label": "Monte Carlo Propagation",
+    "category": "Machine Learning",
+    "icon": "Activity",
+    "description": "Simulates stochastic propagation/expansion of a state from a seed mask. An optional attractiveness/weight image can be connected to modulate propagation speed locally. Works on standard images (drawing, webcam, static files) in any context.",
+    "inputs": [
+      {
+        "id": "seed",
+        "color": "mask",
+        "label": "Seed mask"
+      },
+      {
+        "id": "attractiveness",
+        "color": "image",
+        "label": "Attractiveness map (optional)"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "probability",
+        "color": "mask",
+        "label": "Probability map"
+      },
+      {
+        "id": "preview",
+        "color": "image",
+        "label": "Visual preview (RGB)"
+      },
+      {
+        "id": "stats",
+        "color": "dict",
+        "label": "Stats (dict)"
+      }
+    ],
+    "params": [
+      {
+        "id": "n_simulations",
+        "type": "int",
+        "default": 100,
+        "min": 10,
+        "max": 1000,
+        "label": "Simulations"
+      },
+      {
+        "id": "n_steps",
+        "type": "int",
+        "default": 10,
+        "min": 1,
+        "max": 100,
+        "label": "Propagation Steps"
+      },
+      {
+        "id": "resistance",
+        "type": "float",
+        "default": 0.5,
+        "min": 0,
+        "max": 1,
+        "label": "Base Resistance"
+      },
+      {
+        "id": "neighborhood",
+        "type": "enum",
+        "default": "8-connected",
+        "options": [
+          "8-connected",
+          "4-connected"
+        ],
+        "label": "Neighborhood"
+      },
+      {
+        "id": "seed",
+        "type": "int",
+        "default": -1,
+        "min": -1,
+        "max": 9999,
+        "label": "Random Seed (-1 = random)"
+      },
+      {
+        "id": "node_note",
+        "type": "string",
+        "default": "",
+        "label": "Note"
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
   }
 ]

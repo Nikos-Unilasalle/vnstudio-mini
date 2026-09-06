@@ -3,6 +3,7 @@ import { downloadFile } from '../../shims/vfs'
 import { drawMatToCanvas, makeCanvas } from '../canvasCompat'
 import { toBgr, toGray } from '../cvUtils'
 import { buildZip, ZipEntry } from '../zip'
+import { pyRound } from '../dataframe'
 
 /* ------------------------------------------------------------------ signals */
 
@@ -484,7 +485,7 @@ export const objExtractor: NodeImpl = (inputs, params, ctx) => {
         if (area < minArea) continue
         labelId += 1
         cv.circle(labelsMap, new cv.Point(cx, cy), r, new cv.Scalar(labelId), -1)
-        stats.push({ id: labelId, area: Math.round(area * 10) / 10, cx, cy, diameter: Math.round(2 * r * 100) / 100 })
+        stats.push({ id: labelId, area: pyRound(area, 1), cx, cy, diameter: pyRound(2 * r, 2) })
       } else if (pts.length >= 3) {
         const flat = pts.flatMap((p: number[]) => [
           Math.trunc(relative ? p[0] * w : p[0]),
@@ -507,10 +508,10 @@ export const objExtractor: NodeImpl = (inputs, params, ctx) => {
         poly.delete()
         stats.push({
           id: labelId,
-          area: Math.round(area * 10) / 10,
+          area: pyRound(area, 1),
           cx,
           cy,
-          diameter: Math.round(2 * Math.sqrt(area / Math.PI) * 100) / 100,
+          diameter: pyRound(2 * Math.sqrt(area / Math.PI), 2),
         })
       }
     }
@@ -559,7 +560,7 @@ export const objExtractor: NodeImpl = (inputs, params, ctx) => {
         area,
         cx: Math.trunc(sumX / area),
         cy: Math.trunc(sumY / area),
-        diameter: Math.round(2 * Math.sqrt(area / Math.PI) * 100) / 100,
+        diameter: pyRound(2 * Math.sqrt(area / Math.PI), 2),
       })
     }
 
@@ -598,9 +599,9 @@ export const objExtractor: NodeImpl = (inputs, params, ctx) => {
     stats: {
       count: stats.length,
       objects: stats,
-      mean_area: Math.round(meanArea * 10) / 10,
-      mean_diam: Math.round(meanDiameter * 100) / 100,
-      cv_diam: Math.round(cvDiameter * 10) / 10,
+      mean_area: pyRound(meanArea, 1),
+      mean_diam: pyRound(meanDiameter, 2),
+      cv_diam: pyRound(cvDiameter, 1),
     },
   }
 }

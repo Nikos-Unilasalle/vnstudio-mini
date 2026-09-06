@@ -1,6 +1,7 @@
 import type { NodeImpl } from '../types'
 import { drawPolyline, toBgr, toGray } from '../cvUtils'
 import { applyColormap, hotColor, jetColor, magmaColor, oceanColor, viridisColor } from '../colormaps'
+import { pyRound } from '../dataframe'
 
 /* ------------------------------------------------------------------ shared */
 
@@ -329,7 +330,7 @@ export const featListAggregator: NodeImpl = (inputs, params) => {
     unit = 'px'
   }
 
-  const round4 = (v: number) => Math.round(v * 1e4) / 1e4
+  const round4 = (v: number) => pyRound(v, 4)
   return {
     stats: {
       [`${prefix} Count`]: values.length,
@@ -337,7 +338,7 @@ export const featListAggregator: NodeImpl = (inputs, params) => {
       [`Std ${capitalised}`]: round4(stdDev(scaled)),
       [`Min ${capitalised}`]: round4(Math.min(...scaled)),
       [`Max ${capitalised}`]: round4(Math.max(...scaled)),
-      [`Total ${capitalised}`]: Math.round(scaled.reduce((a, b) => a + b, 0) * 100) / 100,
+      [`Total ${capitalised}`]: pyRound(scaled.reduce((a, b) => a + b, 0), 2),
     },
   }
 }
@@ -389,7 +390,7 @@ export const sciKmeansList: NodeImpl = (inputs, params, ctx) => {
 
   const stats: Record<string, unknown> = {}
   for (let i = 0; i < k; i++) {
-    stats[`group_${i}`] = { count: counts[i], center: Math.round(sortedCentres[i] * 1e4) / 1e4 }
+    stats[`group_${i}`] = { count: counts[i], center: pyRound(sortedCentres[i], 4) }
   }
 
   samples.delete()
