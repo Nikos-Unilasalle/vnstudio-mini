@@ -35,16 +35,16 @@ export const filterBlobFilter: NodeImpl = (inputs, params, ctx) => {
     if (peak <= 1) for (let i = 0; i < gray.data.length; i++) gray.data[i] *= 255
   }
 
-  const threshold = Math.max(1, Math.min(254, Math.round(Number(params.threshold) ?? 127)))
+  const threshold = Math.max(1, Math.min(254, Math.round(Number(params.threshold ?? 127))))
   const binary = new cv.Mat()
   cv.threshold(gray, binary, threshold, 255, cv.THRESH_BINARY)
   gray.delete()
 
-  const minArea = Math.max(1, Math.round(Number(params.min_area) ?? 100))
+  const minArea = Math.max(1, Math.round(Number(params.min_area ?? 100)))
   const maxArea = Math.round(Number(params.max_area) || 0)
   const circMin = Number(params.circ_min) || 0
   const circMax = Number(params.circ_max) || 0
-  const elongMin = Number(params.elong_min) ?? 1
+  const elongMin = Number(params.elong_min ?? 1)
   const elongMax = Number(params.elong_max) || 0
   const connectivity = Math.round(Number(params.connectivity) || 8) === 4 ? 4 : 8
 
@@ -170,7 +170,7 @@ export const filterMorphologySmart: NodeImpl = (inputs, params, ctx) => {
   const w = binary.cols
   const h = binary.rows
   const totalArea = w * h
-  const thresholdPct = Number(params.area_thresh_pct) ?? 0.5
+  const thresholdPct = Number(params.area_thresh_pct ?? 0.5)
   const amount = Math.max(1, Math.round(Number(params.amount) || 3))
 
   const labels = new cv.Mat()
@@ -366,7 +366,7 @@ export const featGrabcut: NodeImpl = (inputs, params, ctx) => {
   const h = img.rows
 
   const render = (fgMask: any) => {
-    const opacity = (Number(params.overlay_opacity) ?? 50) / 100
+    const opacity = (Number(params.overlay_opacity ?? 50)) / 100
     const colour = hexToBgr(params.fg_color, [85, 221, 34])
     const overlay = ctx.track(img.clone())
 
@@ -447,7 +447,7 @@ export const featGrabcut: NodeImpl = (inputs, params, ctx) => {
   let rect: any = null
 
   if (initMode === 0 && fg.length) {
-    const margin = (Number(params.rect_margin) ?? 8) / 100
+    const margin = (Number(params.rect_margin ?? 8)) / 100
     const xs = fg.map((p) => p[0])
     const ys = fg.map((p) => p[1])
     const mx = Math.round(w * margin)
@@ -459,7 +459,7 @@ export const featGrabcut: NodeImpl = (inputs, params, ctx) => {
     if (x1 > x0 && y1 > y0) rect = new cv.Rect(x0, y0, x1 - x0, y1 - y0)
   }
   if (!rect && (initMode === 0 || initMode === 1)) {
-    const pct = (Number(params.center_rect) ?? 70) / 100
+    const pct = (Number(params.center_rect ?? 70)) / 100
     const bw = Math.round(w * pct)
     const bh = Math.round(h * pct)
     rect = new cv.Rect(Math.round((w - bw) / 2), Math.round((h - bh) / 2), bw, bh)
@@ -736,7 +736,7 @@ export const featActiveContour: NodeImpl = (inputs, params, ctx) => {
     for (let i = 0; i < level.length; i++) mask.data[i] = level[i] ? 255 : 0
 
     const colour = hexToBgr(params.contour_color, [85, 51, 255])
-    const opacity = (Number(params.fill_opacity) ?? 0) / 100
+    const opacity = (Number(params.fill_opacity ?? 0)) / 100
     const overlay = ctx.track(img.clone())
     if (opacity > 0) {
       const data = overlay.data
@@ -776,7 +776,7 @@ export const featActiveContour: NodeImpl = (inputs, params, ctx) => {
   }
 
   const gray = toGray(cv, img)
-  const sigma = Number(params.pre_blur) ?? 2
+  const sigma = Number(params.pre_blur ?? 2)
   const smoothed = new cv.Mat()
   if (sigma > 0) {
     const k = Math.max(3, (Math.trunc(6 * sigma + 1) | 1))
@@ -803,7 +803,7 @@ export const featActiveContour: NodeImpl = (inputs, params, ctx) => {
     for (let i = 0; i < level.length; i++) level[i] = m.data[i] > 127 ? 1 : 0
     m.delete()
   } else {
-    const pct = (Number(params.init_radius) ?? 45) / 100
+    const pct = (Number(params.init_radius ?? 45)) / 100
     const shape = Math.round(Number(params.init_shape) || 0)
     const cx = fg.length ? Math.round(fg.reduce((s, p) => s + p[0], 0) / fg.length) : Math.round(w / 2)
     const cy = fg.length ? Math.round(fg.reduce((s, p) => s + p[1], 0) / fg.length) : Math.round(h / 2)
@@ -826,8 +826,8 @@ export const featActiveContour: NodeImpl = (inputs, params, ctx) => {
   }
 
   const iterations = Math.max(10, Math.round(Number(params.iterations) || 150))
-  const smoothing = Math.max(0, Math.round(Number(params.smoothing) ?? 1))
-  const method = Math.round(Number(params.method) ?? 1)
+  const smoothing = Math.max(0, Math.round(Number(params.smoothing ?? 1)))
+  const method = Math.round(Number(params.method ?? 1))
 
   let result: Uint8Array
   if (method === 2) {
@@ -839,12 +839,12 @@ export const featActiveContour: NodeImpl = (inputs, params, ctx) => {
     for (let i = 0; i < g.length; i++) g[i] = 1 / Math.sqrt(1 + 100 * Math.hypot(dy[i], dx[i]))
     const sorted = Float32Array.from(g).sort()
     const threshold = sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * 0.4))]
-    result = morphGac(g, level, w, h, iterations, smoothing, Number(params.balloon) ?? -1, threshold)
+    result = morphGac(g, level, w, h, iterations, smoothing, Number(params.balloon ?? -1), threshold)
   } else {
     // Classic Kass snakes need a parametric curve and a linear solve; the
     // morphological Chan-Vese below reaches the same region-based result with
     // a level set, so it also stands in for the "Classic Snake" option.
-    const lambda = Number(params.cv_lambda) ?? 1
+    const lambda = Number(params.cv_lambda ?? 1)
     result = morphChanVese(image, level, w, h, iterations, smoothing, lambda, 1)
   }
   smoothed.delete()
@@ -1183,7 +1183,7 @@ export const cvMontecarloCluster: NodeImpl = (inputs, params, ctx) => {
   if (pool.length < 4) return { main: image, probability: null, prob_raw: null, stats: { error: 'ROI empty' } }
 
   const iterations = Math.max(5, Math.round(Number(params.n_iterations) || 40))
-  const fraction = (Number(params.subsample) ?? 30) / 100
+  const fraction = (Number(params.subsample ?? 30)) / 100
   const k = Math.max(2, Math.round(Number(params.n_clusters) || 2))
   const refChannel = Math.min(Math.max(0, Math.round(Number(params.ref_channel) || 0)), channels - 1)
   const anchorHigh = Math.round(Number(params.anchor_rule) || 0) === 0

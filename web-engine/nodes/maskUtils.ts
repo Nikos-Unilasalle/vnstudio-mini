@@ -89,7 +89,7 @@ export const utilImageMath: NodeImpl = (inputs, params, ctx) => {
   const src = (inputs.image ?? inputs.main) as any
   if (!src) return { image: null }
 
-  const power = Number(params.power) ?? 1
+  const power = Number(params.power ?? 1)
   const out = ctx.track(new cv.Mat())
   src.convertTo(out, src.type())
 
@@ -119,7 +119,7 @@ export const utilDrawContours: NodeImpl = (inputs, params, ctx) => {
 
   const [b, g, r] = hexToBgr(params.color, [0, 255, 0])
   const colour = new cv.Scalar(b, g, r, 255)
-  const thickness = Math.round(Number(params.thickness) ?? 2)
+  const thickness = Math.round(Number(params.thickness ?? 2))
 
   const vector = new cv.MatVector()
   let drawn = 0
@@ -155,7 +155,7 @@ export const utilLabelFilterArea: NodeImpl = (inputs, params, ctx) => {
   const totalPx = w * h
   const minArea = Math.max(
     Number(params.min_area_px) || 0,
-    ((Number(params.min_area_pct) ?? 0.1) / 100) * totalPx
+    ((Number(params.min_area_pct ?? 0.1)) / 100) * totalPx
   )
   const keepMatches = Math.round(Number(params.mode) || 0) === 0
 
@@ -217,7 +217,7 @@ export const maskFilterArea: NodeImpl = (inputs, params, ctx) => {
 
   const minArea = Math.max(
     Number(params.min_area_px) || 0,
-    ((Number(params.min_area_pct) ?? 0.1) / 100) * totalPx
+    ((Number(params.min_area_pct ?? 0.1)) / 100) * totalPx
   )
   const keepMatches = Math.round(Number(params.mode) || 0) === 0
 
@@ -320,7 +320,7 @@ export const utilMaskBand: NodeImpl = (inputs, params, ctx) => {
   const vertical = Math.round(Number(params.axis) || 0) === 1
   const extent = vertical ? src.cols : src.rows
   const start = Number(params.start_pct) || 0
-  const end = Number(params.end_pct) ?? 50
+  const end = Number(params.end_pct ?? 50)
   const from = Math.max(0, Math.trunc((extent * start) / 100))
   const to = Math.max(from, Math.min(extent, Math.trunc((extent * end) / 100)))
 
@@ -338,9 +338,9 @@ export const utilSplitHalf: NodeImpl = (inputs, params, ctx) => {
   if (!src) return {}
 
   // Default axis is vertical (left / right), matching the desktop.
-  const vertical = Math.round(Number(params.axis) ?? 1) === 1
+  const vertical = Math.round(Number(params.axis ?? 1)) === 1
   const extent = vertical ? src.cols : src.rows
-  const split = Math.max(0, Math.min(extent, Math.trunc((extent * (Number(params.position) ?? 50)) / 100)))
+  const split = Math.max(0, Math.min(extent, Math.trunc((extent * (Number(params.position ?? 50))) / 100)))
 
   // Each half keeps its own position in the frame, so the two can be compared
   // pixel for pixel — which is the point for asymmetry analysis.
@@ -371,8 +371,8 @@ export const utilCompose: NodeImpl = (inputs, params, ctx) => {
 
   const mode = Math.round(Number(params.mode) || 0)
   const split = Math.round(Number(params.split_pos) || 50)
-  const gap = Math.max(0, Math.round(Number(params.gap) ?? 2))
-  const alpha = Number(params.alpha) ?? 0.5
+  const gap = Math.max(0, Math.round(Number(params.gap ?? 2)))
+  const alpha = Number(params.alpha ?? 0.5)
 
   /** B scaled to A's frame — every overlay mode needs this. */
   const fitted = () => {

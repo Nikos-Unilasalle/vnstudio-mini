@@ -204,7 +204,7 @@ export const geomTrackPoint: NodeImpl = (inputs, params) => {
       relative: !absolute,
       thickness: Number(params.thickness) || 5,
       r: Number(params.r) || 0,
-      g: Number(params.g) ?? 255,
+      g: Number(params.g ?? 255),
       b: Number(params.b) || 0,
     },
   }

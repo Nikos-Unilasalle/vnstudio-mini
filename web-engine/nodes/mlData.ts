@@ -184,7 +184,7 @@ export const mlDataframeJoin: NodeImpl = (inputs, params, ctx) => {
   }
 
   const key = String(params.join_key ?? '__px_idx').trim() || '__px_idx'
-  const joinType = ['inner', 'outer', 'left'][Math.round(Number(params.join_type) ?? 1)] ?? 'outer'
+  const joinType = ['inner', 'outer', 'left'][Math.round(Number(params.join_type ?? 1))] ?? 'outer'
   const dropDuplicates = params.drop_dupes !== false
 
   const missing = tables.some((t) => !t.columns.includes(key))
@@ -327,7 +327,7 @@ export const mlScatterPlot: NodeImpl = (inputs, params, ctx) => {
   const img = ctx.track(new cv.Mat(h, w, cv.CV_8UC3, new cv.Scalar(PLOT_BG[0], PLOT_BG[1], PLOT_BG[2], 255)))
 
   let rows = df.rows.filter((r) => Number.isFinite(Number(r[xCol])) && Number.isFinite(Number(r[yCol])))
-  const maxPoints = Math.round(Number(params.max_points) ?? 2000)
+  const maxPoints = Math.round(Number(params.max_points ?? 2000))
   if (maxPoints > 0 && rows.length > maxPoints) {
     // Decimate evenly so the visible distribution is unchanged.
     const stride = Math.ceil(rows.length / maxPoints)

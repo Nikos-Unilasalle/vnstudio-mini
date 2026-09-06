@@ -12,7 +12,7 @@ export const cvKmeansSegmentation: NodeImpl = (inputs, params, ctx) => {
 
   const bgr = ctx.track(toBgr(cv, src))
   const k = Math.max(2, Math.round(Number(params.k) || 4))
-  const useLab = (Number(params.color_space) ?? 1) === 1
+  const useLab = (Number(params.color_space ?? 1)) === 1
   const attempts = Math.max(1, Math.round(Number(params.attempts) || 3))
   const maxIter = Math.max(1, Math.round(Number(params.max_iter) || 100))
 
@@ -410,7 +410,7 @@ export const cvSkeletonize: NodeImpl = (inputs, params, ctx) => {
   const cv = ctx.cv
 
   let gray = ctx.track(toGray(cv, mask))
-  const closeSize = Math.max(0, Math.round(Number(params.close_holes) ?? 3))
+  const closeSize = Math.max(0, Math.round(Number(params.close_holes ?? 3)))
   if (closeSize > 0) {
     const kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, new cv.Size(closeSize, closeSize))
     const closed = ctx.track(new cv.Mat())
@@ -422,7 +422,7 @@ export const cvSkeletonize: NodeImpl = (inputs, params, ctx) => {
   const binary = ctx.track(new cv.Mat())
   cv.threshold(gray, binary, 0, 255, cv.THRESH_BINARY)
 
-  const minSize = Math.max(0, Math.round(Number(params.min_size) ?? 32))
+  const minSize = Math.max(0, Math.round(Number(params.min_size ?? 32)))
   let cleaned = binary
   if (minSize > 0) {
     const labels = ctx.track(new cv.Mat())

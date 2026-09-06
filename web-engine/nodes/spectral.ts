@@ -60,7 +60,7 @@ export const sciFft: NodeImpl = (inputs, params, ctx) => {
 
   const filterType = FILTER_TYPES[Math.round(Number(params.filter_type) || 0)] ?? 'None'
   const lowNorm = (Number(params.low_cutoff) || 0) / 100
-  const highNorm = (Number(params.high_cutoff) ?? 10) / 100
+  const highNorm = (Number(params.high_cutoff ?? 10)) / 100
   const logScale = params.log_scale !== false
   const preserve = !!params.preserve_dynamic_range
 
@@ -282,11 +282,11 @@ export const sciSpectralGain: NodeImpl = (inputs, params, ctx) => {
 
   const w = payload.width
   const h = payload.height
-  const lowGain = (Number(params.low_gain) ?? 100) / 100
-  const midGain = (Number(params.mid_gain) ?? 100) / 100
-  const highGain = (Number(params.high_gain) ?? 100) / 100
-  let lowMid = (Number(params.low_mid_split) ?? 15) / 100
-  let midHigh = (Number(params.mid_high_split) ?? 50) / 100
+  const lowGain = (Number(params.low_gain ?? 100)) / 100
+  const midGain = (Number(params.mid_gain ?? 100)) / 100
+  const highGain = (Number(params.high_gain ?? 100)) / 100
+  let lowMid = (Number(params.low_mid_split ?? 15)) / 100
+  let midHigh = (Number(params.mid_high_split ?? 50)) / 100
   // The splits must stay ordered or the middle band would vanish.
   if (lowMid >= midHigh) midHigh = Math.min(lowMid + 0.01, 1)
   if (lowMid <= 0) lowMid = 0.01

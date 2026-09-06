@@ -54,7 +54,7 @@ export const featDistanceTransform: NodeImpl = (inputs, params, ctx) => {
   const sizes = [3, 5, cv.DIST_MASK_PRECISE]
 
   const raw = ctx.track(new cv.Mat())
-  cv.distanceTransform(binary, raw, types[Number(params.dist_type) || 0], sizes[Number(params.mask_size) ?? 1])
+  cv.distanceTransform(binary, raw, types[Number(params.dist_type) || 0], sizes[Number(params.mask_size ?? 1)])
 
   const normalized = ctx.track(new cv.Mat())
   cv.normalize(raw, normalized, 0, 255, cv.NORM_MINMAX)
@@ -82,13 +82,13 @@ export const sciConnectedComponents: NodeImpl = (inputs, params, ctx) => {
 
   const gray = ctx.track(toGray(cv, src))
   const binary = ctx.track(new cv.Mat())
-  cv.threshold(gray, binary, Number(params.threshold) ?? 128, 255, cv.THRESH_BINARY)
+  cv.threshold(gray, binary, Number(params.threshold ?? 128), 255, cv.THRESH_BINARY)
 
   const labels = ctx.track(new cv.Mat())
   cv.connectedComponents(binary, labels, Number(params.connectivity) === 1 ? 4 : 8, cv.CV_32S)
 
-  const minArea = Number(params.min_area) ?? 50
-  const maxArea = Number(params.max_area) ?? 500000
+  const minArea = Number(params.min_area ?? 50)
+  const maxArea = Number(params.max_area ?? 500000)
   const stats = computeLabelStats(labels)
   const data = labels.data32S as Int32Array
   for (let i = 0; i < data.length; i++) {

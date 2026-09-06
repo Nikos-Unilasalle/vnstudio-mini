@@ -109,7 +109,7 @@ export const sciPlotter: NodeImpl = (inputs, params, ctx) => {
   }
 
   let minY = Number(params.min_y) || 0
-  let maxY = Number(params.max_y) ?? 100
+  let maxY = Number(params.max_y ?? 100)
   if (params.auto_scale !== false) {
     const all = [...history.values()].flat()
     if (all.length) {
@@ -181,7 +181,7 @@ export const sciHeatmap: NodeImpl = (inputs, params, ctx) => {
   const points = inputs.points
 
   const res = Math.max(16, Math.round(Number(params.res) || 64))
-  const decay = Number(params.decay) ?? 0.01
+  const decay = Number(params.decay ?? 0.01)
   const intensity = Number(params.intensity) || 1
   const reset = Number(params.reset) ? 1 : 0
 
@@ -259,7 +259,7 @@ export const sciHeatmap: NodeImpl = (inputs, params, ctx) => {
   const bytes = scaled.data
   for (let i = 0; i < buffer.length; i++) bytes[i] = peak > 0 ? Math.round((buffer[i] / peak) * 255) : 0
 
-  let blurRadius = Math.round(Number(params.blur) ?? 5)
+  let blurRadius = Math.round(Number(params.blur ?? 5))
   let smoothed = scaled
   if (blurRadius > 0) {
     // A Gaussian kernel has to be odd-sized to stay centred.
@@ -284,7 +284,7 @@ function finishHeatmap(cv: any, ctx: any, heat: any, image: any, params: Record<
   heat.delete()
 
   const background = toBgr(cv, image)
-  const alpha = Number(params.blend) ?? 0.7
+  const alpha = Number(params.blend ?? 0.7)
   const out = ctx.track(new cv.Mat())
   cv.addWeighted(background, 1 - alpha, resized, alpha, 0, out)
   background.delete()
@@ -410,8 +410,8 @@ export const sciRobustStats: NodeImpl = (inputs, params, ctx) => {
   const ih = image.rows
   let rx = Math.trunc(((Number(params.x) || 0) / 100) * iw)
   let ry = Math.trunc(((Number(params.y) || 0) / 100) * ih)
-  let rw = Math.max(1, Math.trunc(((Number(params.w) ?? 100) / 100) * iw))
-  let rh = Math.max(1, Math.trunc(((Number(params.h) ?? 100) / 100) * ih))
+  let rw = Math.max(1, Math.trunc(((Number(params.w ?? 100)) / 100) * iw))
+  let rh = Math.max(1, Math.trunc(((Number(params.h ?? 100)) / 100) * ih))
   rx = Math.min(rx, iw - 1)
   ry = Math.min(ry, ih - 1)
   rw = Math.min(rw, iw - rx)

@@ -32,7 +32,7 @@ export const bgSubMog2: NodeImpl = (inputs, params, ctx) => {
   const subtractor = mog2For(
     ctx,
     Math.max(1, Math.round(Number(params.history) || 500)),
-    Number(params.threshold) ?? 16,
+    Number(params.threshold ?? 16),
     params.detect_shadows !== false
   )
   const mask = ctx.track(new ctx.cv.Mat())
@@ -70,7 +70,7 @@ export const bgSubKnn: NodeImpl = (inputs, params, ctx) => {
   if (!img) return { main: null, mask: null }
 
   const history = Math.max(1, Math.round(Number(params.history) || 500))
-  const dist2 = Number(params.threshold) ?? 400
+  const dist2 = Number(params.threshold ?? 400)
   const shadows = params.detect_shadows !== false
 
   const gray = toGray(cv, img)
@@ -152,7 +152,7 @@ export const filterBgSubtraction: NodeImpl = (inputs, params, ctx) => {
   const subtractor = mog2For(
     ctx,
     Math.max(1, Math.round(Number(params.history) || 500)),
-    Number(params.threshold) ?? 16,
+    Number(params.threshold ?? 16),
     params.detectShadows !== false
   )
   const raw = new cv.Mat()
@@ -486,7 +486,7 @@ export const trackerVisualize: NodeImpl = (inputs, params, ctx) => {
   const showLabel = params.show_label !== false
   const thickness = Math.max(1, Math.round(Number(params.thickness) || 2))
   const fontScale = (Number(params.font_scale) || 40) / 100
-  const fillAlpha = (Number(params.fill_alpha) ?? 10) / 100
+  const fillAlpha = (Number(params.fill_alpha ?? 10)) / 100
   const showPoint = !!params.show_point
   const pointRadius = Math.max(1, Math.round(Number(params.point_radius) || 6))
   const pointUseIdColour = params.point_use_id_color !== false
@@ -631,7 +631,7 @@ export const geomTrackLine: NodeImpl = (inputs, params) => {
       relative: !absolute,
       thickness: Math.round(Number(params.thickness) || 4),
       r: Math.round(Number(params.r) || 0),
-      g: Math.round(Number(params.g) ?? 255),
+      g: Math.round(Number(params.g ?? 255)),
       b: Math.round(Number(params.b) || 0),
     },
   }
@@ -670,7 +670,7 @@ export const geomTrackPolygon: NodeImpl = (inputs, params) => {
       fill: params.fill !== false,
       thickness: Math.round(Number(params.thickness) || 2),
       r: Math.round(Number(params.r) || 0),
-      g: Math.round(Number(params.g) ?? 255),
+      g: Math.round(Number(params.g ?? 255)),
       b: Math.round(Number(params.b) || 0),
     },
   }

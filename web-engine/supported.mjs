@@ -380,6 +380,14 @@ export const SUPPORTED_TYPES = [
   'ml_random_forest',
   'ml_robust_line',
   'ml_best_params',
+
+  // measure / segmentation
+  'sci_marker_analysis',
+  'sci_curve_trace',
+  'sci_axis_calibration',
+  'sci_export_particles',
+  'cv_mean_shift',
+  'feat_visual_size_gate',
 ]
 
 

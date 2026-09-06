@@ -5,8 +5,8 @@ export const sciMarkerFilter: NodeImpl = (inputs, params, ctx) => {
   const src = inputs.markers as any
   if (!src) return { markers: null, count: 0 }
   const cv = ctx.cv
-  const minArea = Number(params.min_area) ?? 200
-  const maxArea = Number(params.max_area) ?? 1000000
+  const minArea = Number(params.min_area ?? 200)
+  const maxArea = Number(params.max_area ?? 1000000)
 
   const dst = ctx.track(new cv.Mat())
   src.copyTo(dst)

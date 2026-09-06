@@ -261,7 +261,7 @@ export const pluginFilterSavgol: NodeImpl = (inputs, params, ctx) => {
   let w = Math.round(Number(params.window) || 11)
   if (w % 2 === 0) w += 1
   w = Math.max(5, w)
-  const p = Math.min(Math.round(Number(params.polyorder) ?? 2), w - 2)
+  const p = Math.min(Math.round(Number(params.polyorder ?? 2)), w - 2)
 
   if (serie !== null) {
     const coeffs = sgCoeffs(w, p).slice().reverse()

@@ -140,8 +140,8 @@ export const genCanvas: NodeImpl = (inputs, params, ctx) => {
     const w = Math.round(Number(params.width) || 512)
     const h = Math.round(Number(params.height) || 512)
     const pIdx = Number(params.pattern) || 0
-    const vmin = Number(params.value_min) ?? 0
-    const vmax = Number(params.value_max) ?? 1
+    const vmin = Number(params.value_min ?? 0)
+    const vmax = Number(params.value_max ?? 1)
     const size = Number(params.seed_size) || 0.05
     const tiles = Math.round(Number(params.tile_count) || 8)
     const octaves = Math.round(Number(params.octaves) || 4)

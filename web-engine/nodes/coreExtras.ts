@@ -16,7 +16,7 @@ export const geomFlip: NodeImpl = (inputs, params, ctx) => {
   const src = (inputs.image ?? inputs.main) as any
   if (!src) return { main: null }
   const dst = ctx.track(new ctx.cv.Mat())
-  ctx.cv.flip(src, dst, Math.round(Number(params.flip_mode) ?? 1))
+  ctx.cv.flip(src, dst, Math.round(Number(params.flip_mode ?? 1)))
   return { main: dst }
 }
 
@@ -88,7 +88,7 @@ export const filterColorMask: NodeImpl = (inputs, params, ctx) => {
 
   if (Math.round(Number(params.mode) || 0) === 1) {
     // RGB distance: straight Euclidean distance in BGR space, per pixel.
-    const thresh = Math.round(Number(params.threshold) ?? 30)
+    const thresh = Math.round(Number(params.threshold ?? 30))
     const src = image.data
     const out = new Uint8Array(image.rows * image.cols)
     for (let i = 0, p = 0; p < out.length; i += 3, p++) {
@@ -101,9 +101,9 @@ export const filterColorMask: NodeImpl = (inputs, params, ctx) => {
     built.copyTo(mask)
     built.delete()
   } else {
-    const hTol = Math.round(Number(params.h_tol) ?? 10)
-    const sTol = Math.round(Number(params.s_tol) ?? 40)
-    const vTol = Math.round(Number(params.v_tol) ?? 40)
+    const hTol = Math.round(Number(params.h_tol ?? 10))
+    const sTol = Math.round(Number(params.s_tol ?? 40))
+    const vTol = Math.round(Number(params.v_tol ?? 40))
     const [th, ts, tv] = bgrToHsvPixel(cv, b, g, r)
     const hMin = ((th - hTol) % 180 + 180) % 180
     const hMax = ((th + hTol) % 180 + 180) % 180
@@ -374,9 +374,9 @@ export const analysisMonitor: NodeImpl = (inputs, params, ctx) => {
   const mask = inputs.mask as any
 
   let mode = Math.round(Number(params.mode) || 0)
-  const scale = Number(params.scale) ?? 1
+  const scale = Number(params.scale ?? 1)
   const offset = Number(params.offset) || 0
-  const precision = Math.max(0, Math.min(5, Math.round(Number(params.precision) ?? 3)))
+  const precision = Math.max(0, Math.min(5, Math.round(Number(params.precision ?? 3))))
 
   // "Auto" resolves against whatever is actually plugged in.
   if (mode === 0) {

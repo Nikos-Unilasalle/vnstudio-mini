@@ -26,9 +26,9 @@ export const sciGlcm: NodeImpl = (inputs, params, ctx) => {
   const cv = ctx.cv
   const gray = ctx.track(toGray(cv, src))
 
-  const levels = GLCM_LEVELS[Number(params.levels) ?? 1] ?? 16
+  const levels = GLCM_LEVELS[Number(params.levels ?? 1)] ?? 16
   const d = Math.round(Number(params.distance) || 1)
-  const angles = GLCM_ANGLE_SETS[Math.min(2, Number(params.angles) ?? 2)]
+  const angles = GLCM_ANGLE_SETS[Math.min(2, Number(params.angles ?? 2))]
   const symmetric = params.symmetric !== false
 
   // Quantize, then centre-crop to at most 256x256 (128px half-window) for speed.
@@ -417,7 +417,7 @@ export const sciRobustBbox: NodeImpl = (inputs, params, ctx) => {
   }
   if (xs.length === 0) return empty
 
-  const mode = Number(params.mode) ?? 1
+  const mode = Number(params.mode ?? 1)
   const tol = Number(params.tolerance) || 3.0
 
   const ordBox = ordinaryBox(xs, ys)
@@ -604,8 +604,8 @@ export const sciClusterHeatmap: NodeImpl = (inputs, params, ctx) => {
   const featName = String(params.feature ?? 'area').trim() || 'area'
   const cmapName = CLUSTER_CMAP_NAMES[Number(params.colormap) || 0] ?? 'Viridis'
   const cmapFn = COLORMAPS[cmapName] ?? COLORMAPS.Viridis
-  const alpha = Number(params.alpha) ?? 0.85
-  const bgAlpha = Number(params.bg_alpha) ?? 0.25
+  const alpha = Number(params.alpha ?? 0.85)
+  const bgAlpha = Number(params.bg_alpha ?? 0.25)
   const showValues = !!params.show_values
   const showColorbar = params.colorbar !== false
 

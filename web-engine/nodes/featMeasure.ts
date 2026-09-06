@@ -227,8 +227,8 @@ export const featStructureTensor: NodeImpl = (inputs, params, ctx) => {
 
   const sigmaD = Number(params.sigma_deriv) || 1.0
   const sigmaI = Number(params.sigma_int) || 3.0
-  const k = Number(params.k_harris) ?? 0.04
-  const flatThreshold = Number(params.flat_thresh) ?? 0.001
+  const k = Number(params.k_harris ?? 0.04)
+  const flatThreshold = Number(params.flat_thresh ?? 0.001)
   const edgeRatio = Number(params.edge_ratio) || 4.0
 
   const kd = gaussianKernelSize(sigmaD)
@@ -743,17 +743,17 @@ export const featShapeGate: NodeImpl = (inputs, params, ctx) => {
   const h = binary.rows
 
   const useCirc = params.use_circularity !== false
-  const minCirc = Number(params.min_circularity) ?? 0.35
+  const minCirc = Number(params.min_circularity ?? 0.35)
   const useAspect = !!params.use_aspect
   const maxAspect = Number(params.max_aspect) || 3.0
   const useSolidity = !!params.use_solidity
-  const minSolidity = Number(params.min_solidity) ?? 0.8
+  const minSolidity = Number(params.min_solidity ?? 0.8)
   const useConvexity = !!params.use_convexity
-  const minConvexity = Number(params.min_convexity) ?? 0.8
+  const minConvexity = Number(params.min_convexity ?? 0.8)
   const useEccentricity = !!params.use_eccentricity
-  const maxEccentricity = Number(params.max_eccentricity) ?? 0.9
+  const maxEccentricity = Number(params.max_eccentricity ?? 0.9)
   const useRoundness = !!params.use_roundness
-  const minRoundness = Number(params.min_roundness) ?? 0.6
+  const minRoundness = Number(params.min_roundness ?? 0.6)
   const minSize = Math.max(1, Math.round(Number(params.min_size) || 20))
 
   const labels = new cv.Mat()

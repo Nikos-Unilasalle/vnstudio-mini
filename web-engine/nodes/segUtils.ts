@@ -188,7 +188,7 @@ export const sciGeneralSegmenter: NodeImpl = (inputs, params, ctx) => {
   }
 
   const finalData = finalMarkers.data32S as Int32Array
-  const vizMode = Number(params.viz_mode) ?? 2
+  const vizMode = Number(params.viz_mode ?? 2)
   const n = Math.max(1, count)
   const visStones = ctx.track(new cv.Mat(finalMarkers.rows, finalMarkers.cols, cv.CV_8U))
   const visData = visStones.data as Uint8Array

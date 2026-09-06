@@ -21804,5 +21804,512 @@
     "variable_inputs": false,
     "hf_model": "",
     "hf_filename": ""
+  },
+  {
+    "type": "sci_marker_analysis",
+    "label": "Region Analysis",
+    "category": "measure",
+    "icon": "Hash",
+    "description": "Extracts data (ID, coordinates, area) from a label map (markers) and overlays IDs.",
+    "inputs": [
+      {
+        "id": "markers",
+        "color": "markers"
+      },
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "data_list",
+        "color": "regions"
+      },
+      {
+        "id": "count",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "show_labels",
+        "label": "Show IDs",
+        "type": "enum",
+        "options": [
+          "No",
+          "Yes"
+        ],
+        "default": 1
+      },
+      {
+        "id": "show_points",
+        "label": "Show Centroids",
+        "type": "enum",
+        "options": [
+          "No",
+          "Yes"
+        ],
+        "default": 1
+      },
+      {
+        "id": "font_scale",
+        "label": "Font Scale",
+        "type": "scalar",
+        "min": 0.1,
+        "max": 2,
+        "default": 0.6
+      },
+      {
+        "id": "thickness",
+        "label": "Thickness",
+        "type": "scalar",
+        "min": 1,
+        "max": 5,
+        "default": 1
+      },
+      {
+        "id": "coord_type",
+        "label": "Coordinates",
+        "type": "enum",
+        "options": [
+          "Relative (0-1)",
+          "Pixels"
+        ],
+        "default": 0
+      },
+      {
+        "id": "text_color",
+        "label": "Text Color",
+        "type": "color",
+        "default": "#00FF00"
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "sci_curve_trace",
+    "label": "Curve Trace",
+    "category": "measure",
+    "icon": "Activity",
+    "description": "Reduces a binary mask to an ordered list of points, one per scanline, by aggregating foreground pixels along each column (or row). Turns a traced line/edge mask into a point set.",
+    "inputs": [
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "points",
+        "color": "points"
+      }
+    ],
+    "params": [
+      {
+        "id": "axis",
+        "label": "Scan Axis",
+        "type": "enum",
+        "options": [
+          "Columns (vertical scan)",
+          "Rows (horizontal scan)"
+        ],
+        "default": 0
+      },
+      {
+        "id": "aggregate",
+        "label": "Aggregate",
+        "type": "enum",
+        "options": [
+          "Median",
+          "Mean",
+          "Topmost/Leftmost",
+          "Bottommost/Rightmost"
+        ],
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "sci_axis_calibration",
+    "label": "Axis Calibration",
+    "category": "DataFrame",
+    "icon": "Ruler",
+    "description": "Converts a pixel-coordinate point list into real values via linear calibration. Connect the plot area (cropped chart image/mask) to Reference so both axes are calibrated on the FRAME edges — top/bottom for Y, left/right for X — not the curve's own extent. Without Reference, falls back to the point set's pixel extremes. Outputs a DataFrame — connect to DF Export for CSV.",
+    "inputs": [
+      {
+        "id": "points",
+        "color": "points"
+      },
+      {
+        "id": "reference",
+        "color": "image",
+        "label": "Reference (plot frame)"
+      },
+      {
+        "id": "x_value_1",
+        "color": "string",
+        "label": "X Value @ Left Edge"
+      },
+      {
+        "id": "x_value_2",
+        "color": "string",
+        "label": "X Value @ Right Edge"
+      },
+      {
+        "id": "label",
+        "color": "string",
+        "label": "Source Label"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "data",
+        "color": "data"
+      }
+    ],
+    "params": [
+      {
+        "id": "_sec_x",
+        "label": "X Calibration",
+        "type": "section"
+      },
+      {
+        "id": "x_type",
+        "label": "X Type",
+        "type": "enum",
+        "options": [
+          "Number",
+          "Date"
+        ],
+        "default": 0
+      },
+      {
+        "id": "date_format",
+        "label": "Date Format",
+        "type": "string",
+        "default": "%Y%m%d"
+      },
+      {
+        "id": "x_value_1",
+        "label": "X Value @ Left Edge",
+        "type": "string",
+        "default": "0"
+      },
+      {
+        "id": "x_value_2",
+        "label": "X Value @ Right Edge",
+        "type": "string",
+        "default": "100"
+      },
+      {
+        "id": "_sec_y",
+        "label": "Y Calibration",
+        "type": "section"
+      },
+      {
+        "id": "y_value_1",
+        "label": "Y Value @ Top Edge",
+        "type": "float",
+        "default": 1
+      },
+      {
+        "id": "y_value_2",
+        "label": "Y Value @ Bottom Edge",
+        "type": "float",
+        "default": 0
+      },
+      {
+        "id": "_sec_out",
+        "label": "Output",
+        "type": "section"
+      },
+      {
+        "id": "x_col",
+        "label": "X Column Name",
+        "type": "string",
+        "default": "x"
+      },
+      {
+        "id": "y_col",
+        "label": "Y Column Name",
+        "type": "string",
+        "default": "y"
+      },
+      {
+        "id": "label_col",
+        "label": "Label Column Name",
+        "type": "string",
+        "default": "source"
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "sci_export_particles",
+    "label": "Export Particles",
+    "category": "output",
+    "icon": "DownloadCloud",
+    "description": "Exports each detected particle as an individual PNG image with a transparent background.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image",
+        "label": "Source Image"
+      },
+      {
+        "id": "labels_map",
+        "color": "any",
+        "label": "Label Map"
+      }
+    ],
+    "outputs": [],
+    "params": [
+      {
+        "id": "export_trigger",
+        "label": "Export Now",
+        "type": "trigger",
+        "default": 0
+      },
+      {
+        "id": "out_dir",
+        "label": "Output Folder",
+        "type": "string",
+        "default": "exports/particles"
+      },
+      {
+        "id": "prefix",
+        "label": "Prefix",
+        "type": "string",
+        "default": "stone"
+      },
+      {
+        "id": "pad",
+        "label": "Padding (px)",
+        "type": "int",
+        "default": 5,
+        "min": 0,
+        "max": 100
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "cv_mean_shift",
+    "label": "Mean Shift Segmentation",
+    "category": "segmentation",
+    "icon": "Layers",
+    "description": "Mean-shift segmentation (cv2.pyrMeanShiftFiltering). Edge-preserving smoothing that clusters pixels in spatial+color space into flat regions. Frames larger than 640px are downscaled before filtering then upscaled back (the filter is slow on big images).",
+    "inputs": [
+      {
+        "id": "image",
+        "label": "Input",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "label": "Segmented",
+        "color": "image"
+      },
+      {
+        "id": "data",
+        "label": "Data",
+        "color": "dict"
+      }
+    ],
+    "params": [
+      {
+        "id": "spatial_radius",
+        "label": "Spatial Radius",
+        "type": "int",
+        "min": 1,
+        "max": 50,
+        "default": 10
+      },
+      {
+        "id": "color_radius",
+        "label": "Color Radius",
+        "type": "int",
+        "min": 1,
+        "max": 100,
+        "default": 30
+      },
+      {
+        "id": "max_level",
+        "label": "Max Level",
+        "type": "int",
+        "min": 0,
+        "max": 5,
+        "default": 1
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "feat_visual_size_gate",
+    "label": "Visual Size Gate",
+    "category": "segmentation",
+    "icon": "Ruler",
+    "description": "Filters a label map by area using a hand-drawn reference line.\n\nDraw a line across a typical object (e.g. one cell). The node estimates its area from the line length and a shape model, then keeps only regions whose area falls within ±Tolerance% of that reference.\n\nShape models:\n  Circle  — ref = π·(d/2)²   (round cells, grains)\n  Square  — ref = d²          (rectangular objects)\n  Thin    — ref = π·(d/2)·(d/4)  (elongated, e.g. bacteria)\n\nPreview: green = accepted, red-dim = rejected, cyan line = reference.",
+    "inputs": [
+      {
+        "id": "markers",
+        "label": "Labels Map",
+        "color": "markers"
+      },
+      {
+        "id": "image",
+        "label": "Image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "mask_kept",
+        "label": "Kept Mask",
+        "color": "mask"
+      },
+      {
+        "id": "mask_rej",
+        "label": "Rejected Mask",
+        "color": "mask"
+      },
+      {
+        "id": "markers_out",
+        "label": "Kept Labels",
+        "color": "markers"
+      },
+      {
+        "id": "markers_rej",
+        "label": "Rejected Labels",
+        "color": "markers"
+      },
+      {
+        "id": "main",
+        "label": "Preview",
+        "color": "image"
+      },
+      {
+        "id": "count",
+        "label": "Count",
+        "color": "scalar"
+      },
+      {
+        "id": "ref_area",
+        "label": "Ref Area (px²)",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "points",
+        "label": "Reference Line",
+        "type": "string",
+        "default": "[]"
+      },
+      {
+        "id": "shape",
+        "label": "Shape Model",
+        "type": "enum",
+        "options": [
+          "Circle",
+          "Square",
+          "Thin (rod)"
+        ],
+        "default": 0
+      },
+      {
+        "id": "tolerance",
+        "label": "Tolerance (%)",
+        "type": "float",
+        "default": 20,
+        "min": 0,
+        "max": 100
+      },
+      {
+        "id": "min_size",
+        "label": "Min Size (px²)",
+        "type": "int",
+        "default": 20,
+        "min": 1,
+        "max": 10000
+      },
+      {
+        "id": "auto_separate",
+        "label": "Separate Objects",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "separation",
+        "label": "Separation Strength",
+        "type": "float",
+        "default": 40,
+        "min": 5,
+        "max": 95
+      },
+      {
+        "id": "remap_ids",
+        "label": "Remap IDs",
+        "type": "bool",
+        "default": true
+      }
+    ],
+    "resizable": true,
+    "min_width": 260,
+    "min_height": 200,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
   }
 ]

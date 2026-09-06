@@ -228,8 +228,8 @@ export const filterImgClamp: NodeImpl = (inputs, params, ctx) => {
   const src = inputs.image as any
   if (!src) return { image: null }
   const cv = ctx.cv
-  const mn = Number(params.min_val) ?? 0
-  const mx = Number(params.max_val) ?? 1
+  const mn = Number(params.min_val ?? 0)
+  const mx = Number(params.max_val ?? 1)
   const out = ctx.track(src.clone())
   const isFloat = src.depth() === cv.CV_32F || src.depth() === cv.CV_64F
   if (isFloat) {
@@ -420,7 +420,7 @@ export const pluginBlendModes: NodeImpl = (inputs, params, ctx) => {
   }
 
   const mode = Number(params.mode) || 0
-  const opacity = (Number(params.opacity) ?? 50) / 100
+  const opacity = (Number(params.opacity ?? 50)) / 100
 
   const out = ctx.track(new cv.Mat(a.rows, a.cols, cv.CV_8UC3))
   const aData = a.data as Uint8Array

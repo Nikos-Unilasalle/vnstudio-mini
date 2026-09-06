@@ -147,8 +147,8 @@ export const featHarris: NodeImpl = (inputs, params, ctx) => {
   const blockSize = Math.max(2, Math.round(Number(params.block_size) || 2))
   let ksize = Math.max(1, Math.round(Number(params.ksize) || 3))
   if (ksize % 2 === 0) ksize += 1
-  const k = Number(params.k) ?? 0.04
-  const threshold = Number(params.threshold) ?? 0.01
+  const k = Number(params.k ?? 0.04)
+  const threshold = Number(params.threshold ?? 0.01)
 
   const response = new cv.Mat()
   cv.cornerHarris(gray32, response, blockSize, ksize, k)
@@ -235,7 +235,7 @@ export const featMatcher: NodeImpl = (inputs, params, ctx) => {
 
   // FLANN is not in this build; brute force is exact anyway, just slower, and at
   // these descriptor counts the difference is not perceptible.
-  const normIndex = Math.round(Number(params.norm) ?? 1)
+  const normIndex = Math.round(Number(params.norm ?? 1))
   const norm = normIndex === 0 ? cv.NORM_L2 : cv.NORM_HAMMING
   const ratio = Number(params.ratio_test) || 0.75
   const maxDisplay = Math.max(1, Math.round(Number(params.max_matches) || 50))

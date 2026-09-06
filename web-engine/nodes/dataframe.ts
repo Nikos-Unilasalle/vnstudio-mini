@@ -242,7 +242,7 @@ export const dfSample: NodeImpl = (inputs, params, ctx) => {
     }
     rows = idx.slice(0, take).map((i) => df.rows[i])
   } else {
-    rows = df.rows.slice(Math.round(Number(params.start) || 0), Math.round(Number(params.end) ?? 10))
+    rows = df.rows.slice(Math.round(Number(params.start) || 0), Math.round(Number(params.end ?? 10)))
   }
 
   const out = makeDf(df.columns, rows)
@@ -829,7 +829,7 @@ export const dfPlot: NodeImpl = (inputs, params, ctx) => {
     return { main: img, df_meta: meta }
   }
 
-  const maxPoints = Math.round(Number(params.max_points) ?? 5000)
+  const maxPoints = Math.round(Number(params.max_points ?? 5000))
   if (maxPoints > 0) {
     // Decimate rather than draw more points than the plot has pixels for.
     const stride = Math.max(1, Math.ceil(series[0].values.length / maxPoints))

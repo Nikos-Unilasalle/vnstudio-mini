@@ -61,7 +61,7 @@ export const geomApproxPoly: NodeImpl = (inputs, params, ctx) => {
   const closed = params.closed !== false
   // Epsilon is a fraction of the perimeter, so the parameter means the same
   // thing whatever the contour's size.
-  const epsilon = ((Number(params.epsilon_pct) ?? 2) / 100) * cv.arcLength(mat, true)
+  const epsilon = ((Number(params.epsilon_pct ?? 2)) / 100) * cv.arcLength(mat, true)
 
   const approx = new cv.Mat()
   cv.approxPolyDP(mat, approx, epsilon, closed)

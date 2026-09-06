@@ -174,7 +174,7 @@ export const mlKmeans: NodeImpl = (inputs, params, ctx) => {
   const scaler = wantsStandardize ? standardize(raw) : null
   const X = scaler ? scaler.scaled : raw
 
-  const seed = Math.round(Number(params.random_state) ?? 42)
+  const seed = Math.round(Number(params.random_state ?? 42))
   const options = {
     init: (Math.round(Number(params.init) || 0) === 1 ? 'random' : 'k-means++') as 'random' | 'k-means++',
     maxIter: Math.round(Number(params.max_iter) || 300),
@@ -388,7 +388,7 @@ export const mlTrainTestSplit: NodeImpl = (inputs, params, ctx) => {
   }
 
   const testFraction = Math.min(0.95, Math.max(0.01, (Number(params.test_size) || 20) / 100))
-  const seed = Math.round(Number(params.random_state) ?? 42)
+  const seed = Math.round(Number(params.random_state ?? 42))
   const shuffle = params.shuffle !== false
   const stratifyCol = resolveColumn(df, params.stratify_col)
 

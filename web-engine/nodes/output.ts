@@ -10,10 +10,10 @@ export const outputDisplay: NodeImpl = (inputs, params, ctx) => {
 
   const panels = sources.map((s) => ctx.track(toBgr(cv, s)))
   const mode = Number(params.mode) || 0
-  const gap = Math.max(0, Number(params.gap) ?? 2)
+  const gap = Math.max(0, Number(params.gap ?? 2))
 
   if (mode === 5) {
-    const alpha = Number(params.alpha) ?? 0.5
+    const alpha = Number(params.alpha ?? 0.5)
     const blended = ctx.track(new cv.Mat())
     const second = ctx.track(resizeTo(cv, panels[1], panels[0].cols, panels[0].rows))
     cv.addWeighted(panels[0], 1 - alpha, second, alpha, 0, blended)
@@ -21,7 +21,7 @@ export const outputDisplay: NodeImpl = (inputs, params, ctx) => {
   }
 
   if (mode === 4) {
-    const split = Math.max(0, Math.min(100, Number(params.split_pos) ?? 50))
+    const split = Math.max(0, Math.min(100, Number(params.split_pos ?? 50)))
     const out = ctx.track(panels[0].clone())
     const second = ctx.track(resizeTo(cv, panels[1], out.cols, out.rows))
     const boundary = Math.round((split / 100) * out.cols)

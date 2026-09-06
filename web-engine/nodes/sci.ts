@@ -234,7 +234,7 @@ export const sciColorDistance: NodeImpl = (inputs, params, ctx) => {
   }
 
   const metric = resolveEnum(params.metric, ['L2', 'L1', 'L∞', 'Cosine', 'Mahalanobis'], 'L2')
-  const threshold = Number(params.threshold) ?? 0.2
+  const threshold = Number(params.threshold ?? 0.2)
 
   let meanC = [0, 0, 0]
   let stdC = [1, 1, 1]
@@ -467,8 +467,8 @@ export const sciChannelExpr: NodeImpl = (inputs, params, ctx) => {
     }
   }
 
-  const cmin = Number(params.clamp_min) ?? -1e9
-  const cmax = Number(params.clamp_max) ?? 1e9
+  const cmin = Number(params.clamp_min ?? -1e9)
+  const cmax = Number(params.clamp_max ?? 1e9)
   if (cmin > -1e8 || cmax < 1e8) {
     for (let i = 0; i < result.length; i++) result[i] = clip(result[i], cmin, cmax)
   }
@@ -806,7 +806,7 @@ export const sciMaskMetrics: NodeImpl = (inputs, params, ctx) => {
   const f1 = precision + recall > 0 ? (2 * precision * recall) / (precision + recall) : 0
 
   const show = params.show_overlay !== false
-  const alpha = Number(params.alpha) ?? 0.45
+  const alpha = Number(params.alpha ?? 0.45)
   const bgImg = inputs.image as any
 
   let base: any
@@ -1428,7 +1428,7 @@ export const sciRegionColorStats: NodeImpl = (inputs, params, ctx) => {
     lh = resized.rows
   }
 
-  const colorspace = Number(params.colorspace) ?? 1
+  const colorspace = Number(params.colorspace ?? 1)
   const doBgr = colorspace === 0 || colorspace === 1
   const doHsv = colorspace === 1 || colorspace === 2
   const showIds = !!params.show_ids

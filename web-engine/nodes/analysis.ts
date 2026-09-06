@@ -272,7 +272,7 @@ export const forensicFootprint: NodeImpl = (inputs, params, ctx) => {
   cv.putText(overlay, `Staheli ${staheli} - ${archType}`, new cv.Point(minX + 5, maxY - 8), cv.FONT_HERSHEY_SIMPLEX, annotationScale, new cv.Scalar(100, 255, 255, 255), annotationThickness, cv.LINE_AA)
   cv.putText(overlay, `Asym ${asymmetry}`, new cv.Point(minX + 5, maxY - 8 - lineHeight), cv.FONT_HERSHEY_SIMPLEX, annotationScale, new cv.Scalar(220, 220, 0, 255), annotationThickness, cv.LINE_AA)
 
-  const alpha = Number(params.alpha) ?? 0.55
+  const alpha = Number(params.alpha ?? 0.55)
   const blended = ctx.track(new cv.Mat())
   cv.addWeighted(overlay, alpha, visual, 1 - alpha, 0, blended)
 

@@ -94,7 +94,7 @@ export const featNdwi: NodeImpl = (inputs, params, ctx) => {
 
   const index = normalisedDifference(green, other)
   const colour = INDEX_COLOURS[Math.min(2, Math.max(0, Math.round(Number(params.colormap) || 0)))]
-  return renderIndex(cv, ctx, index, w, h, Number(params.threshold) ?? 0.2, colour)
+  return renderIndex(cv, ctx, index, w, h, Number(params.threshold ?? 0.2), colour)
 }
 
 export const featSpectralIndex: NodeImpl = (inputs, params, ctx) => {
@@ -110,7 +110,7 @@ export const featSpectralIndex: NodeImpl = (inputs, params, ctx) => {
   // Presets pick the channel pair; anything else uses the manual selection.
   const presets: Record<number, [number, number]> = { 1: [0, 1], 2: [1, 2], 3: [0, 2] }
   const preset = Math.round(Number(params.preset) || 0)
-  const [chA, chB] = presets[preset] ?? [Math.round(Number(params.ch_a) || 0), Math.round(Number(params.ch_b) ?? 1)]
+  const [chA, chB] = presets[preset] ?? [Math.round(Number(params.ch_a) || 0), Math.round(Number(params.ch_b ?? 1))]
 
   const extract = (mat: any, channel: number) => {
     const out = new Float32Array(mat.cols * mat.rows)
@@ -148,7 +148,7 @@ export const featSpectralIndex: NodeImpl = (inputs, params, ctx) => {
   void n
   const index = normalisedDifference(bandA, bandB)
   const colour = INDEX_COLOURS[Math.min(2, Math.max(0, Math.round(Number(params.colormap) || 0)))]
-  return renderIndex(cv, ctx, index, w, h, Number(params.threshold) ?? 0.2, colour)
+  return renderIndex(cv, ctx, index, w, h, Number(params.threshold ?? 0.2), colour)
 }
 
 export const featWaterRefine: NodeImpl = (inputs, params, ctx) => {
@@ -163,7 +163,7 @@ export const featWaterRefine: NodeImpl = (inputs, params, ctx) => {
 
   // Closing first fills the gaps inside a water body, then opening removes the
   // speckle; doing it the other way round would erase thin channels.
-  let closeSize = Math.max(1, Math.round(Number(params.close_size) ?? 7))
+  let closeSize = Math.max(1, Math.round(Number(params.close_size ?? 7)))
   if (closeSize > 1) {
     if (closeSize % 2 === 0) closeSize += 1
     const kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, new cv.Size(closeSize, closeSize))
@@ -173,7 +173,7 @@ export const featWaterRefine: NodeImpl = (inputs, params, ctx) => {
     binary.delete()
     binary = closed
   }
-  let openSize = Math.max(1, Math.round(Number(params.open_size) ?? 3))
+  let openSize = Math.max(1, Math.round(Number(params.open_size ?? 3)))
   if (openSize > 1) {
     if (openSize % 2 === 0) openSize += 1
     const kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, new cv.Size(openSize, openSize))
@@ -186,7 +186,7 @@ export const featWaterRefine: NodeImpl = (inputs, params, ctx) => {
 
   const w = binary.cols
   const h = binary.rows
-  const minArea = Math.round(Number(params.min_area) ?? 500)
+  const minArea = Math.round(Number(params.min_area ?? 500))
 
   const contours = new cv.MatVector()
   const hierarchy = new cv.Mat()
@@ -307,8 +307,8 @@ export const imageLegend: NodeImpl = (inputs, params, ctx) => {
 
   const fontScale = Number(params.font_scale) || 0.5
   const swatch = Math.max(6, Math.round(Number(params.swatch_size) || 16))
-  const bgAlpha = Number(params.bg_alpha) ?? 0.55
-  const pad = Math.max(0, Math.round(Number(params.padding) ?? 8))
+  const bgAlpha = Number(params.bg_alpha ?? 0.55)
+  const pad = Math.max(0, Math.round(Number(params.padding ?? 8)))
   const position = String(params.position ?? 'bottom-left')
   const lineGap = 4
 
@@ -467,7 +467,7 @@ export const transformEyeCrop: NodeImpl = (inputs, params, ctx) => {
   }
 
   const landmarks = face.landmarks
-  const padding = Number(params.padding) ?? 0.4
+  const padding = Number(params.padding ?? 0.4)
   const align = params.align !== false
   const source = toBgr(cv, image)
   const w = source.cols

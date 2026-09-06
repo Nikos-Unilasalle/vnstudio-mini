@@ -77,6 +77,14 @@ import {
 } from './nodes/mlModels'
 import { mlBestParams, mlDecisionTree, mlRandomForest, mlRobustLine } from './nodes/mlTrees'
 import {
+  cvMeanShift,
+  featVisualSizeGate,
+  sciAxisCalibration,
+  sciCurveTrace,
+  sciExportParticles,
+  sciMarkerAnalysis,
+} from './nodes/measureSci'
+import {
   featNdwi,
   featSpectralIndex,
   featWaterRefine,
@@ -632,6 +640,13 @@ export const IMPLEMENTATIONS: Record<string, NodeImpl> = {
   ml_random_forest: mlRandomForest,
   ml_robust_line: mlRobustLine,
   ml_best_params: mlBestParams,
+
+  sci_marker_analysis: sciMarkerAnalysis,
+  sci_curve_trace: sciCurveTrace,
+  sci_axis_calibration: sciAxisCalibration,
+  sci_export_particles: sciExportParticles,
+  cv_mean_shift: cvMeanShift,
+  feat_visual_size_gate: featVisualSizeGate,
 }
 
 const schemaByType = new Map(SCHEMAS.map((s) => [s.type, s]))

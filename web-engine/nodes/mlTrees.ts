@@ -295,7 +295,7 @@ export const mlRandomForest: NodeImpl = (inputs, params, ctx) => {
     // caught by the bounds check — `?? 'sqrt'` would swallow the null itself.
     maxFeaturesMode: MAX_FEATURE_MODES[modeIndex] !== undefined ? MAX_FEATURE_MODES[modeIndex] : 'sqrt',
     bootstrap,
-    seed: Math.round(Number(params.random_state) ?? 42),
+    seed: Math.round(Number(params.random_state ?? 42)),
   })
 
   const trainAccuracy = accuracy(forestPredict(forest, train.X), train.y)

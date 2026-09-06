@@ -333,7 +333,7 @@ export const drawTintMask: NodeImpl = (inputs, params, ctx) => {
   if (!image) return {}
   const cv = ctx.cv
   const color = parseColor(cv, String(params.color ?? '#00ff88'))
-  const alpha = Math.max(0, Math.min(1, Number(params.alpha) ?? 0.5))
+  const alpha = Math.max(0, Math.min(1, Number(params.alpha ?? 0.5)))
 
   const vis = ctx.track(toBgr(cv, image))
   if (!mask) return { main: vis }

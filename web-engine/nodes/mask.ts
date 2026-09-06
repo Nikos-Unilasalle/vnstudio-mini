@@ -8,11 +8,11 @@ export const maskCircle: NodeImpl = (inputs, params, ctx) => {
   const w = img ? img.cols : Math.max(1, Math.round(Number(params.img_w) || 512))
   const h = img ? img.rows : Math.max(1, Math.round(Number(params.img_h) || 512))
 
-  const cx = ((Number(params.center_x) ?? 50) / 100) * w
-  const cy = ((Number(params.center_y) ?? 50) / 100) * h
+  const cx = ((Number(params.center_x ?? 50)) / 100) * w
+  const cy = ((Number(params.center_y ?? 50)) / 100) * h
   const ref = Math.min(w, h)
-  const rx = Math.max(1, ((Number(params.radius_x) ?? 45) / 100) * ref)
-  const ry = Math.max(1, ((Number(params.radius_y) ?? 45) / 100) * ref)
+  const rx = Math.max(1, ((Number(params.radius_x ?? 45)) / 100) * ref)
+  const ry = Math.max(1, ((Number(params.radius_y ?? 45)) / 100) * ref)
   const feather = Math.max(0, Math.round(Number(params.feather) || 0))
   const invert = !!params.invert
 
@@ -95,8 +95,8 @@ export const filterFloatThreshold: NodeImpl = (inputs, params, ctx) => {
   }
   if (!data || !width || !height) return { mask: null, count: 0 }
 
-  const low = Number(params.low) ?? -1.0
-  const high = Number(params.high) ?? 0.0
+  const low = Number(params.low ?? -1.0)
+  const high = Number(params.high ?? 0.0)
   const invert = !!params.invert
 
   const mask = ctx.track(new cv.Mat(height, width, cv.CV_8U))

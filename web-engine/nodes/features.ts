@@ -56,8 +56,8 @@ export const featFindContours: NodeImpl = (inputs, params, ctx) => {
   const gray = ctx.track(toGray(cv, mask))
 
   const modeKey = CONTOUR_MODES[Number(params.mode) || 0] ?? 'RETR_EXTERNAL'
-  const methodKey = CONTOUR_METHODS[Number(params.method) ?? 1] ?? 'CHAIN_APPROX_SIMPLE'
-  const minArea = Number(params.min_area) ?? 100
+  const methodKey = CONTOUR_METHODS[Number(params.method ?? 1)] ?? 'CHAIN_APPROX_SIMPLE'
+  const minArea = Number(params.min_area ?? 100)
   const maxArea = Number(params.max_area) || 0
   const epsilon = Number(params.epsilon) || 0
 
@@ -181,7 +181,7 @@ export const featHoughCircles: NodeImpl = (inputs, params, ctx) => {
   const minR = Math.round(Number(params.min_r) || 0)
   const maxR = Math.round(Number(params.max_r) || 0)
   const [bB, bG, bR] = hexToBgr(String(params.viz_color ?? '#00FF00'))
-  const thickness = Math.round(Number(params.thickness) ?? 2)
+  const thickness = Math.round(Number(params.thickness ?? 2))
 
   const circlesMat = ctx.track(new cv.Mat())
   cv.HoughCircles(gray, circlesMat, cv.HOUGH_GRADIENT, dp, minDist, p1, p2, minR, maxR)
@@ -229,7 +229,7 @@ export const featFilterContours: NodeImpl = (inputs, params, ctx) => {
 
   const maxCirc = Number(params.max_circularity) || 0
   const minCirc = Number(params.min_circularity) || 0
-  const minElo = Number(params.min_elongation) ?? 1
+  const minElo = Number(params.min_elongation ?? 1)
   const maxElo = Number(params.max_elongation) || 0
   const minArea = Number(params.min_area) || 0
   const maxArea = Number(params.max_area) || 0

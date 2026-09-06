@@ -64,13 +64,13 @@ function makeRandom(seed: number): () => number {
 
 export const signalGenerator: NodeImpl = (inputs, params, ctx) => {
   const waveform = Math.round(Number(params.waveform) || 0)
-  let frequency = Math.max(0.0001, (Number(params.frequency) ?? 1) + (Number(params.freq_fine) || 0) / 1000)
-  let amplitude = (Number(params.amplitude) ?? 100) / 100
+  let frequency = Math.max(0.0001, (Number(params.frequency ?? 1)) + (Number(params.freq_fine) || 0) / 1000)
+  let amplitude = (Number(params.amplitude ?? 100)) / 100
   const offset = (Number(params.offset) || 0) / 100
   const phaseOffset = (Number(params.phase) || 0) / 360
-  const duty = (Number(params.duty) ?? 50) / 100
-  const walkStep = (Number(params.rw_step) ?? 5) / 100
-  const seed = Math.round(Number(params.seed) ?? -1)
+  const duty = (Number(params.duty ?? 50)) / 100
+  const walkStep = (Number(params.rw_step ?? 5)) / 100
+  const seed = Math.round(Number(params.seed ?? -1))
 
   // A wired modulation input overrides the parameter.
   if (inputs.freq_mod !== null && inputs.freq_mod !== undefined) {
@@ -220,7 +220,7 @@ const MIME = { png: 'image/png', jpg: 'image/jpeg' } as const
 type ImageFormat = keyof typeof MIME
 
 /** Encodes a Mat via an OffscreenCanvas — cv.imencode is absent from this build. */
-async function encodeImage(cv: any, mat: any, format: ImageFormat, quality = 0.95): Promise<Uint8Array> {
+export async function encodeImage(cv: any, mat: any, format: ImageFormat, quality = 0.95): Promise<Uint8Array> {
   const canvas = makeCanvas(mat.cols, mat.rows)
   drawMatToCanvas(cv, canvas, mat)
   const blob = await canvas.convertToBlob({ type: MIME[format], quality })
@@ -374,7 +374,7 @@ export const exportCrops: NodeImpl = async (inputs, params, ctx) => {
   } else {
     boxes.forEach((box, i) => {
       if (!box || typeof box !== 'object') return
-      items.push({ id: Number(box.id) ?? i, box: boxToCorners(box, w, h), contour: null })
+      items.push({ id: Number(box.id ?? i), box: boxToCorners(box, w, h), contour: null })
     })
   }
   if (!items.length) return { count: 0 }
@@ -382,11 +382,11 @@ export const exportCrops: NodeImpl = async (inputs, params, ctx) => {
   const labels = new Map<number, string>()
   if (Array.isArray(inputs.labels_list)) {
     ;(inputs.labels_list as Record<string, any>[]).forEach((entry, i) => {
-      if (entry && typeof entry === 'object') labels.set(Number(entry.id) ?? i, String(entry.label ?? entry.class ?? ''))
+      if (entry && typeof entry === 'object') labels.set(Number(entry.id ?? i), String(entry.label ?? entry.class ?? ''))
     })
   }
 
-  const pad = Math.max(0, Math.round(Number(params.pad) ?? 5))
+  const pad = Math.max(0, Math.round(Number(params.pad ?? 5)))
   const format: ImageFormat = Math.round(Number(params.format) || 0) === 1 ? 'jpg' : 'png'
   // JPEG has no alpha, so a masked cut only makes sense as PNG.
   const masked = Math.round(Number(params.cut_mode) || 0) === 1 && format === 'png'

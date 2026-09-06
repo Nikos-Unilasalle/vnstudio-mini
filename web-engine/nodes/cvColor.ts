@@ -115,8 +115,8 @@ export const cvAdaptiveThreshold: NodeImpl = (inputs, params, ctx) => {
   let block = Math.round(Number(params.block_size) || 11)
   if (block < 3) block = 3
   if (block % 2 === 0) block += 1
-  const c = Math.round(Number(params.c) ?? 5)
-  const method = Number(params.adaptive_method) ?? 1
+  const c = Math.round(Number(params.c ?? 5))
+  const method = Number(params.adaptive_method ?? 1)
   const invert = !!params.invert
 
   const dst = ctx.track(new cv.Mat())

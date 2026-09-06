@@ -165,7 +165,7 @@ export const listRegionSelect: NodeImpl = (inputs, params) => {
 
   if (items.length === 0) return { item: null, pts: [], list_out: [], count: 0 }
 
-  const sortBy = Number(params.sort_by) ?? 1
+  const sortBy = Number(params.sort_by ?? 1)
   if (sortBy === 1) items.sort((a, b) => (b.width ?? 0) * (b.height ?? 0) - (a.width ?? 0) * (a.height ?? 0))
   else if (sortBy === 2) items.sort((a, b) => (a.width ?? 0) * (a.height ?? 0) - (b.width ?? 0) * (b.height ?? 0))
   else if (sortBy === 3) items.sort((a, b) => (b.confidence ?? b.score ?? 0) - (a.confidence ?? a.score ?? 0))
@@ -223,7 +223,7 @@ export const dataListOps: NodeImpl = (inputs, params) => {
       listOut = list.flatMap((item) => (Array.isArray(item) ? item : [item]))
     } else if (op === 'slice') {
       const start = Math.round(Number(params.slice_start) || 0)
-      const end = Math.round(Number(params.slice_end) ?? 10)
+      const end = Math.round(Number(params.slice_end ?? 10))
       const step = Math.round(Number(params.slice_step) || 1) || 1
       if (step === 1) {
         listOut = list.slice(start, end)
