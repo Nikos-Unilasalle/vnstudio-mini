@@ -164,7 +164,9 @@ function App() {
   const [activeCategoryId, setActiveCategoryId] = useState(CATEGORIES[1].id);
   const [rightPanelWidth, setRightPanelWidth] = useState(480);
   const [isTemplatesOpen, setIsTemplatesOpen] = useState(false);
+  const [isClassesOpen, setIsClassesOpen] = useState(false);
   const [templates, setTemplates] = useState<{name: string, description: string, file: string}[]>([]);
+  const [classes, setClasses] = useState<{section: string, entries: {name: string, description: string, file: string}[]}[]>([]);
   const [isProjectsOpen, setIsProjectsOpen] = useState(false);
   const [workDir, setWorkDir] = useState<string | null>(() => localStorage.getItem('vn-work-dir'));
   const [workDirFiles, setWorkDirFiles] = useState<string[]>([]);
@@ -1197,7 +1199,7 @@ function App() {
 
   const {
     saveProject, saveProjectAs, saveProjectIncremental,
-    loadProject, loadProjectFromPath, applyTemplateData, loadTemplate,
+    loadProject, loadProjectFromPath, applyTemplateData, loadTemplate, loadClass,
   } = useFileOperations({
     canvasNodes, canvasEdges, activeFilePath, setActiveFilePath, pushNotification,
     setNodes, setEdges, setGroupStack, groupStackRef,
@@ -1210,10 +1212,15 @@ function App() {
   });
 
   useEffect(() => {
-    fetch('/templates/manifest.json')
+    const base = import.meta.env.BASE_URL;
+    fetch(`${base}templates/manifest.json`)
       .then(r => r.json())
       .then(setTemplates)
       .catch(e => console.error('Failed to load templates manifest:', e));
+    fetch(`${base}classes/manifest.json`)
+      .then(r => r.json())
+      .then(setClasses)
+      .catch(e => console.error('Failed to load classes manifest:', e));
   }, []);
 
   // ── Autosave (crash protection): writes each canvas every 5 min ──
@@ -1870,9 +1877,11 @@ function App() {
         isPaletteSelectOpen={isPaletteSelectOpen}
         isProjectsOpen={isProjectsOpen}
         isTemplatesOpen={isTemplatesOpen}
+        isClassesOpen={isClassesOpen}
         workDir={workDir}
         workDirFiles={workDirFiles}
         templates={templates}
+        classes={classes}
         isRunning={isRunning}
         onToggleRunning={() => setIsRunning(r => !r)}
         setActiveCanvasId={(id: string) => { setActiveCanvasId(id); setIsRunning(false); }}
@@ -1891,11 +1900,13 @@ function App() {
         setActivePaletteIndex={setActivePaletteIndex}
         setIsProjectsOpen={setIsProjectsOpen}
         setIsTemplatesOpen={setIsTemplatesOpen}
+        setIsClassesOpen={setIsClassesOpen}
         setWorkDirAndSave={setWorkDirAndSave}
         refreshWorkDir={refreshWorkDir}
         confirmUnsaved={confirmUnsaved}
         loadProjectFromPath={loadProjectFromPath}
         loadTemplate={loadTemplate}
+        loadClass={loadClass}
         setShowAbout={setShowAbout}
         handleExportSvg={handleExportSvg}
       />

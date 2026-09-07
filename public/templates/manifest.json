@@ -1,17 +1,72 @@
 [
   {
-    "name": "TD 1 — Le tamis qui n’existe pas",
-    "description": "Granulométrie de galets sur photo de terrain. Chaîne complète : niveaux de gris, seuillage d’Otsu, morphologie, composantes connexes, mesure des régions et histogramme D10/D50/D90. Calibrée avec une pièce de 2 € (25,75 mm).",
-    "file": "M1.1_reference.vn"
+    "name": "Segmentation de galets",
+    "description": "Chaîne de segmentation complète sur une photo de galets : ROI polygonale, redressement en perspective, seuillage adaptatif, morphologie, transformée de distance et watershed pour séparer les galets qui se touchent.",
+    "file": "galets_segmenter.vn"
   },
   {
-    "name": "TD 2 — Le pas de trop",
-    "description": "Morphométrie légale d’une empreinte de pied nu. Masque polygonal, seuillage inverse, redressement par boîte englobante orientée, puis TFL / CBW / HBW et indice de Staheli via la node forensique. Calibrée sur une réglette de 100 mm.",
-    "file": "M1.2_reference.vn"
+    "name": "Granulométrie optique",
+    "description": "Mesure la distribution de taille d’une population de billes : CLAHE, seuillage, watershed, puis statistiques et courbe granulométrique. La version longue de la segmentation, avec l’analyse au bout.",
+    "file": "granulometrie_optique.vn"
   },
   {
-    "name": "TD 3 — Décoder une émotion",
-    "description": "Suivi facial sur vidéo : 478 points MediaPipe, extraction des commissures et des coins externes des yeux, rapport des deux distances (invariant à la distance caméra) tracé image par image. La vidéo Sally.mp4 est à charger manuellement.",
-    "file": "M1.3_reference.vn"
+    "name": "Comptage par transformée de Hough",
+    "description": "Détecte et compte des billes par cercles de Hough plutôt que par seuillage — robuste aux objets qui se touchent. Regroupement des rayons en classes par k-means et rapport d’analyse.",
+    "file": "sphere_counting_hough.vn"
+  },
+  {
+    "name": "Propriétés des régions",
+    "description": "Extrait aire, périmètre, circularité et excentricité de chaque région détectée, les affiche en carte de chaleur et les exporte en CSV. Avec barre d’échelle.",
+    "file": "region_props_analysis.vn"
+  },
+  {
+    "name": "Réaction-diffusion",
+    "description": "Le modèle de Gray-Scott, qui fait émerger des motifs organiques à partir de deux réactifs. Le résultat est seuillé, colorisé et fondu sur une photo.",
+    "file": "reaction_diffusion.vn"
+  },
+  {
+    "name": "Débruitage fréquentiel",
+    "description": "Passe le flux webcam en Fourier, atténue les hautes fréquences où vit le bruit, et reconstruit. Le spectre est visible pendant qu’on règle le gain.",
+    "file": "fft_debruitage_frequentiel.vn"
+  },
+  {
+    "name": "Accentuation adaptative",
+    "description": "Le même trajet aller-retour en Fourier, mais en amplifiant les hautes fréquences : une netteté qui se règle bande par bande plutôt qu’avec un simple masque flou.",
+    "file": "fft_sharpening_adaptatif.vn"
+  },
+  {
+    "name": "Égaliseur spectral",
+    "description": "Un égaliseur à trois bandes pour l’image : basses, moyennes et hautes fréquences se dosent séparément, comme sur une chaîne hi-fi.",
+    "file": "fft_egaliseur_spectral.vn"
+  },
+  {
+    "name": "Coins de Harris",
+    "description": "Détecte les coins d’un mur de pierre, les convertit en masque, et les compose sur un fond travaillé en ombres/hautes lumières.",
+    "file": "harris_corner.vn"
+  },
+  {
+    "name": "Appariement de points d’intérêt",
+    "description": "Détecte des points ORB sur une photo et sur une copie tournée de 20°, puis trace les correspondances : la démonstration que les descripteurs ORB résistent à la rotation. Remplacez les deux sources par vos propres photos d’une même scène.",
+    "file": "feature_matching.vn"
+  },
+  {
+    "name": "Détecteur de sourire",
+    "description": "Suivi facial MediaPipe sur webcam : le rapport entre l’écartement des commissures et celui des yeux — invariant à la distance caméra — franchit un seuil et déclenche l’enregistrement.",
+    "file": "smile_detector.vn"
+  },
+  {
+    "name": "Peinture gestuelle",
+    "description": "Suivi de la main sur webcam : l’index devient un pinceau et trace sur une surcouche transparente. Un bon premier contact avec les nodes de geste.",
+    "file": "magic_painter.vn"
+  },
+  {
+    "name": "Pouls par amplification",
+    "description": "Amplification eulérienne du mouvement : les variations de couleur du visage, invisibles à l’œil, sont amplifiées jusqu’à faire apparaître le pouls, puis lissées par filtre de Kalman.",
+    "file": "evm_pulse.vn"
+  },
+  {
+    "name": "Peintre d’indices",
+    "description": "Dessinez des zones et affectez-leur une valeur d’indice (style NDVI) pour fabriquer une vérité terrain synthétique : colorisation, histogramme et propriétés des régions suivent.",
+    "file": "ndvi_ground_truth.vn"
   }
 ]

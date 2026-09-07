@@ -173,14 +173,18 @@ export function useFileOperations({
     updateGraph(nodes, edges);
   }, [setNodes, setEdges, setPreviewSize, setPreviewPos, setActivePaletteIndex, setVisualizedNodeId, setPreviewNode, updateGraph, setGroupStack, groupStackRef]);
 
-  const loadTemplate = useCallback(async (file: string) => {
+  /** `dir` is 'templates' for the demos, 'classes' for the course material. */
+  const loadGraphFrom = useCallback(async (dir: string, file: string) => {
     try {
-      const data = await fetch(`/templates/${file}`).then(r => r.json());
+      const data = await fetch(`${import.meta.env.BASE_URL}${dir}/${encodeURIComponent(file)}`).then(r => r.json());
       applyTemplateData(data);
-    } catch(e) {
-      console.error('Failed to load template:', file, e);
+    } catch (e) {
+      console.error(`Failed to load ${dir}:`, file, e);
     }
   }, [applyTemplateData]);
+
+  const loadTemplate = useCallback((file: string) => loadGraphFrom('templates', file), [loadGraphFrom]);
+  const loadClass = useCallback((file: string) => loadGraphFrom('classes', file), [loadGraphFrom]);
 
   return {
     saveProject,
@@ -190,6 +194,7 @@ export function useFileOperations({
     loadProjectFromPath,
     applyTemplateData,
     loadTemplate,
+    loadClass,
     buildProjectContent,
   };
 }

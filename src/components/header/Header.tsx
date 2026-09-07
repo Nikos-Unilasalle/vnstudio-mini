@@ -3,7 +3,7 @@ import {
   FilePlus, FolderOpen, Save, SaveAll, Undo2, Redo2,
   AlignHorizontalDistributeCenter, AlignVerticalDistributeCenter, Grid3x3,
   Image, Film, Camera, Type, Layout, GitCommit,
-  Palette, FolderSearch, BookOpen, RefreshCw, HelpCircle, Share2, Play, Square
+  Palette, FolderSearch, BookOpen, GraduationCap, RefreshCw, HelpCircle, Share2, Play, Square
 } from 'lucide-react';
 import ApiKeysPanel from './ApiKeysPanel';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -23,9 +23,11 @@ interface HeaderProps {
   isPaletteSelectOpen: boolean;
   isProjectsOpen: boolean;
   isTemplatesOpen: boolean;
+  isClassesOpen: boolean;
   workDir: string | null;
   workDirFiles: string[];
   templates: { name: string; description: string; file: string }[];
+  classes: { section: string; entries: { name: string; description: string; file: string }[] }[];
   isRunning: boolean;
   onToggleRunning: () => void;
   setActiveCanvasId: (id: string) => void;
@@ -44,11 +46,13 @@ interface HeaderProps {
   setActivePaletteIndex: (i: number) => void;
   setIsProjectsOpen: (v: boolean) => void;
   setIsTemplatesOpen: (v: boolean) => void;
+  setIsClassesOpen: (v: boolean) => void;
   setWorkDirAndSave: () => void;
   refreshWorkDir: (dir: string) => void;
   confirmUnsaved: () => Promise<boolean>;
   loadProjectFromPath: (path: string) => void;
   loadTemplate: (file: string) => void;
+  loadClass: (file: string) => void;
   setShowAbout: (v: boolean) => void;
   handleExportSvg: (format?: 'svg' | 'png') => void;
 }
@@ -56,16 +60,16 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({
   isConnected, activeCanvasId, canvases, activeFilePath,
   canUndo: canU, canRedo: canR, snapEnabled, activePaletteIndex,
-  isPaletteSelectOpen, isProjectsOpen, isTemplatesOpen,
-  workDir, workDirFiles, templates,
+  isPaletteSelectOpen, isProjectsOpen, isTemplatesOpen, isClassesOpen,
+  workDir, workDirFiles, templates, classes,
   isRunning, onToggleRunning,
   setActiveCanvasId, handleUndo, handleRedo, alignNodes, snapToggle,
   addNode, addHelpAssistant, saveProject, saveProjectAs, saveProjectIncremental,
   loadProject, newProject,
   setIsPaletteSelectOpen, setActivePaletteIndex,
-  setIsProjectsOpen, setIsTemplatesOpen,
+  setIsProjectsOpen, setIsTemplatesOpen, setIsClassesOpen,
   setWorkDirAndSave, refreshWorkDir,
-  confirmUnsaved, loadProjectFromPath, loadTemplate,
+  confirmUnsaved, loadProjectFromPath, loadTemplate, loadClass,
   setShowAbout, handleExportSvg,
 }) => {
   return (
@@ -349,6 +353,47 @@ const Header: React.FC<HeaderProps> = ({
                         <div className="text-[10px] font-bold text-gray-200 group-hover:text-accent uppercase tracking-tighter">{t.name}</div>
                         <div className="text-[8px] text-gray-500 mt-1 leading-tight">{t.description}</div>
                       </button>
+                    ))}
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
+         </div>
+
+         <div className="relative">
+            <button
+              onClick={() => setIsClassesOpen(!isClassesOpen)}
+              className="p-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-gray-400 transition-all border border-white/5"
+              title="Classes"
+            >
+              <GraduationCap size={14} />
+            </button>
+            <AnimatePresence>
+              {isClassesOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setIsClassesOpen(false)} />
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    className="absolute right-0 mt-2 w-64 bg-[#3d4452] border border-[#4f5b6b] rounded-xl shadow-2xl z-50 p-2 overflow-y-auto max-h-[70vh]"
+                  >
+                    {classes.map((group, gi) => (
+                      <div key={gi} className={gi > 0 ? 'mt-2 pt-2 border-t border-white/10' : ''}>
+                        <div className="px-3 pt-1 pb-2 text-[9px] font-bold text-accent/80 uppercase tracking-widest">
+                          {group.section}
+                        </div>
+                        {group.entries.map((t, i) => (
+                          <button
+                            key={i}
+                            onClick={() => loadClass(t.file)}
+                            className="w-full text-left p-3 hover:bg-accent/10 rounded-lg group transition-all"
+                          >
+                            <div className="text-[10px] font-bold text-gray-200 group-hover:text-accent uppercase tracking-tighter">{t.name}</div>
+                            <div className="text-[8px] text-gray-500 mt-1 leading-tight">{t.description}</div>
+                          </button>
+                        ))}
+                      </div>
                     ))}
                   </motion.div>
                 </>

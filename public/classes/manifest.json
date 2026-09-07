@@ -1,0 +1,87 @@
+[
+  {
+    "section": "Machine Learning",
+    "entries": [
+      {
+        "name": "Charger et explorer",
+        "description": "Premier contact avec un jeu de données : chargement, aperçu, types de colonnes et statistiques descriptives.",
+        "file": "TP01_charger_explorer.vn"
+      },
+      {
+        "name": "Sélection et filtrage",
+        "description": "Restreindre un tableau aux lignes et colonnes utiles, et lire l’effet de chaque filtre sur la distribution.",
+        "file": "TP02_selection_filtrage.vn"
+      },
+      {
+        "name": "Nettoyage des données",
+        "description": "Valeurs manquantes, doublons et aberrants : les repérer, décider quoi en faire, mesurer ce que ça change.",
+        "file": "TP03_nettoyage.vn"
+      },
+      {
+        "name": "Transformation",
+        "description": "Créer des colonnes dérivées, normaliser, encoder — préparer un tableau pour un modèle.",
+        "file": "TP04_transformation.vn"
+      },
+      {
+        "name": "Groupement et agrégation",
+        "description": "Regrouper par catégorie et résumer : moyennes, comptages et comparaisons entre groupes.",
+        "file": "TP05_groupby_agregation.vn"
+      },
+      {
+        "name": "Exploration des données",
+        "description": "Parcours guidé d’un jeu de données : formes, types, valeurs manquantes et premières visualisations.",
+        "file": "01_exploration_des_donnees.vn"
+      },
+      {
+        "name": "Filtrage et corrélations",
+        "description": "Matrice de corrélation (Pearson, Spearman, Kendall) et lecture des dépendances entre variables.",
+        "file": "02_filtrage_et_correlations.vn"
+      },
+      {
+        "name": "Classification par k-NN",
+        "description": "k plus proches voisins sur iris : frontière de décision, effet de k et de la métrique, rapport de classification.",
+        "file": "03_knn_classificateur.vn"
+      },
+      {
+        "name": "Clustering k-means et ACP",
+        "description": "Partition non supervisée par k-means, projection ACP pour la visualiser, inertie et score de silhouette.",
+        "file": "04_clustering_kmeans_pca.vn"
+      },
+      {
+        "name": "Régression linéaire",
+        "description": "Ajustement, R², RMSE, résidus et coefficients — sur le jeu diabetes.",
+        "file": "05_regression_lineaire.vn"
+      },
+      {
+        "name": "Comparaison de modèles",
+        "description": "Même découpage train/test pour plusieurs modèles, et lecture comparée de leurs performances.",
+        "file": "06_comparaison_modeles.vn"
+      },
+      {
+        "name": "Forêt aléatoire",
+        "description": "Ensemble d’arbres : score OOB, importance des variables et matrice de confusion.",
+        "file": "07_random_forest.vn"
+      }
+    ]
+  },
+  {
+    "section": "Computer Vision",
+    "entries": [
+      {
+        "name": "Le tamis qui n’existe pas",
+        "description": "Granulométrie de galets sur photo de terrain. Chaîne complète : niveaux de gris, seuillage d’Otsu, morphologie, composantes connexes, mesure des régions et histogramme D10/D50/D90. Calibrée avec une pièce de 2 € (25,75 mm).",
+        "file": "M1.1_reference.vn"
+      },
+      {
+        "name": "Le pas de trop",
+        "description": "Morphométrie légale d’une empreinte de pied nu. Masque polygonal, seuillage inverse, redressement par boîte englobante orientée, puis TFL / CBW / HBW et indice de Staheli. Calibrée sur une réglette de 100 mm.",
+        "file": "M1.2_reference.vn"
+      },
+      {
+        "name": "Décoder une émotion",
+        "description": "Suivi facial sur vidéo : 478 points MediaPipe, extraction des commissures et des coins externes des yeux, rapport des deux distances tracé image par image. La vidéo est à charger manuellement.",
+        "file": "M1.3_reference.vn"
+      }
+    ]
+  }
+]
