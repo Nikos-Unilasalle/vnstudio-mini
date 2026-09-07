@@ -367,7 +367,7 @@ function App() {
     } catch (err) { console.error('Failed to capture plotter:', err); }
   }, []);
 
-  const { frame, setFrameSink, nodesData, nodesDataStore, pluginSchemas, isConnected, updateGraph, requestCapture, requestSnapshotToNode, setPreviewNode, lastCommands, notifications, dismissNotification, cancelNotification, retryInstall, pushNotification, requestPyExport, computingNodeId } = useVisionEngine(handleCapture);
+  const { frame, setFrameSink, setContinuous, nodesData, nodesDataStore, pluginSchemas, isConnected, updateGraph, requestCapture, requestSnapshotToNode, setPreviewNode, lastCommands, notifications, dismissNotification, cancelNotification, retryInstall, pushNotification, requestPyExport, computingNodeId } = useVisionEngine(handleCapture);
 
   const handlePopout = useCallback(async () => {
     const { WebviewWindow } = await import('@tauri-apps/api/webviewWindow');
@@ -817,6 +817,12 @@ function App() {
     }, 100);
     return () => clearTimeout(timer);
   }, [canvasNodes, canvasEdges, isConnected, updateGraph, inactiveEdgeIds, isRunning]);
+
+  // Start means "keep the engine ticking", not "run the graph once": webcams
+  // and stateful generators only make sense against a clock.
+  useEffect(() => {
+    setContinuous(isConnected && isRunning);
+  }, [isConnected, isRunning, setContinuous]);
 
   // Sync mainConnected flag on Display nodes from actual edges
   useEffect(() => {

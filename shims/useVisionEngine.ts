@@ -78,6 +78,19 @@ export function useVisionEngine(onCapture?: (nodeId: string, base64: string) => 
   const runTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isRunning = useRef(false)
   const runQueued = useRef(false)
+  /**
+   * Whether to keep running once the current pass finishes.
+   *
+   * The engine used to re-run only when the graph object changed, and a live
+   * graph kept ticking by accident: each result wrote node data back into React
+   * state, the canvas array was rebuilt, and the effect that calls updateGraph
+   * fired again. That made the frame rate a side effect of how much data
+   * happened to change — and it stopped dead the moment previews were throttled
+   * and the preview frame left React state. The loop is explicit now: while the
+   * user has pressed Start, the engine schedules its next pass itself.
+   */
+  const continuous = useRef(false)
+  const loopHandle = useRef<number | null>(null)
   const captureRequests = useRef<Set<string>>(new Set())
 
   const dismissNotification = useCallback((id: string) => {
@@ -186,8 +199,17 @@ export function useVisionEngine(onCapture?: (nodeId: string, base64: string) => 
     []
   )
 
+  const executeRef = useRef<(() => Promise<void>) | null>(null)
+
   const execute = useCallback(async () => {
     if (!workerRef.current) return
+
+    // A pass may have been requested by the loop and by a graph change at once;
+    // whoever gets here first cancels the other, so only one chain stays alive.
+    if (loopHandle.current !== null) {
+      cancelAnimationFrame(loopHandle.current)
+      loopHandle.current = null
+    }
 
     if (isRunning.current) {
       // A run is already in flight; remember that the graph moved under it.
@@ -232,9 +254,32 @@ export function useVisionEngine(onCapture?: (nodeId: string, base64: string) => 
       if (runQueued.current) {
         runQueued.current = false
         void execute()
+      } else if (continuous.current) {
+        // requestAnimationFrame rather than a timer: it paces the loop to the
+        // display and stops on its own while the tab is in the background.
+        loopHandle.current = requestAnimationFrame(() => {
+          loopHandle.current = null
+          void execute()
+        })
       }
     }
   }, [nodesDataStore, onCapture, pushNotification, runOnWorker])
+  executeRef.current = execute
+
+  /** Turns the free-running loop on or off; the Start button drives this. */
+  const setContinuous = useCallback((enabled: boolean) => {
+    continuous.current = enabled
+    if (!enabled && loopHandle.current !== null) {
+      cancelAnimationFrame(loopHandle.current)
+      loopHandle.current = null
+    }
+    if (enabled && !isRunning.current) void executeRef.current?.()
+  }, [])
+
+  // Nothing should keep animating after the hook goes away.
+  useEffect(() => () => {
+    if (loopHandle.current !== null) cancelAnimationFrame(loopHandle.current)
+  }, [])
 
   const scheduleRun = useCallback(() => {
     if (runTimer.current) clearTimeout(runTimer.current)
@@ -296,6 +341,7 @@ export function useVisionEngine(onCapture?: (nodeId: string, base64: string) => 
   return {
     frame,
     setFrameSink,
+    setContinuous,
     nodesData: nodesDataRef.current,
     nodesDataStore,
     pluginSchemas,
