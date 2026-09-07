@@ -86,7 +86,19 @@ self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
   if (message.textFiles) setTextFiles(message.textFiles)
 
   try {
-    const result = await executor.run(message.nodes, message.edges, message.previewNodeId, message.frames)
+    let result
+    try {
+      result = await executor.run(message.nodes, message.edges, message.previewNodeId, message.frames)
+    } finally {
+      // The captured frames were transferred in, so this worker owns them and
+      // nothing else will free them. An ImageBitmap holds its pixels outside
+      // the JavaScript heap, where the collector has no reason to hurry, so a
+      // webcam graph running thirty times a second was stacking up megabytes a
+      // second — including on the runs that fail, which is why this releases
+      // them whatever happened.
+      for (const frame of Object.values(message.frames ?? {})) frame.bitmap?.close()
+    }
+
     const transfer = result.frameBitmap ? [result.frameBitmap] : []
     try {
       post({ type: 'result', requestId: message.requestId, ...result }, transfer)

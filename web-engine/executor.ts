@@ -114,6 +114,31 @@ function topologicalOrder(nodes: GraphNode[], edges: GraphEdge[]): string[] {
  */
 const THUMBNAIL_EVERY = 6
 
+/** The pool `.roi()` headers are added to while a run is in flight. */
+let activePool: any[] | null = null
+
+/**
+ * Makes every `mat.roi(rect)` header join the run's cleanup pool.
+ *
+ * `roi` returns a Mat that shares its parent's pixels but is still an object
+ * the WASM heap has to be told about, and it is easy to orphan: the idiom
+ * `panel.copyTo(out.roi(rect))` never names the header, so nothing can free it.
+ * Forty-odd call sites across the port do exactly that, and at thirty frames a
+ * second a webcam graph turned that into hundreds of megabytes and then an
+ * allocation failure. Rather than trusting each site to remember, the headers
+ * are collected here and released with everything else after the next run.
+ */
+function poolRoiHeaders(cv: any): void {
+  if (cv.__roiPooled) return
+  const real = cv.Mat.prototype.roi
+  cv.Mat.prototype.roi = function (this: any, ...args: any[]) {
+    const view = real.apply(this, args)
+    if (activePool) activePool.push(view)
+    return view
+  }
+  cv.__roiPooled = true
+}
+
 export class GraphExecutor {
   private readonly cv: any
   /** Survives across runs: video elements, MediaPipe detectors, plot history. */
@@ -125,6 +150,7 @@ export class GraphExecutor {
 
   constructor(cv: any) {
     this.cv = cv
+    poolRoiHeaders(cv)
   }
 
   /** Frees the Mats allocated by the previous run — WASM heap is not garbage collected. */
@@ -170,6 +196,7 @@ export class GraphExecutor {
     this.releaseMats()
     this.pruneState(new Set(nodes.map((n) => n.id)))
     this.frameCount++
+    activePool = this.matPool
 
     const nodeById = new Map(nodes.map((n) => [n.id, n]))
     const outputsByNode = new Map<string, Record<string, unknown>>()
@@ -259,14 +286,20 @@ export class GraphExecutor {
 
     let frame: string | null = null
     let frameBitmap: ImageBitmap | null = null
-    if (previewNodeId) {
-      const outputs = outputsByNode.get(previewNodeId)
-      const image = outputs && (isMat(outputs.main) ? outputs.main : Object.values(outputs).find(isMat))
-      if (image) frameBitmap = matToImageBitmap(this.cv, image, 1280)
-      else {
-        const preview = nodesData[`${previewNodeId}:main_preview`]
-        if (typeof preview === 'string') frame = preview
+    try {
+      if (previewNodeId) {
+        const outputs = outputsByNode.get(previewNodeId)
+        const image = outputs && (isMat(outputs.main) ? outputs.main : Object.values(outputs).find(isMat))
+        if (image) frameBitmap = matToImageBitmap(this.cv, image, 1280)
+        else {
+          const preview = nodesData[`${previewNodeId}:main_preview`]
+          if (typeof preview === 'string') frame = preview
+        }
       }
+    } finally {
+      // Headers created outside a run would otherwise pile into a pool that is
+      // no longer being drained.
+      activePool = null
     }
 
     return { nodesData, frameBitmap, frame, errors }
