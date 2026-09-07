@@ -32,10 +32,29 @@ export type WorkerResponse =
   | { type: 'progress'; progress: number | null; message: string }
   | { type: 'ready' }
   | { type: 'load-error'; message: string }
-  | { type: 'result'; requestId: number; nodesData: Record<string, unknown>; frame: string | null; errors: Record<string, string> }
+  | {
+      type: 'result'
+      requestId: number
+      nodesData: Record<string, unknown>
+      /** Transferred, not copied; the main thread owns it and must close() it. */
+      frameBitmap: ImageBitmap | null
+      frame: string | null
+      errors: Record<string, string>
+    }
   | { type: 'run-error'; requestId: number; message: string }
   // A node asked to save a file; only the main thread has the DOM to do it.
   | { type: 'download'; filename: string; contents: string | ArrayBuffer; mime: string }
+
+/**
+ * `postMessage` with a transfer list.
+ *
+ * The ambient types here resolve the DOM's Window.postMessage rather than the
+ * worker's, whose second argument is the list of objects to move instead of
+ * copy — which is the whole point of sending the preview as an ImageBitmap.
+ */
+function post(message: WorkerResponse, transfer: Transferable[] = []): void {
+  ;(self as unknown as { postMessage: (m: WorkerResponse, t: Transferable[]) => void }).postMessage(message, transfer)
+}
 
 let executor: GraphExecutor | null = null
 
@@ -68,19 +87,22 @@ self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
 
   try {
     const result = await executor.run(message.nodes, message.edges, message.previewNodeId, message.frames)
+    const transfer = result.frameBitmap ? [result.frameBitmap] : []
     try {
-      postMessage({ type: 'result', requestId: message.requestId, ...result } satisfies WorkerResponse)
+      post({ type: 'result', requestId: message.requestId, ...result }, transfer)
     } catch {
       // Something in nodesData refused to clone. The executor screens for that,
       // but a node returning an exotic value must degrade to a frame without
-      // live data rather than killing the run.
-      postMessage({
+      // live data rather than killing the run. The bitmap is gone either way:
+      // a failed postMessage still detaches whatever was in the transfer list.
+      post({
         type: 'result',
         requestId: message.requestId,
         nodesData: {},
+        frameBitmap: null,
         frame: result.frame,
         errors: result.errors,
-      } satisfies WorkerResponse)
+      })
     }
   } catch (error) {
     const text = error instanceof Error ? error.message : String(error)

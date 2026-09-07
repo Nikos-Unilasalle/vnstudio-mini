@@ -41,6 +41,21 @@ function resolveInputPaths(nodes: GraphNode[]): GraphNode[] {
 
 export function useVisionEngine(onCapture?: (nodeId: string, base64: string) => void) {
   const [frame, setFrame] = useState<string | null>(null)
+
+  /**
+   * Where to paint the preview, registered by the widget that owns the canvas.
+   *
+   * The bitmap is deliberately not React state. It is a transferred handle to
+   * live pixels that has to be closed, and React renders when it chooses to —
+   * so a bitmap closed on the next frame could still be handed to an effect
+   * that ran late, which is exactly the "image source is detached" this hit.
+   * Handing it straight to a synchronous painter and closing it immediately
+   * removes the lifetime question altogether, and spares a re-render per frame.
+   */
+  const frameSinkRef = useRef<((bitmap: ImageBitmap) => void) | null>(null)
+  const setFrameSink = useCallback((sink: ((bitmap: ImageBitmap) => void) | null) => {
+    frameSinkRef.current = sink
+  }, [])
   const nodesDataStore = useMemo(() => createNodesDataStore(), [])
   const nodesDataRef = useRef<Record<string, any>>({})
   const [pluginSchemas, setPluginSchemas] = useState<any[]>([])
@@ -51,7 +66,7 @@ export function useVisionEngine(onCapture?: (nodeId: string, base64: string) => 
   const workerRef = useRef<Worker | null>(null)
   const mediaRef = useRef<MediaFrameSource>(new MediaFrameSource())
   const pendingRuns = useRef(
-    new Map<number, { resolve: (r: { nodesData: Record<string, unknown>; frame: string | null; errors: Record<string, string> }) => void; reject: (e: Error) => void }>()
+    new Map<number, { resolve: (r: { nodesData: Record<string, unknown>; frameBitmap: ImageBitmap | null; frame: string | null; errors: Record<string, string> }) => void; reject: (e: Error) => void }>()
   )
   const nextRequestId = useRef(1)
   // -1 forces the first run to carry the whole text store.
@@ -162,7 +177,7 @@ export function useVisionEngine(onCapture?: (nodeId: string, base64: string) => 
       const textFiles = version !== sentTextVersion.current ? snapshotTextFiles() : undefined
       sentTextVersion.current = version
 
-      return new Promise<{ nodesData: Record<string, unknown>; frame: string | null; errors: Record<string, string> }>((resolve, reject) => {
+      return new Promise<{ nodesData: Record<string, unknown>; frameBitmap: ImageBitmap | null; frame: string | null; errors: Record<string, string> }>((resolve, reject) => {
         pendingRuns.current.set(requestId, { resolve, reject })
         const request: WorkerRequest = { type: 'run', requestId, nodes, edges, previewNodeId, frames, textFiles }
         worker.postMessage(request, bitmaps)
@@ -189,6 +204,14 @@ export function useVisionEngine(onCapture?: (nodeId: string, base64: string) => 
 
       nodesDataRef.current = result.nodesData
       nodesDataStore._update(result.nodesData)
+      // A bitmap when the previewed node produced an image; otherwise the
+      // cached thumbnail string, for nodes that publish a preview without a Mat.
+      if (result.frameBitmap) {
+        // The sink paints synchronously, so the handle is finished with by the
+        // time this returns; with no widget mounted it is simply released.
+        frameSinkRef.current?.(result.frameBitmap)
+        result.frameBitmap.close()
+      }
       setFrame(result.frame ? `data:image/jpeg;base64,${result.frame}` : null)
 
       for (const nodeId of captureRequests.current) {
@@ -272,6 +295,7 @@ export function useVisionEngine(onCapture?: (nodeId: string, base64: string) => 
 
   return {
     frame,
+    setFrameSink,
     nodesData: nodesDataRef.current,
     nodesDataStore,
     pluginSchemas,

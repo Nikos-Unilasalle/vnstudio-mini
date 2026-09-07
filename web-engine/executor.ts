@@ -1,6 +1,6 @@
 import type { CapturedFrame, RunContext } from './types'
 import { getSchema, IMPLEMENTATIONS } from './registry'
-import { isMat, matToBase64 } from './cvUtils'
+import { isMat, matToBase64, matToImageBitmap } from './cvUtils'
 
 export interface GraphNode {
   id: string
@@ -18,7 +18,12 @@ export interface GraphEdge {
 export interface RunResult {
   /** Flat `${nodeId}:${field}` map, matching what the desktop engine publishes. */
   nodesData: Record<string, unknown>
-  /** Base64 JPEG of the preview node's image output, or null. */
+  /**
+   * The preview node's image, as a transferable bitmap. Null when that node has
+   * no Mat to show, in which case `frame` may carry a cached thumbnail instead.
+   */
+  frameBitmap: ImageBitmap | null
+  /** Base64 JPEG fallback, for nodes that publish a preview without a Mat. */
   frame: string | null
   errors: Record<string, string>
 }
@@ -253,16 +258,17 @@ export class GraphExecutor {
     }
 
     let frame: string | null = null
+    let frameBitmap: ImageBitmap | null = null
     if (previewNodeId) {
       const outputs = outputsByNode.get(previewNodeId)
       const image = outputs && (isMat(outputs.main) ? outputs.main : Object.values(outputs).find(isMat))
-      if (image) frame = await matToBase64(this.cv, image, 1280, 0.85)
+      if (image) frameBitmap = matToImageBitmap(this.cv, image, 1280)
       else {
         const preview = nodesData[`${previewNodeId}:main_preview`]
         if (typeof preview === 'string') frame = preview
       }
     }
 
-    return { nodesData, frame, errors }
+    return { nodesData, frameBitmap, frame, errors }
   }
 }

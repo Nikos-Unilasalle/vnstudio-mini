@@ -54,6 +54,35 @@ export function matToCanvas(cv: any, mat: any): OffscreenCanvas {
 }
 
 /** Base64 JPEG (no data: prefix) — the format the desktop engine publishes previews in. */
+/**
+ * The Mat as an ImageBitmap, downscaled to `maxWidth`, ready to be transferred.
+ *
+ * The main preview used to travel as a base64 JPEG: encode, base64-encode, then
+ * structured-clone a string of a few hundred kilobytes, every frame. An
+ * ImageBitmap is a transferable — it moves to the main thread without a copy,
+ * and no encoder runs at all. The caller owns the result and must close() it.
+ */
+export function matToImageBitmap(cv: any, mat: any, maxWidth = 1280): ImageBitmap {
+  const { display, temp } = toDisplayable8(cv, mat)
+  let source = display
+  let scaled: any = null
+  if (display.cols > maxWidth) {
+    const height = Math.max(1, Math.round((display.rows * maxWidth) / display.cols))
+    scaled = new cv.Mat()
+    cv.resize(display, scaled, new cv.Size(maxWidth, height), 0, 0, cv.INTER_AREA)
+    source = scaled
+  }
+  try {
+    const canvas = makeCanvas(source.cols, source.rows)
+    drawMatToCanvas(cv, canvas, source)
+    // Hands the pixels over and leaves the canvas blank; nothing is copied.
+    return canvas.transferToImageBitmap()
+  } finally {
+    if (scaled) scaled.delete()
+    if (temp) temp.delete()
+  }
+}
+
 export async function matToBase64(cv: any, mat: any, maxWidth = 480, quality = 0.75): Promise<string> {
   // Downscale in WASM rather than on a canvas. The obvious version paints the
   // Mat at full size and then blits it into a second, smaller canvas — two

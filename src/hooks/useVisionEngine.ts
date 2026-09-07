@@ -11,6 +11,10 @@ export type EngineNotification = {
 
 export function useVisionEngine(onCapture?: (nodeId: string, base64: string) => void) {
   const [frame, setFrame] = useState<string | null>(null);
+  // The desktop engine sends JPEG frames over the socket and has no bitmap to
+  // hand to the preview canvas; the web build's shim does. Registering a sink
+  // here is a no-op so the widget can stay identical across both builds.
+  const setFrameSink = (_sink: ((bitmap: ImageBitmap) => void) | null) => {};
   const nodesDataStore = useMemo(() => createNodesDataStore(), []);
   // Legacy flat nodesData ref for App.tsx inspector and other direct consumers
   const nodesDataRef = useRef<Record<string, any>>({});
@@ -219,5 +223,5 @@ export function useVisionEngine(onCapture?: (nodeId: string, base64: string) => 
     dismissNotification(notifId);
   }, []);
 
-  return { frame, nodesData: nodesDataRef.current, nodesDataStore, pluginSchemas, isConnected, updateGraph, requestCapture, requestSnapshotToNode, setPreviewNode, lastCommands, notifications, dismissNotification, cancelNotification, retryInstall, pushNotification, requestPyExport, computingNodeId };
+  return { frame, setFrameSink, nodesData: nodesDataRef.current, nodesDataStore, pluginSchemas, isConnected, updateGraph, requestCapture, requestSnapshotToNode, setPreviewNode, lastCommands, notifications, dismissNotification, cancelNotification, retryInstall, pushNotification, requestPyExport, computingNodeId };
 }

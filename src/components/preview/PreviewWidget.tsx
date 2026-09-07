@@ -1,9 +1,10 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { ExternalLink, Minimize2 } from 'lucide-react';
 
 interface PreviewWidgetProps {
   frame: string | null;
+  setFrameSink: (sink: ((bitmap: ImageBitmap) => void) | null) => void;
   previewSize: { w: number; h: number };
   previewPos: { x: number; y: number };
   previewZoom: number;
@@ -27,11 +28,54 @@ interface PreviewWidgetProps {
 }
 
 const PreviewWidget: React.FC<PreviewWidgetProps> = ({
-  frame, previewSize, previewPos, previewZoom, previewPan, previewPopped,
+  frame, setFrameSink, previewSize, previewPos, previewZoom, previewPan, previewPopped,
   pickColorNodeId, pickColorParamKey, setPreviewPos, setPreviewZoom, setPreviewPan, setPreviewSize,
   previewZoomRef, previewAspect, previewResizeRef, handlePopout, handleBringBack,
   updateNodeParams, setPickColorNodeId, isPanning, panStart,
 }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  /** Draws onto the one canvas and keeps the panel's aspect ratio in step. */
+  const paint = (source: CanvasImageSource, width: number, height: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas || !width || !height) return;
+    if (canvas.width !== width || canvas.height !== height) {
+      canvas.width = width;
+      canvas.height = height;
+    }
+    const context = canvas.getContext('2d');
+    if (!context) return;
+    context.drawImage(source, 0, 0);
+
+    const aspect = width / height;
+    if (Math.abs(aspect - previewAspect.current) > 0.02) {
+      previewAspect.current = aspect;
+      setPreviewSize((prev: { w: number; h: number }) => ({ w: prev.w, h: Math.round(prev.w / aspect) }));
+    }
+  };
+  const paintRef = useRef(paint);
+  paintRef.current = paint;
+
+  /**
+   * The engine hands each preview straight to this painter and closes it right
+   * after, so the drawing has to happen synchronously — no state, no effect
+   * scheduling, and no chance of reaching for a bitmap that has been released.
+   */
+  useEffect(() => {
+    setFrameSink((bitmap) => paintRef.current(bitmap, bitmap.width, bitmap.height));
+    return () => setFrameSink(null);
+  }, [setFrameSink]);
+
+  /** The data-URL fallback, for nodes that publish a preview without a Mat. */
+  useEffect(() => {
+    if (!frame) return;
+    const image = new Image();
+    let cancelled = false;
+    image.onload = () => { if (!cancelled) paintRef.current(image, image.naturalWidth, image.naturalHeight); };
+    image.src = frame;
+    return () => { cancelled = true; };
+  }, [frame]);
+
   if (previewPopped) {
     return (
       <button
@@ -96,19 +140,11 @@ const PreviewWidget: React.FC<PreviewWidgetProps> = ({
       className="absolute bottom-6 left-[49px] bg-black border-2 border-[#4f5b6b] rounded-3xl shadow-2xl overflow-hidden z-20 group hover:border-accent transition-colors duration-300"
       style={{ width: previewSize.w, height: previewSize.h }}
     >
-      {frame && <img src={frame} alt="Vision"
+      <canvas
+        ref={canvasRef}
         className="w-full h-full object-contain pointer-events-none"
         style={{ transform: `translate(${previewPan.x}px, ${previewPan.y}px) scale(${previewZoom})`, transformOrigin: 'center' }}
-        onLoad={(e) => {
-          const img = e.currentTarget;
-          if (img.naturalWidth && img.naturalHeight) {
-            const newAspect = img.naturalWidth / img.naturalHeight;
-            if (Math.abs(newAspect - previewAspect.current) > 0.02) {
-              previewAspect.current = newAspect;
-              setPreviewSize((prev: { w: number; h: number }) => ({ w: prev.w, h: Math.round(prev.w / newAspect) }));
-            }
-          }
-        }} />}
+      />
       {previewZoom !== 1 && (
         <div className="absolute top-2 left-2 bg-black/60 text-white text-[9px] font-black px-2 py-1 rounded-lg pointer-events-none">
           {Math.round(previewZoom * 100)}%
@@ -128,19 +164,17 @@ const PreviewWidget: React.FC<PreviewWidgetProps> = ({
           className="absolute inset-0 z-30"
           style={{ cursor: 'crosshair' }}
           onClick={(e) => {
-            const container = e.currentTarget.parentElement!;
-            const imgEl = container.querySelector('img') as HTMLImageElement | null;
-            if (!imgEl || !frame) return;
-            const rect = imgEl.getBoundingClientRect();
+            // The pixels are already on our canvas, so the picker reads them
+            // straight off it instead of copying the image somewhere first.
+            const canvas = canvasRef.current;
+            if (!canvas || !canvas.width) return;
+            const rect = canvas.getBoundingClientRect();
             const px = e.clientX - rect.left;
             const py = e.clientY - rect.top;
-            const canvas = document.createElement('canvas');
-            canvas.width = imgEl.naturalWidth;
-            canvas.height = imgEl.naturalHeight;
-            const ctx = canvas.getContext('2d')!;
-            ctx.drawImage(imgEl, 0, 0);
-            const scaleX = imgEl.naturalWidth / rect.width;
-            const scaleY = imgEl.naturalHeight / rect.height;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
             const [r, g, b] = ctx.getImageData(Math.floor(px * scaleX), Math.floor(py * scaleY), 1, 1).data;
             const hex = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase();
             updateNodeParams(pickColorNodeId, { [pickColorParamKey]: hex });
