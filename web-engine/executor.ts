@@ -98,11 +98,25 @@ function topologicalOrder(nodes: GraphNode[], edges: GraphEdge[]): string[] {
   return order
 }
 
+/**
+ * How often a node's thumbnail is re-encoded, in frames.
+ *
+ * Encoding one costs about as much as the whole rest of a node's work, and a
+ * graph with a dozen image nodes was spending five times longer making
+ * thumbnails than computing anything. The desktop engine throttles the same way
+ * (its nodes re-encode on `_frame_count % 6`), and a thumbnail refreshing five
+ * times a second reads as live. The node being previewed full size is exempt.
+ */
+const THUMBNAIL_EVERY = 6
+
 export class GraphExecutor {
   private readonly cv: any
   /** Survives across runs: video elements, MediaPipe detectors, plot history. */
   private readonly nodeState = new Map<string, any>()
   private matPool: any[] = []
+  /** Last thumbnail per node, republished on the frames we skip re-encoding. */
+  private thumbnails = new Map<string, string>()
+  private frameCount = 0
 
   constructor(cv: any) {
     this.cv = cv
@@ -137,6 +151,9 @@ export class GraphExecutor {
       if (value?.stream) for (const track of value.stream.getTracks()) track.stop()
       this.nodeState.delete(key)
     }
+    for (const nodeId of [...this.thumbnails.keys()]) {
+      if (!liveIds.has(nodeId)) this.thumbnails.delete(nodeId)
+    }
   }
 
   async run(
@@ -147,13 +164,16 @@ export class GraphExecutor {
   ): Promise<RunResult> {
     this.releaseMats()
     this.pruneState(new Set(nodes.map((n) => n.id)))
+    this.frameCount++
 
     const nodeById = new Map(nodes.map((n) => [n.id, n]))
     const outputsByNode = new Map<string, Record<string, unknown>>()
     const nodesData: Record<string, unknown> = {}
     const errors: Record<string, string> = {}
 
-    for (const nodeId of topologicalOrder(nodes, edges)) {
+    const order = topologicalOrder(nodes, edges)
+    for (let index = 0; index < order.length; index++) {
+      const nodeId = order[index]
       const node = nodeById.get(nodeId)!
       const implementation = IMPLEMENTATIONS[node.type]
       if (!implementation) continue
@@ -206,7 +226,17 @@ export class GraphExecutor {
 
         const main = outputs.main
         if (isMat(main)) {
-          setPreview(await matToBase64(this.cv, main))
+          const cached = this.thumbnails.get(nodeId)
+          // Nodes are staggered by their position in the order, so the cost is
+          // spread across frames instead of landing on one of them.
+          const due = cached === undefined || (this.frameCount + index) % THUMBNAIL_EVERY === 0
+          if (due || nodeId === previewNodeId) {
+            const encoded = await matToBase64(this.cv, main)
+            this.thumbnails.set(nodeId, encoded)
+            setPreview(encoded)
+          } else {
+            setPreview(cached)
+          }
         }
         for (const [port, value] of Object.entries(outputs)) {
           // Primitives always; structures only when they can survive the clone

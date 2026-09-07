@@ -24,22 +24,30 @@ export function toGray(cv: any, src: any): any {
 }
 
 /** Renders a Mat to a canvas, normalising channel count and depth first. */
+/**
+ * An 8-bit view of `mat`, scaled from its own range when it is not already one.
+ *
+ * Float maps (distance transforms) and 32-bit label maps have to be brought
+ * into 0-255 before anything can display — or resize them, since cv.resize has
+ * no CV_32S path at all and would throw on a watershed's output.
+ *
+ * Returns the Mat to use and, when a conversion happened, the temporary to free.
+ */
+function toDisplayable8(cv: any, mat: any): { display: any; temp: any } {
+  if (mat.type() === cv.CV_8UC1 || mat.type() === cv.CV_8UC3 || mat.type() === cv.CV_8UC4) {
+    return { display: mat, temp: null }
+  }
+  const normalised = new cv.Mat()
+  cv.normalize(mat, normalised, 0, 255, cv.NORM_MINMAX)
+  const converted = new cv.Mat()
+  normalised.convertTo(converted, cv.CV_8U)
+  normalised.delete()
+  return { display: converted, temp: converted }
+}
+
 export function matToCanvas(cv: any, mat: any): OffscreenCanvas {
   const canvas = makeCanvas(mat.cols, mat.rows)
-
-  // 8-bit only beyond this point; float maps (distance transforms) need scaling first.
-  let display = mat
-  let temp: any = null
-  if (mat.type() !== cv.CV_8UC1 && mat.type() !== cv.CV_8UC3 && mat.type() !== cv.CV_8UC4) {
-    temp = new cv.Mat()
-    cv.normalize(mat, temp, 0, 255, cv.NORM_MINMAX)
-    const converted = new cv.Mat()
-    temp.convertTo(converted, cv.CV_8U)
-    temp.delete()
-    temp = converted
-    display = converted
-  }
-
+  const { display, temp } = toDisplayable8(cv, mat)
   drawMatToCanvas(cv, canvas, display)
   if (temp) temp.delete()
   return canvas
@@ -47,14 +55,28 @@ export function matToCanvas(cv: any, mat: any): OffscreenCanvas {
 
 /** Base64 JPEG (no data: prefix) — the format the desktop engine publishes previews in. */
 export async function matToBase64(cv: any, mat: any, maxWidth = 480, quality = 0.75): Promise<string> {
-  const full = matToCanvas(cv, mat)
-  if (full.width <= maxWidth) {
-    return canvasToBase64(full, quality)
+  // Downscale in WASM rather than on a canvas. The obvious version paints the
+  // Mat at full size and then blits it into a second, smaller canvas — two
+  // allocations and a scaling blit per thumbnail, which measured at roughly
+  // twice the cost of the JPEG encode itself. cv.resize on the Mat means one
+  // canvas, at the size we actually want.
+  if (mat.cols <= maxWidth) {
+    return canvasToBase64(matToCanvas(cv, mat), quality)
   }
-  const scaledHeight = Math.max(1, Math.round((full.height * maxWidth) / full.width))
-  const scaled = makeCanvas(maxWidth, scaledHeight)
-  scaled.getContext('2d')!.drawImage(full, 0, 0, scaled.width, scaled.height)
-  return canvasToBase64(scaled, quality)
+  // The 8-bit conversion comes first: resize has no CV_32S path, so a label map
+  // would throw if it were shrunk before being brought into range.
+  const { display, temp } = toDisplayable8(cv, mat)
+  const height = Math.max(1, Math.round((display.rows * maxWidth) / display.cols))
+  const small = new cv.Mat()
+  cv.resize(display, small, new cv.Size(maxWidth, height), 0, 0, cv.INTER_AREA)
+  try {
+    const canvas = makeCanvas(small.cols, small.rows)
+    drawMatToCanvas(cv, canvas, small)
+    return await canvasToBase64(canvas, quality)
+  } finally {
+    small.delete()
+    if (temp) temp.delete()
+  }
 }
 
 /**

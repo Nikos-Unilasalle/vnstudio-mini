@@ -1,5 +1,5 @@
 import type { NodeImpl } from '../types'
-import { getFaceLandmarker, getHandLandmarker, getObjectDetector, getPoseLandmarker } from '../mediapipe'
+import { detectOnVideo, getFaceLandmarker, getHandLandmarker, getObjectDetector, getPoseLandmarker } from '../mediapipe'
 import { toBgr } from '../cvUtils'
 import { makeCanvas, drawMatToCanvas } from '../canvasCompat'
 
@@ -44,7 +44,7 @@ export const analysisFaceMp: NodeImpl = async (inputs, params, ctx) => {
 
   const canvas = matToCanvasRgba(ctx.cv, image)
   const landmarker = await getFaceLandmarker(Math.max(1, Number(params.max_faces) || 3))
-  const result = landmarker.detect(canvas)
+  const result = detectOnVideo(landmarker, canvas)
   const detected: { x: number; y: number; z: number }[][] = result.faceLandmarks ?? []
 
   const faces = detected.map((landmarks) => ({
@@ -71,7 +71,7 @@ export const analysisHandMp: NodeImpl = async (inputs, params, ctx) => {
 
   const canvas = matToCanvasRgba(ctx.cv, image)
   const landmarker = await getHandLandmarker(Math.max(1, Number(params.max_hands) || 2))
-  const result = landmarker.detect(canvas)
+  const result = detectOnVideo(landmarker, canvas)
   const detected: { x: number; y: number; z: number }[][] = result.landmarks ?? []
 
   const hands = detected.map((landmarks, i) => ({
@@ -96,7 +96,7 @@ export const analysisPoseMp: NodeImpl = async (inputs, _params, ctx) => {
 
   const canvas = matToCanvasRgba(ctx.cv, image)
   const landmarker = await getPoseLandmarker(1)
-  const result = landmarker.detect(canvas)
+  const result = detectOnVideo(landmarker, canvas)
   const detected: { x: number; y: number; z: number; visibility?: number }[][] = result.landmarks ?? []
 
   const poses = detected.map((landmarks) => ({
@@ -135,7 +135,7 @@ export const analysisObjectMp: NodeImpl = async (inputs, params, ctx) => {
 
   const canvas = matToCanvasRgba(ctx.cv, image)
   const detector = await getObjectDetector(scoreThreshold, maxResults)
-  const result = detector.detect(canvas)
+  const result = detectOnVideo(detector, canvas)
   const detections: { boundingBox: { originX: number; originY: number; width: number; height: number }; categories: { categoryName: string; score: number }[] }[] = result.detections ?? []
 
   const w = canvas.width

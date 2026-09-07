@@ -25,6 +25,28 @@ function loadVisionModule(): Promise<any> {
 
 const detectors = new Map<string, Promise<any>>()
 
+/**
+ * Last timestamp handed to each detector.
+ *
+ * The VIDEO running mode tracks landmarks from one frame to the next instead of
+ * detecting from scratch, which is what a webcam graph wants — but it demands
+ * strictly increasing timestamps, and it throws if two calls share one. A graph
+ * can hold two nodes that resolve to the same cached detector, so the counter
+ * lives with the detector rather than with the caller.
+ */
+const timestamps = new WeakMap<object, number>()
+
+/**
+ * Runs a detector in VIDEO mode on `canvas`, with a timestamp guaranteed to be
+ * ahead of the previous one for that detector.
+ */
+export function detectOnVideo(detector: any, canvas: unknown): any {
+  const previous = timestamps.get(detector) ?? 0
+  const now = Math.max(previous + 1, Math.round(performance.now()))
+  timestamps.set(detector, now)
+  return detector.detectForVideo(canvas, now)
+}
+
 export async function getFaceLandmarker(numFaces: number): Promise<any> {
   const key = `face:${numFaces}`
   let pending = detectors.get(key)
@@ -35,7 +57,7 @@ export async function getFaceLandmarker(numFaces: number): Promise<any> {
     const fileset = await FilesetResolver.forVisionTasks(WASM_ROOT)
     return FaceLandmarker.createFromOptions(fileset, {
       baseOptions: { modelAssetPath: FACE_MODEL },
-      runningMode: 'IMAGE',
+      runningMode: 'VIDEO',
       numFaces,
     })
   })()
@@ -53,7 +75,7 @@ export async function getHandLandmarker(numHands: number): Promise<any> {
     const fileset = await FilesetResolver.forVisionTasks(WASM_ROOT)
     return HandLandmarker.createFromOptions(fileset, {
       baseOptions: { modelAssetPath: HAND_MODEL },
-      runningMode: 'IMAGE',
+      runningMode: 'VIDEO',
       numHands,
     })
   })()
@@ -71,7 +93,7 @@ export async function getPoseLandmarker(numPoses: number): Promise<any> {
     const fileset = await FilesetResolver.forVisionTasks(WASM_ROOT)
     return PoseLandmarker.createFromOptions(fileset, {
       baseOptions: { modelAssetPath: POSE_MODEL },
-      runningMode: 'IMAGE',
+      runningMode: 'VIDEO',
       numPoses,
     })
   })()
@@ -89,7 +111,7 @@ export async function getObjectDetector(scoreThreshold: number, maxResults: numb
     const fileset = await FilesetResolver.forVisionTasks(WASM_ROOT)
     return ObjectDetector.createFromOptions(fileset, {
       baseOptions: { modelAssetPath: OBJECT_MODEL },
-      runningMode: 'IMAGE',
+      runningMode: 'VIDEO',
       scoreThreshold,
       maxResults,
     })
