@@ -20,6 +20,7 @@ export interface StacItem {
   cloudCover: number | null
   orbitState: string | null
   assets: Record<string, { href: string }>
+  properties: Record<string, unknown>
 }
 
 interface SasToken {
@@ -84,6 +85,7 @@ export async function searchStac(options: SearchOptions): Promise<StacItem[]> {
         : null,
     orbitState: feature.properties?.['sat:orbit_state'] ?? null,
     assets: feature.assets ?? {},
+    properties: feature.properties ?? {},
   }))
 
   if (options.orbit) {
@@ -267,6 +269,13 @@ export interface StacFetchOptions extends SearchOptions {
   categorical: boolean
   maxScenes: number
   method: 'median' | 'mean' | 'first' | 'min' | 'max'
+  /**
+   * Per-scene conversion from stored counts to physical units. It has to be per
+   * scene, not per collection: Sentinel-2's harmonisation offset changed with
+   * the processing baseline, so two scenes of the same tile a year apart need
+   * different arithmetic before they can be composited together.
+   */
+  rescale?: (item: StacItem) => { scale: number; offset: number } | null
   onProgress?: (fraction: number, message: string) => void
 }
 
@@ -302,7 +311,15 @@ export async function fetchStac(options: StacFetchOptions): Promise<StacResult> 
       if (!asset?.href) continue
       try {
         const source = await readCogWindow(signed(asset.href, token), grid)
-        if (source) layers.push(warpToGrid(source, grid, options.categorical))
+        if (!source) continue
+        const layer = warpToGrid(source, grid, options.categorical)
+        const conversion = options.rescale?.(scene)
+        if (conversion) {
+          for (let i = 0; i < layer.length; i++) {
+            layer[i] = (layer[i] + conversion.offset) * conversion.scale
+          }
+        }
+        layers.push(layer)
       } catch (error) {
         // One unreachable scene should not sink a composite built from many,
         // but a silent skip would make a whole-collection failure look empty.

@@ -44,6 +44,12 @@ interface Collection {
   mosaickingOrder?: 'leastCC' | 'mostRecent'
   /** Sentinel Hub only: which Copernicus DEM to serve under the shared `dem` type. */
   demInstance?: 'COPERNICUS_30' | 'COPERNICUS_90'
+  /**
+   * Named conversion from the archive's stored integers to physical units.
+   * Sentinel Hub already returns reflectance; Planetary Computer returns the
+   * raw counts, and every threshold downstream is written in reflectance.
+   */
+  rescale?: 'sentinel2-sr'
 }
 
 const WORLDCOVER_PALETTE: Record<number, [number, number, number]> = {
@@ -67,7 +73,7 @@ const IO_LULC_PALETTE: Record<number, [number, number, number]> = {
 const COLLECTIONS: Record<string, Collection> = {
   'Sentinel-2 L2A': {
     backend: 'sh', source: 'sentinel-2-l2a',
-    bands: ['B04', 'B03', 'B02', 'B08'], rgb: [0, 1, 2],
+    bands: ['B04', 'B03', 'B02', 'B08', 'B11', 'B12'], rgb: [0, 1, 2],
     cloudFilter: true, categorical: false, ignoreDate: false, units: 'REFLECTANCE',
     mosaickingOrder: 'leastCC',
   },
@@ -110,9 +116,11 @@ const COLLECTIONS: Record<string, Collection> = {
   },
   'Sentinel-2 L2A (Planetary)': {
     backend: 'stac', source: 'sentinel-2-l2a',
-    bands: ['B04', 'B03', 'B02', 'B08', 'B11'],
-    assetKeys: ['B04', 'B03', 'B02', 'B08', 'B11'], rgb: [0, 1, 2],
-    cloudFilter: true, categorical: false, ignoreDate: false,
+    // Same six bands, in the same order, as the CDSE entry above, so a graph can
+    // be pointed at either backend without rewriting a single band index.
+    bands: ['B04', 'B03', 'B02', 'B08', 'B11', 'B12'],
+    assetKeys: ['B04', 'B03', 'B02', 'B08', 'B11', 'B12'], rgb: [0, 1, 2],
+    cloudFilter: true, categorical: false, ignoreDate: false, rescale: 'sentinel2-sr',
   },
   'Copernicus DEM GLO-30 (Planetary)': {
     backend: 'stac', source: 'cop-dem-glo-30',
@@ -155,6 +163,20 @@ const COLLECTIONS: Record<string, Collection> = {
 }
 
 const COLLECTION_NAMES = Object.keys(COLLECTIONS)
+
+/**
+ * Sentinel-2 surface reflectance from stored counts.
+ *
+ * Processing baseline 04.00 (January 2022) added a −1000 offset to every band so
+ * that near-zero reflectances could stay positive integers. Ignoring it inflates
+ * every value by 0.1 — enough, on its own, to push clear water past a 0.12 NIR
+ * ceiling and empty a water mask without any node reporting a problem.
+ */
+function sentinel2Rescale(item: { properties: Record<string, unknown> }): { scale: number; offset: number } {
+  const baseline = Number(String(item.properties['s2:processing_baseline'] ?? '0'))
+  const offset = Number.isFinite(baseline) && baseline >= 4 ? -1000 : 0
+  return { scale: 1 / 10000, offset }
+}
 
 /* ---------------------------------------------------------------- helpers */
 
@@ -289,6 +311,7 @@ async function runQuery(query: Query, ctx: RunContext): Promise<{ raster: GeoRas
     categorical: collection.categorical,
     maxScenes: query.maxScenes,
     method: query.method,
+    rescale: collection.rescale === 'sentinel2-sr' ? sentinel2Rescale : undefined,
     onProgress: report,
   })
 
