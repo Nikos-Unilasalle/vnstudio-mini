@@ -1,6 +1,7 @@
 import type { NodeImpl } from '../types'
 import { drawPolyline, toBgr, toGray } from '../cvUtils'
 import { applyColormap, COLORMAPS } from '../colormaps'
+import { drawCaption, forDisplay, MASK_COLOURS } from '../overlay'
 
 function hexToBgr(hex: string, fallback: [number, number, number] = [255, 255, 255]): [number, number, number] {
   const m = /^#?([0-9a-f]{6})$/i.exec(String(hex ?? ''))
@@ -829,9 +830,9 @@ export const sciMaskMetrics: NodeImpl = (inputs, params, ctx) => {
       const p = pData[i] > 127
       const t = tData[i] > 127
       let color: [number, number, number] | null = null
-      if (p && t) color = [0, 200, 0]
-      else if (p && !t) color = [0, 0, 220]
-      else if (!p && t) color = [200, 0, 0]
+      if (p && t) color = MASK_COLOURS.match
+      else if (p && !t) color = MASK_COLOURS.falsePositive
+      else if (!p && t) color = MASK_COLOURS.falseNegative
       if (color) {
         overlayData[px] = Math.round(baseData[px] * (1 - alpha) + color[0] * alpha)
         overlayData[px + 1] = Math.round(baseData[px + 1] * (1 - alpha) + color[1] * alpha)
@@ -840,13 +841,23 @@ export const sciMaskMetrics: NodeImpl = (inputs, params, ctx) => {
     }
   }
 
-  putLines(cv, overlay, [`IoU=${iou.toFixed(3)}  Dice=${dice.toFixed(3)}`, `P=${precision.toFixed(3)}  R=${recall.toFixed(3)}  F1=${f1.toFixed(3)}`, `VP=${vp}  FP=${fp}  FN=${fn}`], 8, 22, 18, 0.45, [255, 255, 255])
-  putLines(cv, overlay, ['VP'], 8, H - 38, 0, 0.4, [0, 200, 0])
-  putLines(cv, overlay, ['FP'], 32, H - 38, 0, 0.4, [0, 0, 220])
-  putLines(cv, overlay, ['FN'], 56, H - 38, 0, 0.4, [200, 0, 0])
+  const shown = forDisplay(cv, overlay, ctx.track)
+  drawCaption(cv, shown, {
+    headline: `IoU ${iou.toFixed(3)}`,
+    lines: [
+      `Dice ${dice.toFixed(3)}   F1 ${f1.toFixed(3)}`,
+      `P ${precision.toFixed(3)}   R ${recall.toFixed(3)}`,
+    ],
+    // The counts ride on the colour key rather than taking a line of their own.
+    legend: [
+      { label: `VP ${vp}`, color: MASK_COLOURS.match },
+      { label: `FP ${fp}`, color: MASK_COLOURS.falsePositive },
+      { label: `FN ${fn}`, color: MASK_COLOURS.falseNegative },
+    ],
+  })
 
   const data = { iou: round4(iou), dice: round4(dice), precision: round4(precision), recall: round4(recall), f1: round4(f1), vp, fp, fn }
-  return { main: overlay, data, iou: round4(iou), dice: round4(dice) }
+  return { main: shown, data, iou: round4(iou), dice: round4(dice) }
 }
 
 function round4(v: number): number {

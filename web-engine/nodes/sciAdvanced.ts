@@ -1,6 +1,7 @@
 import type { NodeImpl } from '../types'
 import { drawArrowedLine, toBgr, toGray } from '../cvUtils'
 import { applyColormap, COLORMAPS } from '../colormaps'
+import { drawCaption, forDisplay, MASK_COLOURS } from '../overlay'
 
 function putLines(cv: any, mat: any, lines: string[], x: number, y0: number, dy: number, scale: number, color: [number, number, number]): void {
   const c = new cv.Scalar(color[0], color[1], color[2], 255)
@@ -363,23 +364,34 @@ export const sciBoundaryF1: NodeImpl = (inputs, params, ctx) => {
   const matchedDrawData = matchedDraw.data as Uint8Array
   for (let i = 0, p = 0; i < truthDrawData.length; i++, p += 3) {
     if (truthDrawData[i] > 0) {
-      overlayData[p] = 0; overlayData[p + 1] = 140; overlayData[p + 2] = 255
+      overlayData[p] = MASK_COLOURS.truth[0]
+      overlayData[p + 1] = MASK_COLOURS.truth[1]
+      overlayData[p + 2] = MASK_COLOURS.truth[2]
     }
     if (predDrawData[i] > 0) {
-      overlayData[p] = 200; overlayData[p + 1] = 200; overlayData[p + 2] = 0
+      overlayData[p] = MASK_COLOURS.prediction[0]
+      overlayData[p + 1] = MASK_COLOURS.prediction[1]
+      overlayData[p + 2] = MASK_COLOURS.prediction[2]
     }
     if (matchedDrawData[i] > 0) {
-      overlayData[p] = 0; overlayData[p + 1] = 200; overlayData[p + 2] = 0
+      overlayData[p] = MASK_COLOURS.match[0]
+      overlayData[p + 1] = MASK_COLOURS.match[1]
+      overlayData[p + 2] = MASK_COLOURS.match[2]
     }
   }
 
-  const label = `BF=${bf.toFixed(3)}  IoU=${iou.toFixed(3)}  P_c=${pC.toFixed(3)}  R_c=${rC.toFixed(3)}  tol=${tol}px`
-  putLines(cv, overlay, [label], 8, 20, 0, 0.45, [255, 255, 255])
-  putLines(cv, overlay, ['pred'], 8, H - 36, 0, 0.38, [200, 200, 0])
-  putLines(cv, overlay, ['truth'], 42, H - 36, 0, 0.38, [0, 140, 255])
-  putLines(cv, overlay, ['match'], 82, H - 36, 0, 0.38, [0, 200, 0])
+  const shown = forDisplay(cv, overlay, ctx.track)
+  drawCaption(cv, shown, {
+    headline: `BF ${bf.toFixed(3)}`,
+    lines: [`IoU ${iou.toFixed(3)}   tol ${tol}px`, `P ${pC.toFixed(3)}   R ${rC.toFixed(3)}`],
+    legend: [
+      { label: 'pred', color: MASK_COLOURS.prediction },
+      { label: 'truth', color: MASK_COLOURS.truth },
+      { label: 'match', color: MASK_COLOURS.match },
+    ],
+  })
 
-  return { main: overlay, boundary_f1: Number(bf.toFixed(4)), precision: Number(pC.toFixed(4)), recall: Number(rC.toFixed(4)), iou: Number(iou.toFixed(4)) }
+  return { main: shown, boundary_f1: Number(bf.toFixed(4)), precision: Number(pC.toFixed(4)), recall: Number(rC.toFixed(4)), iou: Number(iou.toFixed(4)) }
 }
 
 // ---------------------------------------------------------------------------
