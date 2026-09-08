@@ -405,7 +405,9 @@ export const SUPPORTED_TYPES = [
   'pbr_material_gen',
   'tool_annotator',
 
-  // rasters géoréférencés : lecture et calcul (les sources satellite restent desktop)
+  // rasters géoréférencés : sources distantes, lecture et calcul
+  'geo_copernicus',
+  'geo_land_cover',
   'geo_bbox',
   'geo_geotiff_reader',
   'geotiff_to_mask',

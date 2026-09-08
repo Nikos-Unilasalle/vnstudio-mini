@@ -15,6 +15,23 @@
 import { readFileSync, writeFileSync } from 'node:fs'
 import { SUPPORTED_TYPES } from '../web-engine/supported.mjs'
 
+/**
+ * Parameters the browser build cannot honour, removed so the panel never offers
+ * a control that does nothing. Credentials are the important case: leaving them
+ * as graph parameters would write a user's Copernicus secret into every `.vn`
+ * file they share. The web node reads them from the local key vault instead.
+ */
+const DROPPED_PARAMS = {
+  geo_copernicus: [
+    'client_id', 'client_secret',      // live in ~/.vnstudio/secrets.json, not the graph
+    '_sec_download', 'max_tile_px', 'cache_dir',  // no disk cache, no tiled downloader
+    'mosaic_mode',                     // CLOUD_FREE mosaicking is not implemented
+    'stac_to_db',                      // decided by the collection, not the user
+    'stac_scene_timeout', 'stac_min_ok',  // fetch is a single awaited request here
+  ],
+  geo_land_cover: ['gcp_project'],     // Earth Engine is unreachable; the data comes from STAC
+}
+
 const source = process.argv[2] ?? '/tmp/all_schemas.json'
 const all = JSON.parse(readFileSync(source, 'utf8'))
 const bySupported = new Map(all.filter((s) => SUPPORTED_TYPES.includes(s.type)).map((s) => [s.type, s]))
@@ -25,6 +42,11 @@ if (missing.length > 0) {
   process.exit(1)
 }
 
-const ordered = SUPPORTED_TYPES.map((t) => bySupported.get(t))
+const ordered = SUPPORTED_TYPES.map((t) => {
+  const schema = bySupported.get(t)
+  const dropped = DROPPED_PARAMS[t]
+  if (!dropped || !Array.isArray(schema.params)) return schema
+  return { ...schema, params: schema.params.filter((p) => !dropped.includes(p.id)) }
+})
 writeFileSync(new URL('../web-engine/schemas.json', import.meta.url), JSON.stringify(ordered, null, 2))
 console.log(`Wrote ${ordered.length} schemas (of ${all.length} in the desktop registry).`)

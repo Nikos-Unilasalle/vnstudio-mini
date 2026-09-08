@@ -88,6 +88,7 @@ import { mlBarChart, mlCsvReader, mlSklearnDataset, mlSvmClassifier } from './no
 import { mlLossExplorer, mlTrainingMonitor, utilMonteCarloPropagation } from './nodes/mlTeaching'
 import { manualPoints, pbrMaterialGen, sciIndexPainter, sciVisualMeasure, toolAnnotator } from './nodes/interactive'
 import { geoBandCalc, geoBbox, geoGeotiffReader, geoRasterNoise, geoSpectralIndices, geotiffToMask } from './nodes/geo'
+import { geoCopernicus, geoLandCover } from './nodes/geoSources'
 import {
   featNdwi,
   featSpectralIndex,
@@ -666,6 +667,8 @@ export const IMPLEMENTATIONS: Record<string, NodeImpl> = {
   pbr_material_gen: pbrMaterialGen,
   tool_annotator: toolAnnotator,
 
+  geo_copernicus: geoCopernicus,
+  geo_land_cover: geoLandCover,
   geo_bbox: geoBbox,
   geo_geotiff_reader: geoGeotiffReader,
   geotiff_to_mask: geotiffToMask,

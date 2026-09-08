@@ -15,6 +15,8 @@ interface FieldDef {
 
 interface SectionDef {
   title: string;
+  /** Optional line under the section title — where to get the keys, and why. */
+  hint?: string;
   fields: FieldDef[];
 }
 
@@ -31,24 +33,16 @@ const SECTIONS: SectionDef[] = [
       { key: 'hf_token',                label: 'HuggingFace',    placeholder: 'hf_…',          isPassword: true },
     ],
   },
+  // Earth Engine is absent on purpose: its API refuses cross-origin requests and
+  // expects a service-account OAuth flow, so a browser build cannot reach it. The
+  // WorldCover data it used to supply now comes from Planetary Computer, which
+  // needs no account at all — as do Sentinel-2, the DEM and the basemaps.
   {
-    title: 'Google Earth Engine',
+    title: 'Copernicus CDSE — optional',
+    hint: 'Only for the CDSE backends. shapps.dataspace.copernicus.eu',
     fields: [
-      { key: 'gcp_project', label: 'GCP Project ID', placeholder: 'my-project-123456' },
-    ],
-  },
-  {
-    title: 'Copernicus (CDS)',
-    fields: [
-      { key: 'copernicus_client_id',     label: 'Client ID',     placeholder: '…' },
+      { key: 'copernicus_client_id',     label: 'Client ID',     placeholder: 'sh-…' },
       { key: 'copernicus_client_secret', label: 'Client Secret', placeholder: '…', isPassword: true },
-    ],
-  },
-  {
-    title: 'Copernicus Marine',
-    fields: [
-      { key: 'copernicus_marine_username', label: 'Username', placeholder: 'email or login' },
-      { key: 'copernicus_marine_password', label: 'Password', placeholder: '…', isPassword: true },
     ],
   },
 ];
@@ -127,7 +121,7 @@ const ApiKeysPanel: React.FC = () => {
                 <span className="text-[10px] font-black uppercase tracking-widest text-gray-200">
                   API Keys &amp; Secrets
                 </span>
-                <span className="text-[8px] text-gray-500">~/.vnstudio/secrets.json</span>
+                <span className="text-[8px] text-gray-500">stored in this browser only</span>
               </div>
 
               {/* Fields */}
@@ -137,9 +131,12 @@ const ApiKeysPanel: React.FC = () => {
                 )}
                 {!loading && SECTIONS.map(sec => (
                   <div key={sec.title}>
-                    <div className="text-[8px] font-black uppercase tracking-widest text-gray-500 mb-2 px-1">
+                    <div className="text-[8px] font-black uppercase tracking-widest text-gray-500 mb-1 px-1">
                       {sec.title}
                     </div>
+                    {sec.hint && (
+                      <div className="text-[8px] text-gray-600 mb-2 px-1 leading-snug">{sec.hint}</div>
+                    )}
                     <div className="flex flex-col gap-1.5">
                       {sec.fields.map(field => {
                         const filled = !!(values[field.key]?.trim());

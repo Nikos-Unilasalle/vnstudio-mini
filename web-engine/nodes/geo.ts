@@ -2,11 +2,9 @@
  * The portable half of the `geo_*` family: a GeoTIFF reader and the nodes that
  * compute on a georeferenced raster.
  *
- * The desktop's data sources are not here — `geo_copernicus` authenticates
- * against Copernicus and unpacks Sentinel products with rasterio, and
- * `geo_land_cover` drives the Google Earth Engine SDK. Neither has a browser
- * equivalent. The reader takes their place: export a GeoTIFF from the desktop
- * (or drop any other one) and the rest of the chain runs unchanged.
+ * The remote sources live next door in geoSources.ts; this file is what runs
+ * once a raster is in hand, plus the reader for a GeoTIFF the user supplies
+ * directly.
  */
 import type { NodeImpl, RunContext } from '../types'
 import {
