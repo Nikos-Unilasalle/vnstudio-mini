@@ -30,12 +30,27 @@ const RUN_DEBOUNCE_MS = 60
  * worker sees it: the blob-URL ↔ path mapping that resolveMediaUrl reads
  * lives in this module's main-thread memory (see shims/vfs.ts), which the
  * worker — a separate JS realm — doesn't share. */
+/** Which parameter of a node names a file the worker will have to read. */
+const FILE_PARAM: Record<string, string> = {
+  input_image: 'path',
+  geo_geotiff_reader: 'file_path',
+}
+
+/**
+ * Rewrites file parameters to something the worker can fetch.
+ *
+ * Node code runs in the worker, which has no access to the virtual filesystem
+ * on this side; a blob URL, on the other hand, it can simply fetch. Large files
+ * therefore never get copied across — the worker reads them straight from the
+ * blob the browser is already holding.
+ */
 function resolveInputPaths(nodes: GraphNode[]): GraphNode[] {
   return nodes.map((node) => {
-    if (node.type !== 'input_image') return node
-    const path = node.data?.params?.path
+    const key = FILE_PARAM[node.type]
+    if (!key) return node
+    const path = node.data?.params?.[key]
     if (typeof path !== 'string' || !path) return node
-    return { ...node, data: { ...node.data, params: { ...node.data?.params, path: resolveMediaUrl(path) } } }
+    return { ...node, data: { ...node.data, params: { ...node.data?.params, [key]: resolveMediaUrl(path) } } }
   })
 }
 

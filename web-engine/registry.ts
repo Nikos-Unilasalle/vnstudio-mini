@@ -87,6 +87,7 @@ import {
 import { mlBarChart, mlCsvReader, mlSklearnDataset, mlSvmClassifier } from './nodes/mlExtras'
 import { mlLossExplorer, mlTrainingMonitor, utilMonteCarloPropagation } from './nodes/mlTeaching'
 import { manualPoints, pbrMaterialGen, sciIndexPainter, sciVisualMeasure, toolAnnotator } from './nodes/interactive'
+import { geoBandCalc, geoBbox, geoGeotiffReader, geoRasterNoise, geoSpectralIndices, geotiffToMask } from './nodes/geo'
 import {
   featNdwi,
   featSpectralIndex,
@@ -664,6 +665,13 @@ export const IMPLEMENTATIONS: Record<string, NodeImpl> = {
   sci_index_painter: sciIndexPainter,
   pbr_material_gen: pbrMaterialGen,
   tool_annotator: toolAnnotator,
+
+  geo_bbox: geoBbox,
+  geo_geotiff_reader: geoGeotiffReader,
+  geotiff_to_mask: geotiffToMask,
+  geo_band_calc: geoBandCalc,
+  geo_spectral_indices: geoSpectralIndices,
+  geo_raster_noise: geoRasterNoise,
 }
 
 const schemaByType = new Map(SCHEMAS.map((s) => [s.type, s]))

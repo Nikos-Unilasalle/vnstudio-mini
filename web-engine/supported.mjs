@@ -404,6 +404,14 @@ export const SUPPORTED_TYPES = [
   'sci_index_painter',
   'pbr_material_gen',
   'tool_annotator',
+
+  // rasters géoréférencés : lecture et calcul (les sources satellite restent desktop)
+  'geo_bbox',
+  'geo_geotiff_reader',
+  'geotiff_to_mask',
+  'geo_band_calc',
+  'geo_spectral_indices',
+  'geo_raster_noise',
 ]
 
 

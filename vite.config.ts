@@ -57,6 +57,13 @@ export default defineConfig(({ command }) => ({
       { find: /^.*\/hooks\/useVisionEngine$/, replacement: resolvePath('./shims/useVisionEngine.ts') },
     ],
   },
+  // The worker is instantiated with `{ type: 'module' }`, so its bundle has to
+  // be one too. Vite's default of 'iife' cannot emit more than one chunk, which
+  // rules out the lazy `import('geotiff')` the GeoTIFF reader uses to keep the
+  // decoder out of the initial download.
+  worker: {
+    format: 'es',
+  },
   optimizeDeps: {
     // Pulled from a CDN at runtime, never bundled.
     exclude: ['@mediapipe/tasks-vision'],

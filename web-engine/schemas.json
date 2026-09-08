@@ -23450,5 +23450,652 @@
     "variable_inputs": false,
     "hf_model": "",
     "hf_filename": ""
+  },
+  {
+    "type": "geo_bbox",
+    "label": "Bounding Box",
+    "category": "geography",
+    "icon": "Square",
+    "description": "Defines a Region of Interest (ROI) bounding box to share across geography nodes.",
+    "inputs": [],
+    "outputs": [
+      {
+        "id": "bbox",
+        "color": "string",
+        "label": "BBox (str)"
+      }
+    ],
+    "params": [
+      {
+        "id": "lon_min",
+        "label": "West (Lon Min)",
+        "type": "float",
+        "default": -5.5
+      },
+      {
+        "id": "lat_min",
+        "label": "South (Lat Min)",
+        "type": "float",
+        "default": 41
+      },
+      {
+        "id": "lon_max",
+        "label": "East (Lon Max)",
+        "type": "float",
+        "default": 9.5
+      },
+      {
+        "id": "lat_max",
+        "label": "North (Lat Max)",
+        "type": "float",
+        "default": 51.5
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "geo_geotiff_reader",
+    "label": "GeoTIFF Reader",
+    "category": "geography",
+    "icon": "Globe",
+    "description": "Read a local GeoTIFF file. Supports multispectral imagery (Sentinel-2, Landsat, etc.)",
+    "inputs": [],
+    "outputs": [
+      {
+        "id": "geotiff",
+        "color": "geotiff",
+        "label": "GeoTIFF"
+      },
+      {
+        "id": "preview",
+        "color": "image",
+        "label": "Preview"
+      },
+      {
+        "id": "meta",
+        "color": "dict",
+        "label": "Meta"
+      }
+    ],
+    "params": [
+      {
+        "id": "file_path",
+        "type": "string",
+        "default": "",
+        "label": "File Path"
+      },
+      {
+        "id": "r_band",
+        "type": "int",
+        "default": 1,
+        "min": 1,
+        "max": 20,
+        "label": "Preview R"
+      },
+      {
+        "id": "g_band",
+        "type": "int",
+        "default": 2,
+        "min": 1,
+        "max": 20,
+        "label": "Preview G"
+      },
+      {
+        "id": "b_band",
+        "type": "int",
+        "default": 3,
+        "min": 1,
+        "max": 20,
+        "label": "Preview B"
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "geotiff_to_mask",
+    "label": "GeoTIFF → Mask",
+    "category": "geography",
+    "icon": "Layers",
+    "description": "Extracts one band from a GeoTIFF dict and returns it as a plain binary mask (uint8 0/255). Use to bridge geo nodes (geo_cloud_mask, geo_ndwi_mask…) to standard mask nodes (mask_ops, util_mask_band, invert_mask…).",
+    "inputs": [
+      {
+        "id": "geotiff",
+        "color": "geotiff",
+        "label": "GeoTIFF"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "mask",
+        "color": "mask",
+        "label": "Binary mask (0/255)"
+      }
+    ],
+    "params": [
+      {
+        "id": "band_index",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 31,
+        "label": "Band index"
+      },
+      {
+        "id": "threshold",
+        "type": "float",
+        "default": 0.5,
+        "min": 0,
+        "max": 1,
+        "label": "Threshold (values > threshold → 255)"
+      },
+      {
+        "id": "node_note",
+        "type": "string",
+        "default": "",
+        "label": "Note"
+      }
+    ],
+    "resizable": true,
+    "min_width": 200,
+    "min_height": 120,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "geo_band_calc",
+    "label": "Band Calculator",
+    "category": "geography",
+    "icon": "Calculator",
+    "description": "Free expression on bands. Variables: B1, B2, … Bn. Example: (B4-B3)/(B4+B3+1e-10)",
+    "inputs": [
+      {
+        "id": "geotiff",
+        "color": "geotiff"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "raw",
+        "color": "geotiff",
+        "label": "Result"
+      },
+      {
+        "id": "colormap",
+        "color": "image",
+        "label": "Colormap"
+      }
+    ],
+    "params": [
+      {
+        "id": "expression",
+        "type": "code",
+        "default": "(B4 - B3) / (B4 + B3 + 1e-10)",
+        "label": "Expression"
+      },
+      {
+        "id": "clamp_min",
+        "type": "float",
+        "default": -1,
+        "min": -1000000,
+        "max": 0,
+        "label": "Clamp Min"
+      },
+      {
+        "id": "clamp_max",
+        "type": "float",
+        "default": 1,
+        "min": 0,
+        "max": 1000000,
+        "label": "Clamp Max"
+      },
+      {
+        "id": "colormap",
+        "type": "enum",
+        "options": [
+          "viridis",
+          "plasma",
+          "turbo",
+          "jet",
+          "hot",
+          "gray"
+        ],
+        "default": "viridis",
+        "label": "Colormap"
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "geo_spectral_indices",
+    "label": "Spectral Indices",
+    "category": "geography",
+    "icon": "BarChart2",
+    "description": "Multi-index spectral calculator. Select any combination of built-in indices (NDVI, NDWI, EVI, MNDWI, NBR, BSI) and/or write up to 2 custom expressions. Outputs a multi-band `stack` geo dict (use directly in geo_rf_classifier or geo_band_stack) plus individual colormapped images for each enabled index. Replace geo_spectral_index + geo_band_calc with this single node.",
+    "inputs": [
+      {
+        "id": "geotiff",
+        "color": "geotiff",
+        "label": "Raster"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "stack",
+        "color": "geotiff",
+        "label": "All enabled (stacked)"
+      },
+      {
+        "id": "preview",
+        "color": "image",
+        "label": "Preview RGB (first 3)"
+      },
+      {
+        "id": "ndvi",
+        "color": "image",
+        "label": "NDVI"
+      },
+      {
+        "id": "ndwi",
+        "color": "image",
+        "label": "NDWI"
+      },
+      {
+        "id": "evi",
+        "color": "image",
+        "label": "EVI"
+      },
+      {
+        "id": "mndwi",
+        "color": "image",
+        "label": "MNDWI"
+      },
+      {
+        "id": "nbr",
+        "color": "image",
+        "label": "NBR"
+      },
+      {
+        "id": "bsi",
+        "color": "image",
+        "label": "BSI"
+      },
+      {
+        "id": "custom1",
+        "color": "image",
+        "label": "Custom 1"
+      },
+      {
+        "id": "custom2",
+        "color": "image",
+        "label": "Custom 2"
+      }
+    ],
+    "params": [
+      {
+        "id": "_sec_bands",
+        "type": "section",
+        "label": "Band Mapping"
+      },
+      {
+        "id": "sensor",
+        "type": "enum",
+        "options": [
+          "Manual",
+          "S2 (B04 B03 B02 B08 B11)",
+          "Landsat 8/9 (L2)",
+          "SPOT-6/7"
+        ],
+        "default": 0,
+        "label": "Sensor preset"
+      },
+      {
+        "id": "nir_band",
+        "type": "int",
+        "default": 4,
+        "min": 1,
+        "max": 20,
+        "label": "NIR band"
+      },
+      {
+        "id": "red_band",
+        "type": "int",
+        "default": 1,
+        "min": 1,
+        "max": 20,
+        "label": "Red band"
+      },
+      {
+        "id": "green_band",
+        "type": "int",
+        "default": 2,
+        "min": 1,
+        "max": 20,
+        "label": "Green band"
+      },
+      {
+        "id": "blue_band",
+        "type": "int",
+        "default": 3,
+        "min": 1,
+        "max": 20,
+        "label": "Blue band"
+      },
+      {
+        "id": "swir_band",
+        "type": "int",
+        "default": 5,
+        "min": 1,
+        "max": 20,
+        "label": "SWIR band"
+      },
+      {
+        "id": "_sec_indices",
+        "type": "section",
+        "label": "Indices"
+      },
+      {
+        "id": "ndvi",
+        "type": "bool",
+        "default": true,
+        "label": "NDVI (Vegetation)"
+      },
+      {
+        "id": "ndwi",
+        "type": "bool",
+        "default": false,
+        "label": "NDWI (Water)"
+      },
+      {
+        "id": "evi",
+        "type": "bool",
+        "default": false,
+        "label": "EVI (Enhanced Veg.)"
+      },
+      {
+        "id": "mndwi",
+        "type": "bool",
+        "default": false,
+        "label": "MNDWI (Modified Water)"
+      },
+      {
+        "id": "nbr",
+        "type": "bool",
+        "default": false,
+        "label": "NBR (Burn Ratio)"
+      },
+      {
+        "id": "bsi",
+        "type": "bool",
+        "default": false,
+        "label": "BSI (Bare Soil)"
+      },
+      {
+        "id": "guard_invalid",
+        "type": "bool",
+        "default": false,
+        "label": "Guard invalid pixels (ND indices → NaN below floor)"
+      },
+      {
+        "id": "valid_min",
+        "type": "float",
+        "default": -0.002,
+        "min": -1,
+        "max": 1,
+        "step": 0.001,
+        "label": "Valid band floor",
+        "show_if": {
+          "param": "guard_invalid",
+          "value": true
+        }
+      },
+      {
+        "id": "_sec_custom",
+        "type": "section",
+        "label": "Custom Expressions"
+      },
+      {
+        "id": "expr1_enable",
+        "type": "bool",
+        "default": false,
+        "label": "Enable expr 1"
+      },
+      {
+        "id": "expr1_label",
+        "type": "string",
+        "default": "custom1",
+        "label": "Name"
+      },
+      {
+        "id": "expr1",
+        "type": "code",
+        "default": "(B4 - B3) / (B4 + B3 + 1e-8)",
+        "label": "Expression (B1…Bn, np, sqrt, log)"
+      },
+      {
+        "id": "expr2_enable",
+        "type": "bool",
+        "default": false,
+        "label": "Enable expr 2"
+      },
+      {
+        "id": "expr2_label",
+        "type": "string",
+        "default": "custom2",
+        "label": "Name"
+      },
+      {
+        "id": "expr2",
+        "type": "code",
+        "default": "",
+        "label": "Expression"
+      },
+      {
+        "id": "_sec_display",
+        "type": "section",
+        "label": "Display"
+      },
+      {
+        "id": "colormap",
+        "type": "enum",
+        "options": [
+          "viridis",
+          "plasma",
+          "turbo",
+          "jet",
+          "hot",
+          "rdylgn",
+          "gray"
+        ],
+        "default": 0,
+        "label": "Colormap"
+      },
+      {
+        "id": "clamp_min",
+        "type": "float",
+        "default": -1,
+        "min": -10,
+        "max": 0,
+        "label": "Clamp min"
+      },
+      {
+        "id": "clamp_max",
+        "type": "float",
+        "default": 1,
+        "min": 0,
+        "max": 10,
+        "label": "Clamp max"
+      },
+      {
+        "id": "node_note",
+        "type": "string",
+        "default": "",
+        "label": "Note"
+      }
+    ],
+    "resizable": true,
+    "min_width": 280,
+    "min_height": 200,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "geo_raster_noise",
+    "label": "Raster Gaussian Noise",
+    "category": "geography",
+    "icon": "Ghost",
+    "description": "Adds per-band Gaussian noise to a float raster in physical units (σ = sigma_abs + sigma_rel·|value|). Generic, domain-agnostic sensor-noise model. Stochastic/realtime: redraws each tick — drive a Monte-Carlo ensemble by feeding an index/threshold/frame-accumulator chain downstream.",
+    "inputs": [
+      {
+        "id": "geotiff",
+        "color": "geotiff",
+        "label": "Raster (float)"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "geotiff",
+        "color": "geotiff",
+        "label": "Perturbed raster"
+      },
+      {
+        "id": "preview",
+        "color": "image",
+        "label": "Noise preview (band 1)"
+      },
+      {
+        "id": "tick",
+        "color": "scalar",
+        "label": "Realisation # (0-based)"
+      }
+    ],
+    "params": [
+      {
+        "id": "toggle_run",
+        "type": "trigger",
+        "default": 0,
+        "label": "▶ Start / ⏸ Stop (Monte-Carlo)"
+      },
+      {
+        "id": "max_ticks",
+        "type": "int",
+        "default": 0,
+        "min": 0,
+        "max": 1000000,
+        "step": 1,
+        "label": "Target N (0 = run forever)"
+      },
+      {
+        "id": "reset",
+        "type": "trigger",
+        "default": 0,
+        "label": "↺ Reset run (tick → 0, resume)"
+      },
+      {
+        "id": "sigma_abs",
+        "type": "float",
+        "default": 0.01,
+        "min": 0,
+        "max": 1000000,
+        "step": 0.001,
+        "label": "σ absolute (additive floor)"
+      },
+      {
+        "id": "sigma_rel",
+        "type": "float",
+        "default": 0.02,
+        "min": 0,
+        "max": 10,
+        "step": 0.01,
+        "label": "σ relative (× |value|)"
+      },
+      {
+        "id": "clip_negative",
+        "type": "bool",
+        "default": true,
+        "label": "Clip negatives to 0"
+      },
+      {
+        "id": "clip_min",
+        "type": "float",
+        "default": 0,
+        "min": -1000000,
+        "max": 1000000,
+        "step": 0.01,
+        "label": "Clip min (range; off if ≥ max)"
+      },
+      {
+        "id": "clip_max",
+        "type": "float",
+        "default": 0,
+        "min": -1000000,
+        "max": 1000000,
+        "step": 0.01,
+        "label": "Clip max (range; off if ≤ min)"
+      },
+      {
+        "id": "seed",
+        "type": "int",
+        "default": -1,
+        "min": -1,
+        "max": 2000000000,
+        "label": "Base seed (-1 = entropy)"
+      },
+      {
+        "id": "spatial_corr_px",
+        "type": "float",
+        "default": 0,
+        "min": 0,
+        "max": 50,
+        "step": 0.5,
+        "label": "Spatial correlation (px, 0 = iid)"
+      },
+      {
+        "id": "node_note",
+        "type": "string",
+        "default": "",
+        "label": "Note"
+      }
+    ],
+    "resizable": true,
+    "min_width": 240,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
   }
 ]
