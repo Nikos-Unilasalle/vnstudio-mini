@@ -1,5 +1,6 @@
 import type { NodeImpl } from '../types'
 import { downloadFile } from '../../shims/vfs'
+import { makePlot } from '../plot'
 
 /**
  * The desktop node runs Python with numpy/OpenCV in a restricted namespace.
@@ -7,6 +8,12 @@ import { downloadFile } from '../../shims/vfs'
  * keeping the same contract: inputs arrive as `a`, `b`, `c` …, and any variable
  * named `out_*` becomes an output port. Scripts written for the desktop node
  * will not run here — the editor shows a banner saying so.
+ *
+ * The Python side gets numpy, cv2 and matplotlib handed to it, so the
+ * JavaScript side gets the same courtesy: `cv` is OpenCV, `plot` builds a
+ * figure the way matplotlib would, and `track` registers a Mat for the engine
+ * to free after the next run — without it a script that draws a figure every
+ * frame would leak the WASM heap away.
  */
 export const logicPython: NodeImpl = (inputs, params, ctx) => {
   const code = String(params.code ?? '')
@@ -20,10 +27,10 @@ export const logicPython: NodeImpl = (inputs, params, ctx) => {
   const returns = `return { ${uniqueOutputs.join(', ')} };`
 
   try {
-    const fn = new Function(...inputNames, 'state', `"use strict";\n${declarations}\n${code}\n${returns}`)
+    const fn = new Function(...inputNames, 'state', 'cv', 'track', 'plot', `"use strict";\n${declarations}\n${code}\n${returns}`)
     const nodeState = ctx.state.get(`${ctx.nodeId}:script`) ?? {}
     ctx.state.set(`${ctx.nodeId}:script`, nodeState)
-    const result = fn(...inputNames.map((n) => inputs[n]), nodeState)
+    const result = fn(...inputNames.map((n) => inputs[n]), nodeState, ctx.cv, (mat: any) => ctx.track(mat), makePlot(ctx.cv))
     ctx.emit('error', '')
     return result
   } catch (error) {

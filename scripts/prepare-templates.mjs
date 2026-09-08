@@ -99,6 +99,12 @@ const DEMOS = [
       'Amplification eulérienne du mouvement : les variations de couleur du visage, invisibles à l’œil, sont amplifiées jusqu’à faire apparaître le pouls, puis lissées par filtre de Kalman.',
   },
   {
+    file: 'MC-paper-web.vn',
+    name: 'Monte-Carlo — détection d’eau',
+    description:
+      'Chaîne de validation complète : bruit gaussien sur les bandes, vote k-parmi-4 d’indices spectraux, accumulation Monte-Carlo en probabilité par pixel, puis corrélation d’indices, convergence, balayage de seuil, calibration et exactitude. Portage du pipeline desktop : les six scripts sont en JavaScript et les scènes se chargent depuis un GeoTIFF.',
+  },
+  {
     file: 'ndvi_ground_truth.vn',
     name: 'Peintre d’indices',
     description:

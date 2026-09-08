@@ -170,20 +170,33 @@ export const geotiffToMask: NodeImpl = (inputs, params, ctx) => {
 
 /* -------------------------------------------------------- band calculator */
 
+/** The names the spectral-index node binds on top of B1…Bn. */
+const ALIASES = ['NIR', 'RED', 'GREEN', 'BLUE', 'SWIR'] as const
+
 /**
  * Compiles a band expression to a function over the band arrays.
  *
  * The desktop `eval`s the expression against numpy arrays, so `(B4-B3)/(B4+B3)`
  * is whole-array arithmetic. Here it is evaluated per pixel with the band values
  * as plain numbers, which reads the same and avoids materialising temporaries.
+ *
+ * `aliased` also binds NIR/RED/GREEN/BLUE/SWIR, which the spectral-index node
+ * offers alongside the numbered bands — an expression such as
+ * `BLUE + 2.5*GREEN - 1.5*(NIR + SWIR)` depends on them.
  */
-function compileExpression(expression: string, count: number): ((values: number[]) => number) | null {
+function compileExpression(
+  expression: string,
+  count: number,
+  aliased = false
+): ((values: number[], alias?: number[]) => number) | null {
   const names = Array.from({ length: count }, (_, i) => `B${i + 1}`)
   try {
-    const body = `"use strict"; const [${names.join(', ')}] = v; return (${expression});`
-    const fn = new Function('v', 'sqrt', 'log', 'abs', 'exp', 'clip', body) as any
+    const destructure = aliased ? `const [${ALIASES.join(', ')}] = alias;` : ''
+    const body = `"use strict"; const [${names.join(', ')}] = v; ${destructure} return (${expression});`
+    const fn = new Function('v', 'alias', 'sqrt', 'log', 'abs', 'exp', 'clip', body) as any
     const clip = (x: number, low: number, high: number) => Math.min(Math.max(x, low), high)
-    return (values: number[]) => fn(values, Math.sqrt, Math.log, Math.abs, Math.exp, clip)
+    return (values: number[], alias?: number[]) =>
+      fn(values, alias ?? [], Math.sqrt, Math.log, Math.abs, Math.exp, clip)
   } catch {
     return null
   }
@@ -303,14 +316,16 @@ export const geoSpectralIndices: NodeImpl = (inputs, params, ctx) => {
     if (!params[enable]) continue
     const expression = String(params[exprKey] ?? '').trim()
     if (!expression) continue
-    const compute = compileExpression(expression, raster.count)
+    const compute = compileExpression(expression, raster.count, true)
     if (!compute) { ctx.emit('error', `Spectral Indices: ${outKey} expression invalide`); continue }
     const values = new Float32Array(raster.width * raster.height)
     const scratch = new Array(raster.count)
+    const alias = new Array(ALIASES.length)
     try {
       for (let p = 0; p < values.length; p++) {
         for (let b = 0; b < raster.count; b++) scratch[b] = raster.bands[b][p]
-        values[p] = compute(scratch)
+        alias[0] = NIR[p]; alias[1] = RED[p]; alias[2] = GREEN[p]; alias[3] = BLUE[p]; alias[4] = SWIR[p]
+        values[p] = compute(scratch, alias)
       }
     } catch (error) {
       ctx.emit('error', `Spectral Indices: ${outKey} — ${error instanceof Error ? error.message : String(error)}`)

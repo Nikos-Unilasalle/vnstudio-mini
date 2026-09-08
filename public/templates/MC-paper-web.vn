@@ -1,0 +1,2708 @@
+{
+  "nodes": [
+    {
+      "id": "noise",
+      "type": "geo_raster_noise",
+      "position": {
+        "x": 520,
+        "y": 40
+      },
+      "width": 208,
+      "height": 121,
+      "data": {
+        "userLabel": "MC Sensor Perturbation",
+        "params": {
+          "sigma_abs": 0.005,
+          "sigma_rel": 0.015,
+          "clip_negative": false,
+          "seed": 42,
+          "node_note": "Copernicus L2A Surface Reflectance (SR). sigma_abs=0.005 (plancher de bruit, point de depart raisonne — pas de norme officielle pour ce plancher specifique) + sigma_rel=0.015 (bruit proportionnel). Sans plancher, le bruit tend vers 0 sur l'eau en NIR/SWIR (reflectance quasi-nulle) alors que l'incertitude REELLE y explose (SNR capteur faible sur signal faible, documente >1000% relatif sur eau sombre) — cause plausible du P quasi-binaire observe. spatial_corr_px=3: bruit spatialement correle (plus realiste que iid).",
+          "max_ticks": 200,
+          "reset": 0,
+          "toggle_run": 0,
+          "color_index": 0,
+          "spatial_corr_px": 3
+        },
+        "minified": false,
+        "paramPorts": [
+          {
+            "id": "max_ticks",
+            "color": "scalar",
+            "label": "Target N (0 = run forever)"
+          }
+        ],
+        "externalizedParams": [
+          "max_ticks"
+        ]
+      },
+      "selected": true,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 520,
+        "y": 40
+      },
+      "style": {}
+    },
+    {
+      "id": "idx",
+      "type": "geo_spectral_indices",
+      "position": {
+        "x": 780,
+        "y": 20
+      },
+      "width": 208,
+      "height": 345,
+      "data": {
+        "userLabel": "4 Water Indices",
+        "params": {
+          "sensor": 0,
+          "nir_band": 4,
+          "red_band": 1,
+          "green_band": 2,
+          "blue_band": 3,
+          "swir_band": 5,
+          "ndvi": false,
+          "ndwi": true,
+          "evi": false,
+          "mndwi": true,
+          "nbr": false,
+          "bsi": false,
+          "expr1_enable": true,
+          "expr1_label": "AWEIsh",
+          "expr1": "BLUE + 2.5*GREEN - 1.5*(NIR + SWIR) - 0.25*B6",
+          "expr2_enable": true,
+          "expr2_label": "MBWI",
+          "expr2": "3*GREEN - RED - NIR - SWIR - B6",
+          "colormap": 0,
+          "clamp_min": -5,
+          "clamp_max": 5,
+          "node_note": "Copernicus CDSE L2A SR stack B04,B03,B02,B08,B11,B12. B1=Red B2=Green B3=Blue B4=NIR B5=SWIR1 B6=SWIR2. SWIR=SWIR1(B5), B6=SWIR2. Stack = [NDWI, MNDWI, AWEIsh, MBWI].",
+          "color_index": 3,
+          "guard_invalid": true,
+          "valid_min": -0.05
+        },
+        "minified": false
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 780,
+        "y": 20
+      },
+      "dragging": false,
+      "style": {}
+    },
+    {
+      "id": "vote",
+      "type": "geo_band_calc",
+      "position": {
+        "x": 1240,
+        "y": 80
+      },
+      "width": 208,
+      "height": 90,
+      "data": {
+        "userLabel": "Consensus Vote k=2 of 4",
+        "params": {
+          "expression": "(1*(B1>0)+1*(B2>0)+1*(B3>0)+1*(B4>0)) >= 2",
+          "clamp_min": 0,
+          "clamp_max": 1,
+          "colormap": "gray",
+          "color_index": 1
+        },
+        "minified": false
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 1240,
+        "y": 80
+      },
+      "dragging": false,
+      "style": {}
+    },
+    {
+      "id": "tomask",
+      "type": "geotiff_to_mask",
+      "position": {
+        "x": 1480,
+        "y": 80
+      },
+      "width": 208,
+      "height": 90,
+      "data": {
+        "userLabel": "Vote → Binary Mask",
+        "params": {
+          "band_index": 0,
+          "threshold": 0.5,
+          "color_index": 1
+        }
+      },
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 1480,
+        "y": 80
+      }
+    },
+    {
+      "id": "mask_and",
+      "type": "mask_operations",
+      "position": {
+        "x": 1880,
+        "y": 80
+      },
+      "width": 208,
+      "height": 90,
+      "data": {
+        "userLabel": "Vote AND NIR Gate",
+        "params": {
+          "operation": 2,
+          "color_index": 1
+        }
+      },
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 1880,
+        "y": 80
+      }
+    },
+    {
+      "id": "acc_mean",
+      "type": "sci_frame_accumulator",
+      "position": {
+        "x": 2240,
+        "y": 80
+      },
+      "width": 208,
+      "height": 121,
+      "data": {
+        "userLabel": "MC Probability (mean)",
+        "params": {
+          "mode": 0,
+          "window": 64,
+          "reset": 0,
+          "cumulative": true,
+          "target_n": 200,
+          "color_index": 1
+        },
+        "paramPorts": [
+          {
+            "id": "target_n",
+            "color": "scalar",
+            "label": "Target N (0 = unlimited)"
+          }
+        ],
+        "externalizedParams": [
+          "target_n"
+        ]
+      },
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 2240,
+        "y": 80
+      }
+    },
+    {
+      "id": "node-1782665754321-0.3774373977644757",
+      "type": "data_inspector",
+      "position": {
+        "x": 2240,
+        "y": 220
+      },
+      "style": {
+        "width": 200,
+        "height": 24
+      },
+      "data": {
+        "label": "Inspector",
+        "params": {
+          "color_index": 1
+        },
+        "minified": true,
+        "savedHeight": 120
+      },
+      "width": 200,
+      "height": 24,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 2240,
+        "y": 220
+      },
+      "dragging": false,
+      "resizing": false
+    },
+    {
+      "id": "node-1782709706825-skjz7dzln",
+      "type": "data_inspector",
+      "position": {
+        "x": 2980,
+        "y": -40
+      },
+      "style": {
+        "width": 240,
+        "height": 460
+      },
+      "data": {
+        "label": "Inspector",
+        "params": {
+          "color_index": 0
+        },
+        "minified": false,
+        "savedHeight": 160
+      },
+      "width": 240,
+      "height": 460,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 2980,
+        "y": -40
+      },
+      "dragging": false,
+      "resizing": false
+    },
+    {
+      "id": "node-1782710392200-fj2ugkk3u",
+      "type": "logic_python",
+      "position": {
+        "x": 2680,
+        "y": 200
+      },
+      "style": {},
+      "data": {
+        "label": "Python Node",
+        "params": {
+          "code": "// Index Correlation (threshold-independent validation)\n//   a = MC P(water) (image 0-255, acc_mean)\n//   b = idx.stack (geotiff, N bands = indices)\n//   c = open-water reference (mask or occurrence geotiff, optional)\n//   d = river-extent reference (mask, optional)\n//   e = analysis domain (mask, optional — GT dilated)\n// Outputs: out_fig / out_dist / out_auroc (images), out_stats (dict),\n//          out_ow / out_ext / out_gt / out_domain (masks on the P grid).\nconst W = a.cols, H = a.rows, px = W * H;\nconst Ad = a.data, Ac = a.channels();\nconst Pw = new Float64Array(px);\nfor (let i = 0; i < px; i++) Pw[i] = Ad[i * Ac] / 255;\n\nlet pmin = Infinity, pmax = -Infinity, psum = 0;\nfor (let i = 0; i < px; i++) { if (Pw[i] < pmin) pmin = Pw[i]; if (Pw[i] > pmax) pmax = Pw[i]; psum += Pw[i]; }\nconst pmean = psum / px;\nlet pvar = 0;\nfor (let i = 0; i < px; i++) pvar += (Pw[i] - pmean) ** 2;\nconst pstd = Math.sqrt(pvar / px);\n\nconst bands = b.bands, names = b.band_names && b.band_names.length ? b.band_names : bands.map((_, i) => 'idx' + i);\nconst N = bands.length;\nif (b.width !== W || b.height !== H) throw new Error('grid P ' + W + 'x' + H + ' != indices ' + b.width + 'x' + b.height);\n\n// A plain mask is aligned by dimension ratio; an occurrence raster carrying a\n// transform is resampled through world coordinates instead.\nconst asBool = (m) => {\n  if (!m) return null;\n  if (m.bands) {                              // geotiff: occurrence percentage\n    const src = m.bands[0], out = new Float64Array(px);\n    const bt = b.transform, jt = m.transform;\n    if (bt && jt) {\n      for (let y = 0; y < H; y++) {\n        const wy = jt ? bt[5] + (y + 0.5) * bt[4] : 0;\n        const jr = Math.min(Math.max(Math.round((wy - jt[5]) / jt[4] - 0.5), 0), m.height - 1);\n        for (let x = 0; x < W; x++) {\n          const wx = bt[2] + (x + 0.5) * bt[0];\n          const jc = Math.min(Math.max(Math.round((wx - jt[2]) / jt[0] - 0.5), 0), m.width - 1);\n          out[y * W + x] = src[jr * m.width + jc];\n        }\n      }\n    } else {\n      for (let y = 0; y < H; y++) {\n        const sy = Math.min(Math.floor((y * m.height) / H), m.height - 1);\n        for (let x = 0; x < W; x++) {\n          const sx = Math.min(Math.floor((x * m.width) / W), m.width - 1);\n          out[y * W + x] = src[sy * m.width + sx];\n        }\n      }\n    }\n    return { occ: out };\n  }\n  const d = m.data, ch = m.channels(), o = new Uint8Array(px);\n  for (let y = 0; y < H; y++) {\n    const sy = Math.min(Math.floor((y * m.rows) / H), m.rows - 1);\n    for (let x = 0; x < W; x++) {\n      const sx = Math.min(Math.floor((x * m.cols) / W), m.cols - 1);\n      o[y * W + x] = d[(sy * m.cols + sx) * ch] > 127 ? 1 : 0;\n    }\n  }\n  return o;\n};\n\nconst OCC_OW = 75, OCC_EXT = 10, OCC_GT = 50;\nconst cIn = typeof c !== 'undefined' ? c : null;\nconst dIn = typeof d !== 'undefined' ? d : null;\nconst eIn = typeof e !== 'undefined' ? e : null;\n\nlet ow = null, ext = null, gt = null;\nconst cRes = asBool(cIn);\nif (cRes && cRes.occ) {\n  const occ = cRes.occ;\n  ext = new Uint8Array(px); ow = new Uint8Array(px); gt = new Uint8Array(px);\n  for (let i = 0; i < px; i++) {\n    ext[i] = occ[i] >= OCC_EXT ? 1 : 0;\n    ow[i] = occ[i] >= OCC_OW ? 1 : 0;\n    gt[i] = occ[i] >= OCC_GT ? 1 : 0;\n  }\n} else {\n  const mc = cRes, md = asBool(dIn);\n  ow = mc || md;\n  ext = md || mc;      // a single reference mask serves as both\n  gt = ext;\n}\nconst ones = () => { const o = new Uint8Array(px); o.fill(1); return o; };\nif (!ext) ext = ones();\nif (!ow) ow = ext;\nif (!gt) gt = ext;\nconst any = (m) => { for (let i = 0; i < px; i++) if (m[i]) return true; return false; };\nif (!any(ext)) { ext = ones(); if (!any(ow)) ow = ext; if (!any(gt)) gt = ext; }\n\n// \"All river\" = every pixel of the domain (water + banks), which is what tests\n// P~0 on land against P~1 on water. Without e the whole image is the domain.\nconst domain = asBool(eIn) || ones();\nconst bridge = new Uint8Array(px);\nfor (let i = 0; i < px; i++) bridge[i] = domain[i] && !ow[i] ? 1 : 0;   // negative class = non-water land\n\nconst toMask = (m) => {\n  const mat = track(new cv.Mat(H, W, cv.CV_8U));\n  const out = mat.data;\n  for (let i = 0; i < px; i++) out[i] = m[i] ? 255 : 0;\n  return mat;\n};\nout_ow = toMask(ow); out_ext = toMask(ext); out_gt = toMask(gt); out_domain = toMask(domain);\n\n// --- statistics ---\nconst rankdata = (v) => {                      // average ranks over ties, as scipy does\n  const order = Array.from(v.keys()).sort((i, j) => v[i] - v[j]);\n  const ranks = new Float64Array(v.length);\n  let i = 0;\n  while (i < order.length) {\n    let j = i;\n    while (j + 1 < order.length && v[order[j + 1]] === v[order[i]]) j++;\n    const mean = (i + j + 2) / 2;\n    for (let k = i; k <= j; k++) ranks[order[k]] = mean;\n    i = j + 1;\n  }\n  return ranks;\n};\nconst pearson = (x, y) => {\n  const n = x.length;\n  if (n < 2) return NaN;\n  let mx = 0, my = 0;\n  for (let i = 0; i < n; i++) { mx += x[i]; my += y[i]; }\n  mx /= n; my /= n;\n  let num = 0, dx = 0, dy = 0;\n  for (let i = 0; i < n; i++) {\n    const p = x[i] - mx, q = y[i] - my;\n    num += p * q; dx += p * p; dy += q * q;\n  }\n  return dx > 0 && dy > 0 ? num / Math.sqrt(dx * dy) : NaN;\n};\nconst spearman = (x, y) => pearson(rankdata(x), rankdata(y));\n\nconst rho = (values, mask) => {\n  const xs = [], ys = [];\n  for (let i = 0; i < px; i++) {\n    if (!mask[i] || !Number.isFinite(values[i]) || !Number.isFinite(Pw[i])) continue;\n    xs.push(Pw[i]); ys.push(values[i]);\n  }\n  if (xs.length < 10) return NaN;\n  return spearman(Float64Array.from(xs), Float64Array.from(ys));\n};\n\nconst classes = [['All river', domain, [128, 128, 128]], ['Open water', ow, [180, 119, 31]], ['Land', bridge, [14, 127, 255]]];\nconst R = {};\nfor (const [name, mask] of classes) R[name] = bands.map((values) => rho(values, mask));\n\n// --- figure 1: Spearman by class and index ---\nconst figR = plot.figure({\n  width: 900, height: 420, title: 'Spearman: MC P(water) vs spectral index by pixel class',\n  xlabel: 'index', ylabel: 'Spearman r', ylim: [0, 1.05], xlim: [-0.5, N - 0.5],\n});\nclasses.forEach(([name, , colour], k) => {\n  const xs = bands.map((_, i) => i + (k - 1) * 0.26);\n  figR.bars(xs, R[name].map((v) => (Number.isFinite(v) ? v : 0)), { color: colour, barWidth: 0.24, label: name });\n});\nout_fig = track(figR.render());\n\n// --- distributions: open water vs land, per feature ---\nconst values = (arr, mask) => { const o = []; for (let i = 0; i < px; i++) if (mask[i] && Number.isFinite(arr[i])) o.push(arr[i]); return o; };\nconst mean = (v) => v.reduce((s, x) => s + x, 0) / v.length;\nconst variance = (v, m) => v.reduce((s, x) => s + (x - m) ** 2, 0) / Math.max(v.length - 1, 1);\n\n// Mann-Whitney U through the rank sum, with the normal approximation and a tie\n// correction for the p-value; the same statistic gives AUROC below.\nconst mannWhitney = (va, vb) => {\n  const n1 = va.length, n2 = vb.length;\n  if (n1 < 1 || n2 < 1) return { u: NaN, p: NaN, rb: NaN };\n  const all = Float64Array.from([...va, ...vb]);\n  const ranks = rankdata(all);\n  let r1 = 0;\n  for (let i = 0; i < n1; i++) r1 += ranks[i];\n  const u = r1 - (n1 * (n1 + 1)) / 2;\n  const counts = new Map();\n  for (const v of all) counts.set(v, (counts.get(v) || 0) + 1);\n  let tie = 0;\n  for (const t of counts.values()) if (t > 1) tie += t * t * t - t;\n  const n = n1 + n2;\n  const sd = Math.sqrt((n1 * n2 / 12) * ((n + 1) - tie / (n * (n - 1))));\n  const z = sd > 0 ? (u - (n1 * n2) / 2) / sd : 0;\n  // Two-sided normal tail, Abramowitz & Stegun 7.1.26 for erf.\n  const erf = (x) => {\n    const s = x < 0 ? -1 : 1; x = Math.abs(x);\n    const t = 1 / (1 + 0.3275911 * x);\n    const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x);\n    return s * y;\n  };\n  const p = 2 * (1 - 0.5 * (1 + erf(Math.abs(z) / Math.SQRT2)));\n  return { u, p: Math.min(Math.max(p, 0), 1), rb: 1 - (2 * u) / (n1 * n2) };\n};\n\nconst MWU_MAX = 20000;\nconst cap = (v) => (v.length <= MWU_MAX ? v : v.filter((_, i) => i % Math.ceil(v.length / MWU_MAX) === 0));\nconst features = [['MC prob', Pw], ...bands.map((arr, i) => [names[i], arr])];\nconst dmu = {}, cohen = {}, mw = {};\nconst figD = plot.figure({ width: 900, height: 380, title: 'Open water vs land — mean gap by feature', xlabel: 'feature', ylabel: 'delta mu' });\nconst gaps = [], labels = [];\nfor (const [name, arr] of features) {\n  const vo = values(arr, ow), vb = values(arr, bridge);\n  if (vo.length >= 2 && vb.length >= 2) {\n    const mo = mean(vo), mb = mean(vb);\n    const gap = mo - mb;\n    dmu[name] = Math.round(gap * 1e4) / 1e4;\n    const pooled = Math.sqrt(((vo.length - 1) * variance(vo, mo) + (vb.length - 1) * variance(vb, mb)) / Math.max(vo.length + vb.length - 2, 1));\n    cohen[name] = Math.round((gap / (pooled + 1e-12)) * 1e3) / 1e3;\n    const test = mannWhitney(cap(vo), cap(vb));\n    mw[name] = {\n      p: Number.isFinite(test.p) ? Math.round(test.p * 1e6) / 1e6 : null,\n      rank_biserial: Number.isFinite(test.rb) ? Math.round(test.rb * 1e3) / 1e3 : null,\n      n_open_water: Math.min(vo.length, MWU_MAX), n_bridge: Math.min(vb.length, MWU_MAX),\n    };\n    gaps.push(gap); labels.push(name);\n  } else { dmu[name] = null; cohen[name] = null; mw[name] = null; }\n}\nfigD.bars(gaps.map((_, i) => i), gaps, { color: [180, 119, 31], barWidth: 0.6, label: 'mean(open water) - mean(land)' });\nout_dist = track(figD.render());\n\n// --- independent discriminability: index vs GT water, P-free ---\n// The target is the ground truth (water) against the corridor's non-water, so\n// the ranking of the indices never touches P and stays non-circular.\nconst auroc = (arr, pos, neg) => {\n  const va = values(arr, pos), vb = values(arr, neg);\n  if (!va.length || !vb.length) return NaN;\n  const ranks = rankdata(Float64Array.from([...va, ...vb]));\n  let sum = 0;\n  for (let i = 0; i < va.length; i++) sum += ranks[i];\n  return (sum - (va.length * (va.length + 1)) / 2) / (va.length * vb.length);\n};\nconst negDomain = new Uint8Array(px);\nfor (let i = 0; i < px; i++) negDomain[i] = domain[i] && !ow[i] ? 1 : 0;\nconst auc = {};\nbands.forEach((arr, i) => {\n  const value = auroc(arr, ow, negDomain);\n  auc[names[i]] = Number.isFinite(value) ? Math.round(Math.max(value, 1 - value) * 1e4) / 1e4 : null;\n});\nconst order = Object.keys(auc).sort((x, y) => (auc[y] ?? 0.5) - (auc[x] ?? 0.5));\nconst figA = plot.figure({\n  width: 680, height: 400, title: 'Index discriminability vs ground truth (P-free)',\n  xlabel: 'index', ylabel: 'AUROC (water vs non-water)', ylim: [0.5, 1.02],\n});\nfigA.bars(order.map((_, i) => i), order.map((k) => auc[k] ?? 0.5), { color: [44, 160, 44], barWidth: 0.6, label: 'AUROC' });\nfigA.hline(0.5, { color: [40, 40, 40] });\nout_auroc = track(figA.render());\n\nout_stats = {};\nnames.forEach((name, i) => {\n  out_stats[name] = {};\n  for (const [cn] of classes) out_stats[name][cn] = Number.isFinite(R[cn][i]) ? Math.round(R[cn][i] * 1e4) / 1e4 : null;\n});\nout_stats.P_stats = { min: Math.round(pmin * 1e3) / 1e3, max: Math.round(pmax * 1e3) / 1e3, std: Math.round(pstd * 1e4) / 1e4 };\nout_stats.class_pixels = { ext: ext.reduce((s, v) => s + v, 0), ow: ow.reduce((s, v) => s + v, 0), domain: domain.reduce((s, v) => s + v, 0) };\nout_stats.delta_mu = dmu;\nout_stats.cohen_d = cohen;\nout_stats.mann_whitney = mw;\nout_stats.auroc_vs_gt = auc;\n",
+          "color_index": 0,
+          "node_note": "Validation. a=P, b=idx.stack, c=ow(WorldCover water), d=ext(water∪bridge). All river = ext DILATEE (ROI_DILATE_PX dans le code). Open water=c, Land=domain&~c (no OSM). Plans d'eau conserves."
+        },
+        "ports": [
+          {
+            "id": "image__a",
+            "color": "image",
+            "label": "a = P"
+          },
+          {
+            "id": "geotiff__b",
+            "color": "geotiff",
+            "label": "b = idx.stack"
+          },
+          {
+            "id": "mask__c",
+            "color": "mask",
+            "label": "c = GT water mask"
+          },
+          {
+            "id": "geotiff__d",
+            "color": "geotiff",
+            "label": "d"
+          },
+          {
+            "id": "mask__d",
+            "color": "mask",
+            "label": "d = river extent"
+          },
+          {
+            "id": "mask__e",
+            "color": "mask",
+            "label": "e = domain (All river)"
+          }
+        ],
+        "outPorts": [
+          {
+            "id": "image__out_fig",
+            "color": "image",
+            "label": "fig"
+          },
+          {
+            "id": "any__out_stats",
+            "color": "any",
+            "label": "stats"
+          },
+          {
+            "id": "mask__out_gt",
+            "color": "mask",
+            "label": "GT (occ>=50, aligne)"
+          },
+          {
+            "id": "mask__out_ow",
+            "color": "mask",
+            "label": "open water (occ>=75)"
+          },
+          {
+            "id": "mask__out_ext",
+            "color": "mask",
+            "label": "extent (occ>=10)"
+          },
+          {
+            "id": "mask__out_domain",
+            "color": "mask",
+            "label": "domain (All river)"
+          },
+          {
+            "id": "image__out_dist",
+            "color": "image",
+            "label": "distributions"
+          },
+          {
+            "id": "image__out_auroc",
+            "color": "image",
+            "label": "AUROC vs GT"
+          }
+        ],
+        "userLabel": "Index Correlation (Spearman)"
+      },
+      "width": 208,
+      "height": 313,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 2680,
+        "y": 200
+      },
+      "dragging": false
+    },
+    {
+      "id": "node-1782714864518-0.5776343794772578",
+      "type": "canvas_frame",
+      "position": {
+        "x": -240,
+        "y": -100
+      },
+      "style": {
+        "width": 1400,
+        "height": 900,
+        "zIndex": -1
+      },
+      "data": {
+        "label": "Frame",
+        "params": {
+          "title": "Indices",
+          "collapsed": false,
+          "savedHeight": 640,
+          "color_index": 3
+        }
+      },
+      "width": 1400,
+      "height": 900,
+      "selected": false,
+      "positionAbsolute": {
+        "x": -200,
+        "y": -100
+      },
+      "dragging": false,
+      "resizing": false
+    },
+    {
+      "id": "node-1782714961073-0.25481293318634246",
+      "type": "canvas_frame",
+      "position": {
+        "x": 1220,
+        "y": -100
+      },
+      "style": {
+        "width": 1280,
+        "height": 640,
+        "zIndex": -1
+      },
+      "data": {
+        "label": "Frame",
+        "params": {
+          "title": "Monte Carlo P (Mean)",
+          "collapsed": false,
+          "savedHeight": 640,
+          "color_index": 1
+        }
+      },
+      "width": 1280,
+      "height": 640,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 1380,
+        "y": -100
+      },
+      "dragging": false,
+      "resizing": false
+    },
+    {
+      "id": "node-1782715167174-0.10356488106141004",
+      "type": "canvas_frame",
+      "position": {
+        "x": 2540,
+        "y": -100
+      },
+      "style": {
+        "width": 1960,
+        "height": 880,
+        "zIndex": -1
+      },
+      "data": {
+        "label": "Frame",
+        "params": {
+          "title": "Scoring",
+          "collapsed": false,
+          "savedHeight": 640,
+          "color_index": 0
+        }
+      },
+      "width": 1960,
+      "height": 880,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 2540,
+        "y": -100
+      },
+      "dragging": false,
+      "resizing": false
+    },
+    {
+      "id": "adaptive_gate",
+      "type": "logic_python",
+      "position": {
+        "x": 1480,
+        "y": 200
+      },
+      "style": {},
+      "data": {
+        "label": "Python Node",
+        "userLabel": "Adaptive Gate (p99 consensus)",
+        "params": {
+          "code": "// Adaptive reflectance gate — faithful to compute_adaptive_constraints + the\n// decision_water gate. base = un-noised stack, pert = noised stack.\n//   CDSE order B04,B03,B02,B08,B11,B12 = red,green,blue,nir,swir1,swir2.\n// The p99 caps come from the consensus pixels of the BASE scene and are frozen\n// for the whole run (floor = 2x the fixed cap, fallback to fixed caps below 500\n// px). The gate itself is applied to the NOISED bands.\nconst VOTE_K = 2, PCT = 99.0, MIN_PIX = 500;\nconst NIR_MAX = 0.12, SWIR1_MAX = 0.06, SWIR2_MAX = 0.05;\nconst FLOOR_MULT = 2.0;\nconst BAND_MIN = -0.002, DEN_MIN = 1e-6;\n\nconst b6 = (g) => {\n  const s = g.bands;\n  return { bl: s[2], gr: s[1], rd: s[0], ni: s[3], s1: s[4], s2: s[5] };\n};\nconst nd = (x, y, i) => {\n  const den = x[i] + y[i];\n  if (!(Number.isFinite(x[i]) && Number.isFinite(y[i]))) return NaN;\n  if (Math.abs(den) <= DEN_MIN || x[i] <= BAND_MIN || y[i] <= BAND_MIN) return NaN;\n  const v = (x[i] - y[i]) / den;\n  return v < -1 ? -1 : v > 1 ? 1 : v;\n};\nconst votes = (B, i) => {\n  const ndwi = nd(B.gr, B.ni, i), mndwi = nd(B.gr, B.s1, i);\n  const awei = B.bl[i] + 2.5 * B.gr[i] - 1.5 * (B.ni[i] + B.s1[i]) - 0.25 * B.s2[i];   // AWEIsh\n  const mbwi = 3.0 * B.gr[i] - (B.rd[i] + B.ni[i] + B.s1[i] + B.s2[i]);                // MBWI factor 3\n  return (Number.isFinite(ndwi) && ndwi > 0 ? 1 : 0)\n       + (Number.isFinite(mndwi) && mndwi > 0 ? 1 : 0)\n       + (Number.isFinite(awei) && awei > 0 ? 1 : 0)\n       + (Number.isFinite(mbwi) && mbwi > 0 ? 1 : 0);\n};\nconst percentile = (arr, q) => {\n  if (!arr.length) return NaN;\n  const s = Float64Array.from(arr).sort();\n  const pos = (q / 100) * (s.length - 1), lo = Math.floor(pos), hi = Math.ceil(pos);\n  return lo === hi ? s[lo] : s[lo] + (s[hi] - s[lo]) * (pos - lo);\n};\n\n// --- caps frozen on the base scene, computed once per run ---\nconst B = b6(base);\nconst px = base.width * base.height;\nlet nirSum = 0;\nfor (let i = 0; i < px; i++) if (Number.isFinite(B.ni[i])) nirSum += B.ni[i];\nconst sig = base.width + 'x' + base.height + ':' + (Math.round(nirSum * 1000) / 1000);\n\nif (state.gate_sig !== sig || !state.caps) {\n  const consNi = [], consS1 = [], consS2 = [];\n  for (let i = 0; i < px; i++) {\n    if (!(Number.isFinite(B.bl[i]) && Number.isFinite(B.gr[i]) && Number.isFinite(B.rd[i])\n       && Number.isFinite(B.ni[i]) && Number.isFinite(B.s1[i]) && Number.isFinite(B.s2[i]))) continue;\n    if (votes(B, i) >= VOTE_K) { consNi.push(B.ni[i]); consS1.push(B.s1[i]); consS2.push(B.s2[i]); }\n  }\n  const n = consNi.length;\n  state.caps = n >= MIN_PIX\n    ? [Math.max(percentile(consNi, PCT), NIR_MAX * FLOOR_MULT),\n       Math.max(percentile(consS1, PCT), SWIR1_MAX * FLOOR_MULT),\n       Math.max(percentile(consS2, PCT), SWIR2_MAX * FLOOR_MULT), true, n]\n    : [NIR_MAX, SWIR1_MAX, SWIR2_MAX, false, n];\n  state.gate_sig = sig;\n}\nconst [nc, c1, c2, adaptive, nCons] = state.caps;\n\n// --- gate applied to the NOISED bands, with the frozen caps ---\nconst Pb = b6(pert);\nconst mask = track(new cv.Mat(pert.height, pert.width, cv.CV_8U));\nconst out = mask.data;\nfor (let i = 0; i < px; i++) {\n  const ok = Number.isFinite(Pb.bl[i]) && Number.isFinite(Pb.gr[i]) && Number.isFinite(Pb.rd[i])\n          && Number.isFinite(Pb.ni[i]) && Number.isFinite(Pb.s1[i]) && Number.isFinite(Pb.s2[i])\n          && Pb.ni[i] < nc && Pb.s1[i] < c1 && Pb.s2[i] < c2;\n  // No brightness floor: it would also delete dark open water (NIR/SWIR ~ 0),\n  // which is the darkest target. The NIR/SWIR caps plus the k-of-4 vote suffice.\n  out[i] = ok ? 255 : 0;\n}\n\nconst r4 = (v) => Math.round(v * 1e4) / 1e4;\nout_mask = mask;\nout_caps = { adaptive, n_consensus: nCons, nir_cap: r4(nc), swir1_cap: r4(c1), swir2_cap: r4(c2) };\n",
+          "node_note": "Gate de reflectance scene-adaptatif. base=CDSE L2A SR (non bruite), pert=noise (bruite). _b6 ordre CDSE B04,B03,B02,B08,B11,B12 -> blue,green,red,nir,swir1,swir2. Caps p99 auto-cales sur pixels consensus (repli fixe SR NIR<0.12 SWIR1<0.06 SWIR2<0.05 si <500 px).",
+          "color_index": 1
+        },
+        "ports": [
+          {
+            "id": "geotiff__base",
+            "color": "geotiff",
+            "label": "base"
+          },
+          {
+            "id": "geotiff__pert",
+            "color": "geotiff",
+            "label": "pert"
+          }
+        ],
+        "outPorts": [
+          {
+            "id": "mask__out_mask",
+            "color": "mask",
+            "label": "gate"
+          },
+          {
+            "id": "any__out_caps",
+            "color": "any",
+            "label": "caps"
+          }
+        ]
+      },
+      "width": 208,
+      "height": 121,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 1480,
+        "y": 200
+      }
+    },
+    {
+      "id": "node-1782919954938-1km6n7fkh",
+      "type": "feat_threshold_adv",
+      "position": {
+        "x": 2680,
+        "y": 60
+      },
+      "style": {},
+      "data": {
+        "label": "Advanced Threshold",
+        "params": {
+          "mode": 0,
+          "threshold": 179,
+          "color_index": 0,
+          "node_note": "Seuil P auto-calibre par Threshold Sweep (median-of-plateau F1). Plus de valeur figee."
+        },
+        "paramPorts": [
+          {
+            "id": "threshold",
+            "color": "scalar",
+            "label": "Threshold Value"
+          }
+        ],
+        "externalizedParams": [
+          "threshold"
+        ],
+        "userLabel": "Advanced Threshold"
+      },
+      "width": 208,
+      "height": 90,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 2680,
+        "y": 60
+      },
+      "dragging": false
+    },
+    {
+      "id": "node-1782920492331-zy195o6bo",
+      "type": "geo_geotiff_reader",
+      "position": {
+        "x": 160,
+        "y": 40
+      },
+      "style": {},
+      "data": {
+        "label": "GeoTIFF Reader",
+        "params": {
+          "file_path": "samples/scene.tif",
+          "r_band": 1,
+          "g_band": 2,
+          "b_band": 3
+        },
+        "minified": false
+      },
+      "width": 208,
+      "height": 285,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 160,
+        "y": 40
+      },
+      "dragging": false
+    },
+    {
+      "id": "node-1782935904874-0.4708570372279324",
+      "type": "sci_mask_metrics",
+      "position": {
+        "x": 3660,
+        "y": 80
+      },
+      "width": 208,
+      "height": 153,
+      "data": {
+        "userLabel": "Precision / Recall / F1 / IoU",
+        "params": {
+          "show_overlay": true,
+          "alpha": 0.45,
+          "iou_thresh": 0.5,
+          "color_index": 0
+        },
+        "minified": false
+      },
+      "selected": false,
+      "dragging": false,
+      "style": {},
+      "positionAbsolute": {
+        "x": 3660,
+        "y": 80
+      }
+    },
+    {
+      "id": "node-1782935904874-0.3982183414001329",
+      "type": "data_inspector",
+      "position": {
+        "x": 4140,
+        "y": -40
+      },
+      "style": {
+        "width": 320,
+        "height": 780
+      },
+      "data": {
+        "label": "Inspector",
+        "params": {
+          "color_index": 0
+        }
+      },
+      "width": 320,
+      "height": 780,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 4140,
+        "y": -40
+      },
+      "dragging": false,
+      "resizing": false
+    },
+    {
+      "id": "landcover_gt",
+      "type": "geotiff_to_mask",
+      "position": {
+        "x": 520,
+        "y": 200
+      },
+      "width": 208,
+      "height": 121,
+      "data": {
+        "userLabel": "WorldCover Water (GT)",
+        "params": {
+          "band_index": 0,
+          "threshold": 0.5
+        },
+        "minified": false,
+        "label": "Reference → mask"
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 520,
+        "y": 200
+      },
+      "dragging": false,
+      "style": {}
+    },
+    {
+      "id": "node-1782965132733-6rbur98mr",
+      "type": "output_display",
+      "position": {
+        "x": 3380,
+        "y": 540
+      },
+      "style": {
+        "height": 24
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "color_index": 2
+        },
+        "mainConnected": true,
+        "minified": true
+      },
+      "width": 208,
+      "height": 24,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 3380,
+        "y": 540
+      }
+    },
+    {
+      "id": "node-1782969673739-7vzpqrwhf",
+      "type": "scalar_input",
+      "position": {
+        "x": 160,
+        "y": 360
+      },
+      "style": {},
+      "data": {
+        "label": "Target N (0 = run forever)",
+        "params": {
+          "format": 0,
+          "value": 118,
+          "min": 0,
+          "max": 1000000,
+          "step": 1,
+          "color_index": 3
+        },
+        "schema": {
+          "type": "scalar_input",
+          "label": "Number",
+          "category": "math",
+          "icon": "Hash",
+          "description": "",
+          "inputs": [],
+          "outputs": [
+            {
+              "id": "value",
+              "color": "scalar"
+            }
+          ],
+          "params": [
+            {
+              "id": "format",
+              "label": "Format",
+              "type": "enum",
+              "options": [
+                "Integer",
+                "Float"
+              ],
+              "default": 1
+            },
+            {
+              "id": "value",
+              "label": "Value",
+              "type": "float",
+              "default": 0
+            },
+            {
+              "id": "_sec_range",
+              "label": "Range",
+              "type": "section"
+            },
+            {
+              "id": "min",
+              "label": "Min",
+              "type": "float",
+              "default": 0
+            },
+            {
+              "id": "max",
+              "label": "Max",
+              "type": "float",
+              "default": 100
+            },
+            {
+              "id": "step",
+              "label": "Step",
+              "type": "float",
+              "default": 1
+            }
+          ],
+          "resizable": false,
+          "min_width": 200,
+          "min_height": 150,
+          "colorable": true,
+          "dynamic_inputs": false,
+          "dynamic_outputs": false,
+          "variable_inputs": false,
+          "hf_model": "",
+          "hf_filename": ""
+        }
+      },
+      "width": 208,
+      "height": 111,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 160,
+        "y": 360
+      },
+      "dragging": false
+    },
+    {
+      "id": "teleport_1782969721247_4b70",
+      "type": "canvas_teleport",
+      "position": {
+        "x": 1880,
+        "y": 240
+      },
+      "data": {
+        "label": "Target N (0 = run forever)",
+        "params": {
+          "source_id": "node-1782969673739-7vzpqrwhf",
+          "source_type": "scalar_input"
+        },
+        "source_outputs": [
+          {
+            "id": "value",
+            "color": "scalar"
+          }
+        ]
+      },
+      "width": 193,
+      "selected": false,
+      "height": 70,
+      "positionAbsolute": {
+        "x": 1880,
+        "y": 240
+      },
+      "dragging": false
+    },
+    {
+      "id": "corr_dilate",
+      "type": "feat_morphology_adv",
+      "position": {
+        "x": 1920,
+        "y": 660
+      },
+      "width": 208,
+      "height": 98,
+      "data": {
+        "userLabel": "Domain = Dilate(ext)",
+        "params": {
+          "operation": 5,
+          "shape": 2,
+          "size": 15,
+          "iterations": 2,
+          "color_index": 4,
+          "node_note": "Dilate isotrope: marge de corridor ~5%. All river = ce domaine. size/iterations = largeur marge."
+        },
+        "paramPorts": [
+          {
+            "id": "size",
+            "color": "scalar",
+            "label": "Kernel Size"
+          }
+        ],
+        "externalizedParams": [
+          "size"
+        ]
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 1920,
+        "y": 660
+      },
+      "dragging": false
+    },
+    {
+      "id": "node-1782972741979-9tx4ye91z",
+      "type": "filter_blob_filter",
+      "position": {
+        "x": 1640,
+        "y": 660
+      },
+      "style": {},
+      "data": {
+        "label": "Blob Filter",
+        "params": {
+          "min_area": 258,
+          "color_index": 4
+        },
+        "paramPorts": [
+          {
+            "id": "min_area",
+            "color": "scalar",
+            "label": "Min Area (px²)"
+          }
+        ],
+        "externalizedParams": [
+          "min_area"
+        ]
+      },
+      "width": 208,
+      "height": 121,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 1640,
+        "y": 660
+      },
+      "dragging": false
+    },
+    {
+      "id": "node-1782972774702-cl7d9x8kc",
+      "type": "filter_threshold",
+      "position": {
+        "x": 1380,
+        "y": 660
+      },
+      "style": {},
+      "data": {
+        "label": "Threshold",
+        "params": {
+          "color_index": 4
+        }
+      },
+      "width": 208,
+      "height": 90,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 1380,
+        "y": 660
+      },
+      "dragging": false
+    },
+    {
+      "id": "node-1782973187204-65mgsen8r",
+      "type": "scalar_input",
+      "position": {
+        "x": 1640,
+        "y": 800
+      },
+      "style": {},
+      "data": {
+        "label": "Min Area (px²)",
+        "params": {
+          "format": 0,
+          "value": 258,
+          "min": 1,
+          "max": 1000000,
+          "step": 1,
+          "color_index": 4
+        },
+        "schema": {
+          "type": "scalar_input",
+          "label": "Number",
+          "category": "math",
+          "icon": "Hash",
+          "description": "",
+          "inputs": [],
+          "outputs": [
+            {
+              "id": "value",
+              "color": "scalar"
+            }
+          ],
+          "params": [
+            {
+              "id": "format",
+              "label": "Format",
+              "type": "enum",
+              "options": [
+                "Integer",
+                "Float"
+              ],
+              "default": 1
+            },
+            {
+              "id": "value",
+              "label": "Value",
+              "type": "float",
+              "default": 0
+            },
+            {
+              "id": "_sec_range",
+              "label": "Range",
+              "type": "section"
+            },
+            {
+              "id": "min",
+              "label": "Min",
+              "type": "float",
+              "default": 0
+            },
+            {
+              "id": "max",
+              "label": "Max",
+              "type": "float",
+              "default": 100
+            },
+            {
+              "id": "step",
+              "label": "Step",
+              "type": "float",
+              "default": 1
+            }
+          ],
+          "resizable": false,
+          "min_width": 200,
+          "min_height": 150,
+          "colorable": true,
+          "dynamic_inputs": false,
+          "dynamic_outputs": false,
+          "variable_inputs": false,
+          "hf_model": "",
+          "hf_filename": ""
+        },
+        "userLabel": "Blob min size"
+      },
+      "width": 208,
+      "height": 111,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 1640,
+        "y": 800
+      },
+      "dragging": false
+    },
+    {
+      "id": "node-1782973228563-2w5zaft8l",
+      "type": "scalar_input",
+      "position": {
+        "x": 1920,
+        "y": 800
+      },
+      "style": {},
+      "data": {
+        "label": "Kernel Size",
+        "params": {
+          "format": 1,
+          "value": 15,
+          "min": 1,
+          "max": 31,
+          "step": 2,
+          "color_index": 4
+        },
+        "schema": {
+          "type": "scalar_input",
+          "label": "Number",
+          "category": "math",
+          "icon": "Hash",
+          "description": "",
+          "inputs": [],
+          "outputs": [
+            {
+              "id": "value",
+              "color": "scalar"
+            }
+          ],
+          "params": [
+            {
+              "id": "format",
+              "label": "Format",
+              "type": "enum",
+              "options": [
+                "Integer",
+                "Float"
+              ],
+              "default": 1
+            },
+            {
+              "id": "value",
+              "label": "Value",
+              "type": "float",
+              "default": 0
+            },
+            {
+              "id": "_sec_range",
+              "label": "Range",
+              "type": "section"
+            },
+            {
+              "id": "min",
+              "label": "Min",
+              "type": "float",
+              "default": 0
+            },
+            {
+              "id": "max",
+              "label": "Max",
+              "type": "float",
+              "default": 100
+            },
+            {
+              "id": "step",
+              "label": "Step",
+              "type": "float",
+              "default": 1
+            }
+          ],
+          "resizable": false,
+          "min_width": 200,
+          "min_height": 150,
+          "colorable": true,
+          "dynamic_inputs": false,
+          "dynamic_outputs": false,
+          "variable_inputs": false,
+          "hf_model": "",
+          "hf_filename": ""
+        },
+        "userLabel": "Extend dilatation"
+      },
+      "width": 208,
+      "height": 111,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 1920,
+        "y": 800
+      },
+      "dragging": false
+    },
+    {
+      "id": "node-1782973294888-r6wpt7v52",
+      "type": "canvas_frame",
+      "position": {
+        "x": 1320,
+        "y": 580
+      },
+      "style": {
+        "width": 940,
+        "height": 440,
+        "zIndex": -1
+      },
+      "data": {
+        "label": "Frame",
+        "params": {
+          "color_index": 4,
+          "title": "Water extension mask"
+        }
+      },
+      "width": 940,
+      "height": 440,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 1320,
+        "y": 580
+      },
+      "dragging": false,
+      "resizing": false
+    },
+    {
+      "id": "acc_std",
+      "type": "sci_frame_accumulator",
+      "position": {
+        "x": 1940,
+        "y": 1360
+      },
+      "width": 208,
+      "height": 121,
+      "data": {
+        "userLabel": "MC Uncertainty (std)",
+        "params": {
+          "mode": 3,
+          "cumulative": true,
+          "target_n": 0,
+          "window": 16,
+          "node_note": "Ecart-type MC par pixel = incertitude. SE de la moyenne = std/sqrt(N). Pic a P=0.5.",
+          "color_index": 3
+        }
+      },
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 1940,
+        "y": 1360
+      }
+    },
+    {
+      "id": "boundary_f1",
+      "type": "sci_boundary_f1",
+      "position": {
+        "x": 3660,
+        "y": 280
+      },
+      "width": 208,
+      "height": 153,
+      "data": {
+        "userLabel": "Boundary-F1 (tol 3px)",
+        "params": {
+          "tolerance": 3,
+          "color_index": 0
+        }
+      },
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 3660,
+        "y": 280
+      }
+    },
+    {
+      "id": "insp_bf1",
+      "type": "data_inspector",
+      "position": {
+        "x": 3900,
+        "y": 380
+      },
+      "style": {
+        "width": 220,
+        "height": 140
+      },
+      "width": 220,
+      "height": 140,
+      "data": {
+        "label": "Inspector",
+        "params": {
+          "color_index": 0
+        }
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 3900,
+        "y": 380
+      },
+      "dragging": false
+    },
+    {
+      "id": "mc_conv",
+      "type": "logic_python",
+      "position": {
+        "x": 2400,
+        "y": 1500
+      },
+      "style": {},
+      "data": {
+        "label": "Python Node",
+        "userLabel": "MC Convergence",
+        "params": {
+          "code": "// MC Convergence monitor — scene-mean standard error of P vs number of MC steps.\n//   a = MC std map (acc_std 'main', 0-255)   b = frame_count N (scalar)\n//   c = domain mask (opt)   d = SE tolerance (opt, default 0.01)   e = min N before eval (opt, default 5)\n// SE(N) = mean_pixels(sigma_P) / sqrt(N), sigma_P = per-pixel ensemble std in P units.\n// Optimal N = first N (>= min_n) where SE < tolerance. Curve accumulates in `state` across ticks.\nconst TOL = typeof d !== 'undefined' && Number.isFinite(Number(d)) ? Number(d) : 0.01;\nconst MIN_N = typeof e !== 'undefined' && Number.isFinite(Number(e)) ? Math.round(Number(e)) : 5;\n\nconst chan = a.channels(), px = a.rows * a.cols, sd8 = a.data;\nconst dom = typeof c !== 'undefined' && c ? c.data : null;\nconst domCh = dom ? c.channels() : 1;\n\nlet sum = 0, count = 0;\nfor (let i = 0; i < px; i++) {\n  if (dom && !(dom[i * domCh] > 127)) continue;\n  const v = sd8[i * chan] / 255;\n  if (!Number.isFinite(v)) continue;\n  sum += v; count++;\n}\nconst sd = count ? sum / count : NaN;\nconst N = typeof b !== 'undefined' && Number.isFinite(Number(b)) ? Math.round(Number(b)) : 0;\nconst se = sd / Math.sqrt(Math.max(N, 1));\n\nlet hist = state.conv_hist;\n// A run that restarts (N going backwards) starts a fresh curve.\nif (!hist || N < (state.conv_lastN || 0)) hist = [];\nstate.conv_lastN = N;\nif (N >= 2 && Number.isFinite(se)) {\n  if (!hist.length || hist[hist.length - 1][0] !== N) hist.push([N, se]);   // one point per distinct N\n}\nstate.conv_hist = hist;\n\nconst Ns = hist.map((p) => p[0]), SEs = hist.map((p) => p[1]);\nlet optN = -1;\nfor (const [nn, ss] of hist) { if (nn >= MIN_N && ss < TOL) { optN = nn; break; } }\n\nconst positive = SEs.filter((s) => s > 0);\nconst fig = plot.figure({\n  width: 700, height: 450, title: 'Monte-Carlo convergence',\n  xlabel: 'MC steps (N)', ylabel: 'Scene-mean SE of P',\n  logY: SEs.length >= 2 && positive.length === SEs.length,\n});\nif (Ns.length) fig.line(Ns, SEs, { color: [180, 119, 31], marker: true, label: 'SE of P = sigma/sqrt(N)' });\nfig.hline(TOL, { color: [40, 40, 40], label: 'tolerance = ' + TOL });\nif (optN > 0) fig.vline(optN, { color: [44, 160, 44], width: 2, label: 'optimal N ~ ' + optN });\n\nout_curve = track(fig.render());\nout_optimal_N = optN;\nout_se = se;\n",
+          "color_index": 3,
+          "node_note": "Courbe SE=σ/√N vs N. N optimal = 1er N (>=5) sous TOL (0.01, editable dans le code). a=acc_std, b=frame_count, c=domaine."
+        },
+        "ports": [
+          {
+            "id": "image__a",
+            "color": "image",
+            "label": "a = σ map (acc_std)"
+          },
+          {
+            "id": "scalar__b",
+            "color": "scalar",
+            "label": "b = N (frame_count)"
+          },
+          {
+            "id": "mask__c",
+            "color": "mask",
+            "label": "c = domain (opt)"
+          },
+          {
+            "id": "scalar__d",
+            "color": "scalar",
+            "label": "d = SE tolerance"
+          },
+          {
+            "id": "scalar__e",
+            "color": "scalar",
+            "label": "e = min N before eval"
+          },
+          {
+            "id": "scalar__f",
+            "color": "scalar",
+            "label": "f"
+          }
+        ],
+        "outPorts": [
+          {
+            "id": "image__out_curve",
+            "color": "image",
+            "label": "convergence curve"
+          },
+          {
+            "id": "scalar__out_optimal_N",
+            "color": "scalar",
+            "label": "optimal N"
+          },
+          {
+            "id": "scalar__out_se",
+            "color": "scalar",
+            "label": "SE"
+          }
+        ]
+      },
+      "width": 208,
+      "height": 249,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 2400,
+        "y": 1500
+      },
+      "dragging": false
+    },
+    {
+      "id": "insp_conv",
+      "type": "data_inspector",
+      "position": {
+        "x": 2700,
+        "y": 1560
+      },
+      "style": {
+        "width": 200,
+        "height": 80
+      },
+      "width": 200,
+      "height": 80,
+      "data": {
+        "label": "Inspector",
+        "params": {
+          "color_index": 3
+        }
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 2700,
+        "y": 1560
+      },
+      "dragging": false
+    },
+    {
+      "id": "conv_tol",
+      "type": "scalar_input",
+      "position": {
+        "x": 2120,
+        "y": 1580
+      },
+      "width": 208,
+      "height": 111,
+      "data": {
+        "label": "Number",
+        "userLabel": "SE Tolerance",
+        "params": {
+          "value": 0.005,
+          "color_index": 3
+        }
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 2120,
+        "y": 1580
+      },
+      "dragging": false
+    },
+    {
+      "id": "conv_minn",
+      "type": "scalar_input",
+      "position": {
+        "x": 2120,
+        "y": 1720
+      },
+      "width": 208,
+      "height": 111,
+      "data": {
+        "label": "Number",
+        "userLabel": "Min N (before eval)",
+        "params": {
+          "value": 5,
+          "color_index": 3
+        }
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 2120,
+        "y": 1720
+      },
+      "dragging": false
+    },
+    {
+      "id": "thr_sweep",
+      "type": "logic_python",
+      "position": {
+        "x": 3860,
+        "y": 1460
+      },
+      "style": {},
+      "data": {
+        "label": "Python Node",
+        "userLabel": "Threshold Sweep (F1/IoU/Youden)",
+        "params": {
+          "code": "// Threshold sweep — find the P(water) cutoff that maximizes a chosen metric.\n//   a = P (acc_mean image, 0-255)   b = truth mask (aligned GT)\n//   c = domain mask (opt)   d = metric selector (0=F1 1=IoU 2=Youden's J 3=MCC)\n//   e = threshold step (opt, 0.02)   f = bootstrap replicates (opt, 0 = off)\n//   g = semantic anchor threshold (opt, 0.5 = MC majority vote)\n// Replaces an eyeballed cutoff with the value that actually maximizes the\n// precision/recall trade-off against the ground truth. The optional bootstrap\n// band says whether the \"best\" threshold is distinguishable from the rest of\n// the curve, or the plateau is flat within noise.\nconst px = a.rows * a.cols;\nconst Pd = a.data, Pc = a.channels();\nconst Td = b.data, Tc = b.channels();\nconst Dd = typeof c !== 'undefined' && c ? c.data : null, Dc = Dd ? c.channels() : 1;\n\nlet metricSel = typeof d !== 'undefined' && Number.isFinite(Number(d)) ? Math.round(Number(d)) : 0;\nif (metricSel < 0 || metricSel > 3) metricSel = 0;\nlet step = typeof e !== 'undefined' && Number.isFinite(Number(e)) ? Number(e) : 0.02;\nstep = Math.min(Math.max(step, 0.002), 0.5);\nlet anchor = typeof g !== 'undefined' && Number.isFinite(Number(g)) ? Number(g) : 0.5;\nanchor = Math.min(Math.max(anchor, 0), 1);\nconst nBoot = typeof f !== 'undefined' && Number.isFinite(Number(f)) ? Math.round(Number(f)) : 0;\nconst metricNames = ['F1', 'IoU', \"Youden's J\", 'MCC'];\n\nconst Pv = [], Tv = [];\nfor (let i = 0; i < px; i++) {\n  if (Dd && !(Dd[i * Dc] > 127)) continue;\n  Pv.push(Pd[i * Pc] / 255);\n  Tv.push(Td[i * Tc] > 127 ? 1 : 0);\n}\nconst n = Pv.length;\n\nconst thresholds = [];\nfor (let t = 0; t <= 1 + step / 2; t += step) if (t <= 1) thresholds.push(t);\n\nconst metricOf = (tp, fp, fn, tn, sel) => {\n  if (sel === 1) { const den = tp + fp + fn; return den > 0 ? tp / den : 0; }            // IoU\n  if (sel === 2) {                                                                       // Youden's J\n    const r = (tp + fn) > 0 ? tp / (tp + fn) : 0;\n    const spec = (tn + fp) > 0 ? tn / (tn + fp) : 0;\n    return r + spec - 1;\n  }\n  if (sel === 3) {                                                                       // Matthews\n    const den = Math.sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn));\n    return den > 0 ? (tp * tn - fp * fn) / den : 0;\n  }\n  const p = (tp + fp) > 0 ? tp / (tp + fp) : 0;                                          // F1\n  const r = (tp + fn) > 0 ? tp / (tp + fn) : 0;\n  return (p + r) > 0 ? (2 * p * r) / (p + r) : 0;\n};\n\nconst prec = [], rec = [], f1 = [], iou = [], youden = [], mcc = [];\nfor (const t of thresholds) {\n  let tp = 0, fp = 0, fn = 0, tn = 0;\n  for (let i = 0; i < n; i++) {\n    const pred = Pv[i] >= t, truth = Tv[i] === 1;\n    if (pred && truth) tp++; else if (pred && !truth) fp++; else if (!pred && truth) fn++; else tn++;\n  }\n  const p = (tp + fp) > 0 ? tp / (tp + fp) : 0;\n  const r = (tp + fn) > 0 ? tp / (tp + fn) : 0;\n  const spec = (tn + fp) > 0 ? tn / (tn + fp) : 0;\n  prec.push(p); rec.push(r);\n  f1.push((p + r) > 0 ? (2 * p * r) / (p + r) : 0);\n  iou.push((tp + fp + fn) > 0 ? tp / (tp + fp + fn) : 0);\n  youden.push(r + spec - 1);\n  // MCC uses all four confusion cells, true negatives included — balanced and\n  // robust to the class imbalance water always has.\n  const den = Math.sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn));\n  mcc.push(den > 0 ? (tp * tn - fp * fn) / den : 0);\n}\n\nconst target = [f1, iou, youden, mcc][metricSel];\nlet rawBest = 0;\nfor (let i = 1; i < target.length; i++) if (target[i] > target[rawBest]) rawBest = i;\n\n// A near-flat curve makes the raw argmax an artefact: it lands on the first\n// point after the initial cliff. Taking the highest qualifying threshold is\n// just as arbitrary at the other end. The median of the candidates sits in\n// whatever plateau actually exists.\nconst TOL_FRAC = 0.99;\nlet candidates;\nif (target[rawBest] > 0) {\n  const cutoff = target[rawBest] * TOL_FRAC;\n  candidates = target.map((v, i) => (v >= cutoff ? i : -1)).filter((i) => i >= 0);\n} else {\n  candidates = [rawBest];\n}\nconst plateauFrac = candidates.length / Math.max(thresholds.length, 1);\n\n// When the metric is broadly flat, a run-to-run-stable, probabilistically\n// meaningful cutoff (the majority vote at 0.5) beats a ground-truth-fitted\n// argmax — provided snapping to it costs little. The cost is always reported.\nconst ANCHOR_COST_MAX = 0.03;\nlet anchorIndex = 0;\nfor (let i = 1; i < thresholds.length; i++) {\n  if (Math.abs(thresholds[i] - anchor) < Math.abs(thresholds[anchorIndex] - anchor)) anchorIndex = i;\n}\nconst anchorCost = target[rawBest] - target[anchorIndex];\nlet anchorUsed = false;\nlet best;\nif (plateauFrac > 0.3 && anchorCost <= ANCHOR_COST_MAX) { best = anchorIndex; anchorUsed = true; }\nelse if (candidates.length) {\n  const mid = candidates.length / 2;\n  const median = candidates.length % 2 ? candidates[(candidates.length - 1) / 2]\n                                       : (candidates[mid - 1] + candidates[mid]) / 2;\n  best = Math.round(median);\n} else best = rawBest;\nconst tOpt = thresholds[best];\n\nconst r4 = (v) => Number.isFinite(v) ? Math.round(v * 1e4) / 1e4 : null;\n\n// --- optional bootstrap 95% CI band on the selected metric ---\n// Resampling the domain pixels with replacement puts an uncertainty band around\n// the curve. If the best threshold's interval covers most of the curve, the\n// \"optimal\" cutoff is not statistically distinguishable.\nlet ciLow = null, ciHigh = null;\nout_ci = null;\nif (nBoot > 0 && n >= 30) {\n  const BOOT_MAX = 40000;\n  let sampleP = Pv, sampleT = Tv, m = n;\n  if (n > BOOT_MAX) {\n    // Deterministic subsample: a cap for speed, the interval width is set by\n    // the class sizes rather than by this.\n    let seed = 1;\n    const pick = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };\n    const chosen = new Set();\n    while (chosen.size < BOOT_MAX) chosen.add(Math.floor(pick() * n));\n    sampleP = []; sampleT = [];\n    for (const i of chosen) { sampleP.push(Pv[i]); sampleT.push(Tv[i]); }\n    m = BOOT_MAX;\n  }\n  let seed = 12345;\n  const next = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };\n  const draws = thresholds.map(() => []);\n  for (let bi = 0; bi < nBoot; bi++) {\n    const tp = new Float64Array(thresholds.length), fp = new Float64Array(thresholds.length);\n    const fn = new Float64Array(thresholds.length), tn = new Float64Array(thresholds.length);\n    for (let k = 0; k < m; k++) {\n      const s = Math.floor(next() * m);\n      const p = sampleP[s], t = sampleT[s] === 1;\n      for (let ti = 0; ti < thresholds.length; ti++) {\n        const pred = p >= thresholds[ti];\n        if (pred && t) tp[ti]++; else if (pred && !t) fp[ti]++; else if (!pred && t) fn[ti]++; else tn[ti]++;\n      }\n    }\n    for (let ti = 0; ti < thresholds.length; ti++) draws[ti].push(metricOf(tp[ti], fp[ti], fn[ti], tn[ti], metricSel));\n  }\n  const percentile = (arr, q) => {\n    const s = Float64Array.from(arr).sort();\n    const pos = (q / 100) * (s.length - 1), lo = Math.floor(pos), hi = Math.ceil(pos);\n    return lo === hi ? s[lo] : s[lo] + (s[hi] - s[lo]) * (pos - lo);\n  };\n  ciLow = draws.map((v) => percentile(v, 2.5));\n  ciHigh = draws.map((v) => percentile(v, 97.5));\n  const low = ciLow[best], high = ciHigh[best];\n  const within = target.filter((v) => v >= low && v <= high).length / target.length;\n  out_ci = {\n    metric: metricNames[metricSel], n_boot: nBoot,\n    ci95_at_topt: [r4(low), r4(high)], ci_width_at_topt: r4(high - low),\n    frac_thresholds_within_best_CI: Math.round(within * 1000) / 1000,\n    threshold_statistically_distinguishable: within < 0.5,\n  };\n}\n\n// The near-zero cliff is clipped out of the plot so the flat trade-off stays\n// readable instead of being crushed by the vertical transition.\nconst PLOT_MIN = 0.05;\nconst vis = thresholds.map((t, i) => (t >= PLOT_MIN ? i : -1)).filter((i) => i >= 0);\nconst take = (arr) => vis.map((i) => arr[i]);\nconst xs = take(thresholds);\nconst lowestMcc = Math.min(-0.05, Math.min(...mcc) - 0.05);\nconst pickTag = anchorUsed ? 'anchor ' + anchor : 'plateau median';\nconst fig = plot.figure({\n  width: 760, height: 480,\n  title: 'Threshold sweep — optimizing ' + metricNames[metricSel] + ' (' + pickTag + ')' + (plateauFrac > 0.3 ? '  [flat metric]' : ''),\n  xlabel: 'P(water) threshold  (t < ' + PLOT_MIN + ' clipped)', ylabel: 'Score',\n  ylim: [lowestMcc, 1.02],\n});\nfig.line(xs, take(prec), { color: [180, 119, 31], width: 1, label: 'Precision' });\nfig.line(xs, take(rec), { color: [14, 127, 255], width: 1, label: 'Recall' });\nfig.line(xs, take(f1), { color: [44, 160, 44], width: 2, label: 'F1' });\nfig.line(xs, take(iou), { color: [194, 119, 227], width: 1, dashed: true, label: 'IoU' });\nfig.line(xs, take(mcc), { color: [40, 39, 214], width: 1, dashed: true, label: 'MCC (uses TN too)' });\nif (ciLow) {\n  fig.line(xs, take(ciLow), { color: [150, 150, 150], width: 1, label: metricNames[metricSel] + ' 95% CI' });\n  fig.line(xs, take(ciHigh), { color: [150, 150, 150], width: 1 });\n}\nfig.vline(tOpt, { color: [30, 30, 30], width: 2,\n  label: 't = ' + r4(tOpt) + '  ' + metricNames[metricSel] + '=' + r4(target[best]) });\n\nout_curve = track(fig.render());\nout_optimal_threshold = tOpt;\nout_optimal_threshold_255 = Math.round(tOpt * 255);\nout_best = {\n  threshold: r4(tOpt), precision: r4(prec[best]), recall: r4(rec[best]),\n  f1: r4(f1[best]), iou: r4(iou[best]), mcc: r4(mcc[best]),\n  metric_used: metricNames[metricSel],\n  raw_argmax_threshold: r4(thresholds[rawBest]),\n  plateau_fraction: Math.round(plateauFrac * 1000) / 1000,\n  semantic_anchor: anchor, anchor_used: anchorUsed, anchor_cost: r4(anchorCost),\n};\nif (out_ci) out_best.bootstrap_ci = out_ci;\n",
+          "color_index": 3,
+          "node_note": "Balaie P(water) 0->1, trouve le seuil optimal (metrique choisie via d). a=P(acc_mean), b=GT aligne (out_gt), c=domaine(opt), d=metrique(0=F1 1=IoU 2=Youden), e=step."
+        },
+        "ports": [
+          {
+            "id": "image__a",
+            "color": "image",
+            "label": "a = P"
+          },
+          {
+            "id": "mask__b",
+            "color": "mask",
+            "label": "b = truth (GT)"
+          },
+          {
+            "id": "mask__c",
+            "color": "mask",
+            "label": "c = domain (opt)"
+          },
+          {
+            "id": "scalar__d",
+            "color": "scalar",
+            "label": "d = metric (0=F1 1=IoU 2=Youden)"
+          },
+          {
+            "id": "scalar__e",
+            "color": "scalar",
+            "label": "e = step"
+          },
+          {
+            "id": "scalar__f",
+            "color": "scalar",
+            "label": "f = bootstrap replicates (0=off)"
+          },
+          {
+            "id": "scalar__g",
+            "color": "scalar",
+            "label": "g = semantic anchor (0.5=majority)"
+          }
+        ],
+        "outPorts": [
+          {
+            "id": "image__out_curve",
+            "color": "image",
+            "label": "sweep curve"
+          },
+          {
+            "id": "scalar__out_optimal_threshold",
+            "color": "scalar",
+            "label": "optimal t (0-1)"
+          },
+          {
+            "id": "scalar__out_optimal_threshold_255",
+            "color": "scalar",
+            "label": "optimal t (0-255)"
+          },
+          {
+            "id": "any__out_best",
+            "color": "any",
+            "label": "best metrics"
+          }
+        ]
+      },
+      "width": 208,
+      "height": 281,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 3860,
+        "y": 1460
+      },
+      "dragging": false
+    },
+    {
+      "id": "sweep_metric",
+      "type": "scalar_input",
+      "position": {
+        "x": 3580,
+        "y": 1440
+      },
+      "width": 208,
+      "height": 111,
+      "data": {
+        "label": "Number",
+        "userLabel": "Metric (0=F1 1=IoU 2=Youden 3=MCC)",
+        "params": {
+          "value": 3,
+          "color_index": 3
+        }
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 3580,
+        "y": 1440
+      },
+      "dragging": false
+    },
+    {
+      "id": "sweep_step",
+      "type": "scalar_input",
+      "position": {
+        "x": 3580,
+        "y": 1580
+      },
+      "width": 208,
+      "height": 111,
+      "data": {
+        "label": "Number",
+        "userLabel": "Threshold Step",
+        "params": {
+          "value": 0.02,
+          "color_index": 3
+        }
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 3580,
+        "y": 1580
+      },
+      "dragging": false
+    },
+    {
+      "id": "insp_sweep",
+      "type": "data_inspector",
+      "position": {
+        "x": 4140,
+        "y": 1340
+      },
+      "style": {
+        "width": 280,
+        "height": 660
+      },
+      "width": 280,
+      "height": 660,
+      "data": {
+        "label": "Inspector",
+        "params": {
+          "color_index": 3
+        }
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 4140,
+        "y": 1340
+      },
+      "dragging": false,
+      "resizing": false
+    },
+    {
+      "id": "node-1783153860983-ijuxkbsfc",
+      "type": "output_display",
+      "position": {
+        "x": 3380,
+        "y": 600
+      },
+      "style": {
+        "height": 24
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "color_index": 2
+        },
+        "mainConnected": false,
+        "ports": [
+          {
+            "id": "image__0_8zxe",
+            "color": "image",
+            "label": "img0"
+          },
+          {
+            "id": "image__1_3htw",
+            "color": "image",
+            "label": "img1"
+          }
+        ],
+        "minified": true
+      },
+      "width": 208,
+      "height": 24,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 3380,
+        "y": 600
+      }
+    },
+    {
+      "id": "sweep_boot",
+      "type": "scalar_input",
+      "position": {
+        "x": 3580,
+        "y": 1720
+      },
+      "width": 208,
+      "height": 111,
+      "data": {
+        "label": "Number",
+        "userLabel": "Bootstrap replicates (0=off)",
+        "params": {
+          "value": 202.74,
+          "max": 500,
+          "color_index": 3
+        }
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 3580,
+        "y": 1720
+      },
+      "dragging": false
+    },
+    {
+      "id": "node-1783169166496-49dy80cko",
+      "type": "data_inspector",
+      "position": {
+        "x": 2400,
+        "y": 1800
+      },
+      "style": {
+        "width": 180,
+        "height": 120
+      },
+      "data": {
+        "label": "Inspector",
+        "params": {
+          "color_index": 3
+        }
+      },
+      "width": 180,
+      "height": 120,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 2400,
+        "y": 1800
+      },
+      "dragging": false,
+      "resizing": false
+    },
+    {
+      "id": "sweep_anchor",
+      "type": "scalar_input",
+      "position": {
+        "x": 3580,
+        "y": 1860
+      },
+      "width": 208,
+      "height": 111,
+      "data": {
+        "label": "Number",
+        "userLabel": "Semantic anchor (0.5=majority)",
+        "params": {
+          "value": 0.5,
+          "color_index": 3
+        }
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 3580,
+        "y": 1860
+      },
+      "dragging": false
+    },
+    {
+      "id": "mc_cal",
+      "type": "logic_python",
+      "position": {
+        "x": 3180,
+        "y": 2240
+      },
+      "style": {},
+      "data": {
+        "label": "Python Node",
+        "userLabel": "MC Calibration (Brier/ECE/⟨U⟩)",
+        "params": {
+          "code": "// MC Calibration — Brier score, Expected/Maximum Calibration Error, mean uncertainty.\n//   a = P (acc_mean image, 0-255) = predicted water probability\n//   b = truth mask (aligned GT, water=1)\n//   c = domain mask (opt, restricts evaluation to the river corridor)\n//   d = MC uncertainty map sigma_P (opt, from the std accumulator) — for <U> = <sigma_P>\n//   e = number of reliability bins (opt, default 12)\n// Checks whether P behaves as a calibrated probability (pixels at P~q are water\n// ~q of the time), not merely a rank score.\nconst px = a.rows * a.cols;\nconst Pd = a.data, Pc = a.channels();\nconst Td = b.data, Tc = b.channels();\nconst Dd = typeof c !== 'undefined' && c ? c.data : null, Dc = Dd ? c.channels() : 1;\nlet nb = typeof e !== 'undefined' && Number.isFinite(Number(e)) ? Math.round(Number(e)) : 12;\nnb = Math.min(Math.max(nb, 3), 50);\n\nconst Pv = [], yv = [];\nconst keep = new Uint8Array(px);\nfor (let i = 0; i < px; i++) {\n  if (Dd && !(Dd[i * Dc] > 127)) continue;\n  keep[i] = 1;\n  Pv.push(Pd[i * Pc] / 255);\n  yv.push(Td[i * Tc] > 127 ? 1 : 0);\n}\nconst n = Pv.length;\nif (n < 30) throw new Error('too few pixels in domain (' + n + ')');\n\n// Brier score = mean squared error between probability and binary outcome\nlet brier = 0;\nfor (let i = 0; i < n; i++) brier += (Pv[i] - yv[i]) ** 2;\nbrier /= n;\n\n// Reliability: bin by predicted probability, compare mean confidence vs empirical accuracy\nconst edges = Array.from({ length: nb + 1 }, (_, k) => k / nb);\nconst confSum = new Float64Array(nb), accSum = new Float64Array(nb), cnt = new Float64Array(nb);\nfor (let i = 0; i < n; i++) {\n  // numpy's digitize minus one, clamped: the value 1.0 belongs to the last bin.\n  let k = Math.floor(Pv[i] * nb);\n  if (k < 0) k = 0; else if (k >= nb) k = nb - 1;\n  cnt[k]++; confSum[k] += Pv[i]; accSum[k] += yv[i];\n}\nconst conf = [], acc = [], centres = [], weights = [];\nlet ece = 0, mce = NaN;\nfor (let k = 0; k < nb; k++) {\n  const w = cnt[k] / n;\n  weights.push(w);\n  centres.push((edges[k] + edges[k + 1]) / 2);\n  if (cnt[k] > 0) {\n    const cf = confSum[k] / cnt[k], ac = accSum[k] / cnt[k];\n    conf.push(cf); acc.push(ac);\n    const gap = Math.abs(ac - cf);\n    ece += w * gap;\n    mce = Number.isFinite(mce) ? Math.max(mce, gap) : gap;\n  }\n}\n\n// Mean uncertainty <U>: the MC ensemble std map when given, else the Bernoulli\n// predictive variance P(1-P), which peaks at P = 0.5 (maximal indecision).\nlet U, Usrc;\nif (typeof d !== 'undefined' && d && d.rows) {\n  const Sd = d.data, Sc = d.channels();\n  let max = 0;\n  for (let i = 0; i < px; i++) if (Sd[i * Sc] > max) max = Sd[i * Sc];\n  const scale = max > 1.5 ? 1 / 255 : 1;\n  let sum = 0, m = 0;\n  for (let i = 0; i < px; i++) if (keep[i]) { sum += Sd[i * Sc] * scale; m++; }\n  U = m ? sum / m : NaN; Usrc = 'ensemble_std';\n} else {\n  let sum = 0;\n  for (let i = 0; i < n; i++) sum += Pv[i] * (1 - Pv[i]);\n  U = sum / n; Usrc = 'bernoulli_var';\n}\n\nconst r4 = (v) => Number.isFinite(v) ? Math.round(v * 1e4) / 1e4 : null;\nconst fig = plot.figure({\n  width: 620, height: 560, title: 'Reliability diagram — MC P(water)',\n  xlabel: 'Predicted P(water)', ylabel: 'Empirical accuracy (fraction water)',\n  xlim: [0, 1], ylim: [0, 1],\n});\nfig.line([0, 1], [0, 1], { color: [40, 40, 40], dashed: true, width: 1, label: 'perfect calibration' });\nfig.line(conf, acc, { color: [180, 119, 31], marker: true, label: 'observed' });\nfig.bars(centres, weights, { color: [150, 150, 150], barWidth: 0.9, label: 'bin fraction' });\nconst reliability = track(fig.render());\ncv.putText(reliability, 'Brier ' + r4(brier) + '  ECE ' + r4(ece) + '  MCE ' + r4(mce),\n  new cv.Point(76, 52), cv.FONT_HERSHEY_SIMPLEX, 0.4, new cv.Scalar(40, 40, 40, 255), 1, cv.LINE_AA);\ncv.putText(reliability, '<U> ' + r4(U) + ' (' + Usrc + ')',\n  new cv.Point(76, 68), cv.FONT_HERSHEY_SIMPLEX, 0.4, new cv.Scalar(40, 40, 40, 255), 1, cv.LINE_AA);\n\nout_reliability = reliability;\nout_cal = {\n  brier: r4(brier), ece: r4(ece), mce: r4(mce),\n  mean_uncertainty: r4(U), uncertainty_source: Usrc,\n  n_bins: nb, n_pixels: n,\n};\n",
+          "color_index": 3,
+          "node_note": "Calibration de P: Brier, ECE/MCE, reliability diagram, ⟨U⟩. a=P(acc_mean), b=GT aligne(out_gt), c=domaine, d=σ_P(acc_std,opt), e=n_bins."
+        },
+        "ports": [
+          {
+            "id": "image__a",
+            "color": "image",
+            "label": "a = P"
+          },
+          {
+            "id": "mask__b",
+            "color": "mask",
+            "label": "b = truth (GT)"
+          },
+          {
+            "id": "mask__c",
+            "color": "mask",
+            "label": "c = domain (opt)"
+          },
+          {
+            "id": "image__d",
+            "color": "image",
+            "label": "d = σ_P map (opt)"
+          },
+          {
+            "id": "scalar__e",
+            "color": "scalar",
+            "label": "e = n_bins"
+          }
+        ],
+        "outPorts": [
+          {
+            "id": "image__out_reliability",
+            "color": "image",
+            "label": "reliability diagram"
+          },
+          {
+            "id": "any__out_cal",
+            "color": "any",
+            "label": "calibration stats"
+          }
+        ]
+      },
+      "width": 208,
+      "height": 217,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 3180,
+        "y": 2240
+      },
+      "dragging": false
+    },
+    {
+      "id": "insp_cal",
+      "type": "data_inspector",
+      "position": {
+        "x": 3560,
+        "y": 2340
+      },
+      "style": {
+        "width": 240,
+        "height": 200
+      },
+      "width": 240,
+      "height": 200,
+      "data": {
+        "label": "Inspector",
+        "params": {
+          "color_index": 3
+        },
+        "minified": false,
+        "savedHeight": 200
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 3560,
+        "y": 2340
+      },
+      "dragging": false
+    },
+    {
+      "id": "cal_bins",
+      "type": "scalar_input",
+      "position": {
+        "x": 2880,
+        "y": 2360
+      },
+      "width": 208,
+      "height": 111,
+      "data": {
+        "label": "Number",
+        "userLabel": "Reliability bins",
+        "params": {
+          "value": 12,
+          "color_index": 3
+        }
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 2880,
+        "y": 2360
+      },
+      "dragging": false
+    },
+    {
+      "id": "node-1783229747549-z0wnkf3bz",
+      "type": "output_display",
+      "position": {
+        "x": 3580,
+        "y": 2280
+      },
+      "style": {
+        "height": 24
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "color_index": 2
+        },
+        "mainConnected": true,
+        "minified": true
+      },
+      "width": 208,
+      "height": 24,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 3580,
+        "y": 2280
+      },
+      "dragging": false
+    },
+    {
+      "id": "node-1783229777531-fubt62nyz",
+      "type": "canvas_frame",
+      "position": {
+        "x": 2780,
+        "y": 2100
+      },
+      "style": {
+        "width": 1120,
+        "height": 34,
+        "zIndex": -1
+      },
+      "data": {
+        "label": "Frame",
+        "params": {
+          "collapsed": true,
+          "savedHeight": 500,
+          "title": "Calibration Brier/ECE/⟨U⟩",
+          "color_index": 0,
+          "text_color": "#ffffff"
+        }
+      },
+      "width": 1120,
+      "height": 34,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 2780,
+        "y": 2100
+      },
+      "dragging": false,
+      "resizing": false
+    },
+    {
+      "id": "node-1783229932793-f5v7k8fmv",
+      "type": "canvas_frame",
+      "position": {
+        "x": 1880,
+        "y": 1280
+      },
+      "style": {
+        "width": 320,
+        "height": 34,
+        "zIndex": -1
+      },
+      "data": {
+        "label": "Frame",
+        "params": {
+          "collapsed": true,
+          "savedHeight": 280,
+          "title": "Uncertainty",
+          "color_index": 0
+        }
+      },
+      "width": 320,
+      "height": 34,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 1880,
+        "y": 1280
+      },
+      "dragging": false,
+      "resizing": false
+    },
+    {
+      "id": "node-1783229982145-0.12827175993177453",
+      "type": "canvas_frame",
+      "position": {
+        "x": 2340,
+        "y": 1420
+      },
+      "style": {
+        "width": 320,
+        "height": 34,
+        "zIndex": -1
+      },
+      "data": {
+        "label": "Frame",
+        "params": {
+          "collapsed": true,
+          "savedHeight": 280,
+          "title": "MC - Number of runs validation",
+          "color_index": 0
+        }
+      },
+      "width": 320,
+      "height": 34,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 2340,
+        "y": 1420
+      },
+      "dragging": false,
+      "resizing": false
+    },
+    {
+      "id": "node-1783230430743-0.2936780407475206",
+      "type": "output_display",
+      "position": {
+        "x": 3380,
+        "y": 660
+      },
+      "style": {
+        "height": 24
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "color_index": 2
+        },
+        "mainConnected": true,
+        "ports": [
+          {
+            "id": "image__0_8zxe",
+            "color": "image",
+            "label": "img0"
+          },
+          {
+            "id": "image__1_3htw",
+            "color": "image",
+            "label": "img1"
+          }
+        ],
+        "minified": true
+      },
+      "width": 208,
+      "height": 24,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 3380,
+        "y": 660
+      }
+    },
+    {
+      "id": "node-1783230513229-xisq9ndax",
+      "type": "output_display",
+      "position": {
+        "x": 3620,
+        "y": 540
+      },
+      "style": {
+        "height": 24
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "color_index": 2
+        },
+        "mainConnected": true,
+        "minified": true
+      },
+      "width": 208,
+      "height": 24,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 3620,
+        "y": 540
+      },
+      "dragging": false
+    },
+    {
+      "id": "node-1783230643172-c7veyvo3k",
+      "type": "output_display",
+      "position": {
+        "x": 2700,
+        "y": 1500
+      },
+      "style": {
+        "height": 24
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "color_index": 2
+        },
+        "mainConnected": true,
+        "minified": true
+      },
+      "width": 208,
+      "height": 24,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 2700,
+        "y": 1500
+      }
+    },
+    {
+      "id": "node-1783230672819-byl2wub6u",
+      "type": "output_display",
+      "position": {
+        "x": 2260,
+        "y": 1280
+      },
+      "style": {
+        "height": 24
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "color_index": 2
+        },
+        "mainConnected": true,
+        "minified": true
+      },
+      "width": 208,
+      "height": 24,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 2260,
+        "y": 1280
+      }
+    },
+    {
+      "id": "node-1783230768251-s8p8obduh",
+      "type": "output_display",
+      "position": {
+        "x": 4540,
+        "y": 1500
+      },
+      "style": {
+        "height": 24
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "color_index": 2
+        },
+        "mainConnected": true,
+        "minified": true
+      },
+      "width": 208,
+      "height": 24,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 4540,
+        "y": 1500
+      }
+    },
+    {
+      "id": "node-1783230830169-2c6c4rciu",
+      "type": "canvas_frame",
+      "position": {
+        "x": 1780,
+        "y": 1200
+      },
+      "style": {
+        "width": 3060,
+        "height": 1380,
+        "zIndex": -1
+      },
+      "data": {
+        "label": "Frame",
+        "params": {
+          "color_index": 3,
+          "title": "Validation",
+          "collapsed": false,
+          "savedHeight": 1380
+        }
+      },
+      "width": 3060,
+      "height": 1380,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 1780,
+        "y": 1200
+      },
+      "resizing": false
+    },
+    {
+      "id": "node-1783230912639-0.5538842886205113",
+      "type": "canvas_frame",
+      "position": {
+        "x": 3480,
+        "y": 1280
+      },
+      "style": {
+        "width": 1300,
+        "height": 34,
+        "zIndex": -1
+      },
+      "data": {
+        "label": "Frame",
+        "params": {
+          "collapsed": true,
+          "savedHeight": 740,
+          "title": "Optimal threshold validation",
+          "color_index": 0
+        }
+      },
+      "width": 1300,
+      "height": 34,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 3480,
+        "y": 1280
+      },
+      "dragging": false,
+      "resizing": false
+    },
+    {
+      "id": "overall_acc",
+      "type": "logic_python",
+      "position": {
+        "x": 3180,
+        "y": 2560
+      },
+      "style": {},
+      "data": {
+        "label": "Python Node",
+        "userLabel": "Overall Accuracy",
+        "params": {
+          "code": "// Overall Accuracy — pixel-classification accuracy of pred vs ground truth.\n//   a = predicted water mask (0/255)\n//   b = truth mask (GT water, 0/255)\n//   c = domain mask (opt) — restrict evaluation to this footprint (e.g. river corridor)\n// OA = (TP + TN) / (TP + TN + FP + FN). Water is rare, so OA is dominated by the\n// background (a mask that predicts \"no water\" everywhere already scores very high).\n// Balanced accuracy = mean(recall_water, recall_land) is reported alongside as the\n// imbalance-robust companion; F1/IoU live in the dedicated metrics node.\nconst bits = (m) => {\n  const d = m.data, ch = m.channels(), n = m.rows * m.cols, o = new Uint8Array(n);\n  for (let i = 0; i < n; i++) o[i] = d[i * ch] > 127 ? 1 : 0;\n  return { v: o, w: m.cols, h: m.rows };\n};\n\nconst P = bits(a), T = bits(b);\nconst D = typeof c !== 'undefined' && c ? bits(c) : null;\n\n// Defensive crop to common shape (GT is aligned, but never assume).\nconst h = Math.min(P.h, T.h), w = Math.min(P.w, T.w);\nconst at = (m, x, y) => m.v[y * m.w + x];\n\nlet TP = 0, TN = 0, FP = 0, FN = 0, n = 0, restricted = false;\nfor (let y = 0; y < h; y++) {\n  for (let x = 0; x < w; x++) {\n    if (D) { if (!at(D, x, y)) { restricted = true; continue; } }\n    const p = at(P, x, y), t = at(T, x, y);\n    n++;\n    if (p && t) TP++; else if (!p && !t) TN++; else if (p && !t) FP++; else FN++;\n  }\n}\nif (n === 0) throw new Error('empty evaluation domain');\n\nconst oa = (TP + TN) / n;\nconst tpr = (TP + FN) ? TP / (TP + FN) : NaN;   // recall on water\nconst tnr = (TN + FP) ? TN / (TN + FP) : NaN;   // recall on land\nconst finite = [tpr, tnr].filter(Number.isFinite);\nconst bacc = finite.length ? finite.reduce((s, v) => s + v, 0) / finite.length : NaN;\nconst r4 = (v) => Number.isFinite(v) ? Math.round(v * 1e4) / 1e4 : null;\n\nout_accuracy = oa;\nout_stats = {\n  overall_accuracy: r4(oa),\n  balanced_accuracy: r4(bacc),\n  recall_water: r4(tpr),\n  recall_land: r4(tnr),\n  TP, TN, FP, FN,\n  n_pixels: n,\n  domain_restricted: restricted,\n};\n",
+          "color_index": 3,
+          "node_note": "Overall pixel accuracy OA=(TP+TN)/N de pred vs GT. a=pred(seuil avance), b=GT(landcover), c=domaine(opt, corr_dilate). Balanced accuracy reportee car l'eau est rare (OA domine par le fond). Comparable entre version MC et bypass."
+        },
+        "ports": [
+          {
+            "id": "mask__a",
+            "color": "mask",
+            "label": "a = pred"
+          },
+          {
+            "id": "mask__b",
+            "color": "mask",
+            "label": "b = truth (GT)"
+          },
+          {
+            "id": "mask__c",
+            "color": "mask",
+            "label": "c = domain (opt)"
+          }
+        ],
+        "outPorts": [
+          {
+            "id": "scalar__out_accuracy",
+            "color": "scalar",
+            "label": "overall accuracy"
+          },
+          {
+            "id": "any__out_stats",
+            "color": "any",
+            "label": "accuracy stats"
+          }
+        ]
+      },
+      "width": 208,
+      "height": 190,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 3180,
+        "y": 2560
+      },
+      "dragging": false
+    },
+    {
+      "id": "insp_oa",
+      "type": "data_inspector",
+      "position": {
+        "x": 3560,
+        "y": 2600
+      },
+      "style": {
+        "width": 240,
+        "height": 200
+      },
+      "width": 240,
+      "height": 200,
+      "data": {
+        "label": "Inspector",
+        "params": {
+          "color_index": 3
+        },
+        "minified": false,
+        "savedHeight": 200
+      },
+      "selected": false,
+      "positionAbsolute": {
+        "x": 3560,
+        "y": 2600
+      },
+      "dragging": false
+    },
+    {
+      "id": "landcover_gt-ref",
+      "type": "geo_geotiff_reader",
+      "position": {
+        "x": 280,
+        "y": 240
+      },
+      "data": {
+        "label": "Reference GeoTIFF",
+        "params": {
+          "file_path": "samples/reference.tif"
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_noise_idx",
+      "source": "noise",
+      "target": "idx",
+      "sourceHandle": "geotiff__geotiff",
+      "targetHandle": "geotiff__geotiff",
+      "selected": false
+    },
+    {
+      "id": "e_idx_vote",
+      "source": "idx",
+      "target": "vote",
+      "sourceHandle": "geotiff__stack",
+      "targetHandle": "geotiff__geotiff",
+      "selected": false
+    },
+    {
+      "id": "e_vote_tomask",
+      "source": "vote",
+      "target": "tomask",
+      "sourceHandle": "geotiff__raw",
+      "targetHandle": "geotiff__geotiff",
+      "selected": false
+    },
+    {
+      "id": "e_vote_and",
+      "source": "tomask",
+      "target": "mask_and",
+      "sourceHandle": "mask__mask",
+      "targetHandle": "mask__mask_a",
+      "selected": false
+    },
+    {
+      "id": "e_and_mean",
+      "source": "mask_and",
+      "target": "acc_mean",
+      "sourceHandle": "mask__mask",
+      "targetHandle": "image__image",
+      "selected": false
+    },
+    {
+      "id": "e_tick_accmean",
+      "source": "noise",
+      "target": "acc_mean",
+      "sourceHandle": "scalar__tick",
+      "targetHandle": "scalar__tick",
+      "selected": false
+    },
+    {
+      "source": "mask_and",
+      "sourceHandle": "mask__mask",
+      "target": "acc_mean",
+      "targetHandle": "any__image",
+      "id": "e-1782664834814",
+      "selected": false
+    },
+    {
+      "source": "acc_mean",
+      "sourceHandle": "scalar__frame_count",
+      "target": "node-1782665754321-0.3774373977644757",
+      "targetHandle": "any__data",
+      "id": "e-1782665760072",
+      "selected": false
+    },
+    {
+      "id": "e_noise_gate",
+      "source": "noise",
+      "target": "adaptive_gate",
+      "sourceHandle": "geotiff__geotiff",
+      "targetHandle": "geotiff__pert",
+      "selected": false
+    },
+    {
+      "id": "e_gate_and",
+      "source": "adaptive_gate",
+      "target": "mask_and",
+      "sourceHandle": "mask__out_mask",
+      "targetHandle": "mask__mask_b",
+      "selected": false
+    },
+    {
+      "source": "acc_mean",
+      "sourceHandle": "image__main",
+      "target": "node-1782919954938-1km6n7fkh",
+      "targetHandle": "image__image",
+      "id": "e-1782919958718",
+      "selected": false
+    },
+    {
+      "source": "node-1782920492331-zy195o6bo",
+      "sourceHandle": "geotiff__geotiff",
+      "target": "noise",
+      "targetHandle": "geotiff__geotiff",
+      "id": "e-1782920634174",
+      "selected": false
+    },
+    {
+      "source": "node-1782920492331-zy195o6bo",
+      "sourceHandle": "geotiff__geotiff",
+      "target": "adaptive_gate",
+      "targetHandle": "geotiff__base",
+      "id": "e-1782920662848",
+      "selected": false
+    },
+    {
+      "id": "e_corr_1",
+      "source": "acc_mean",
+      "sourceHandle": "image__main",
+      "target": "node-1782710392200-fj2ugkk3u",
+      "targetHandle": "image__a",
+      "selected": false
+    },
+    {
+      "id": "e_corr_2",
+      "source": "idx",
+      "sourceHandle": "geotiff__stack",
+      "target": "node-1782710392200-fj2ugkk3u",
+      "targetHandle": "geotiff__b",
+      "selected": false
+    },
+    {
+      "id": "e_corr_4",
+      "source": "node-1782710392200-fj2ugkk3u",
+      "sourceHandle": "any__out_stats",
+      "target": "node-1782709706825-skjz7dzln",
+      "targetHandle": "any__data",
+      "selected": false
+    },
+    {
+      "id": "e_lc_1",
+      "source": "landcover_gt-ref",
+      "sourceHandle": "geotiff__geotiff",
+      "target": "landcover_gt",
+      "targetHandle": "geotiff__geotiff",
+      "selected": false
+    },
+    {
+      "source": "node-1782935904874-0.4708570372279324",
+      "sourceHandle": "dict__data",
+      "target": "node-1782935904874-0.3982183414001329",
+      "targetHandle": "any__data",
+      "id": "e-1782964707748",
+      "selected": false
+    },
+    {
+      "id": "e-1782965132808-zs8s7h9uq",
+      "source": "node-1782710392200-fj2ugkk3u",
+      "target": "node-1782965132733-6rbur98mr",
+      "sourceHandle": "image__out_fig",
+      "targetHandle": "image__main",
+      "selected": false
+    },
+    {
+      "id": "e-1782969673740-6ertyffzp",
+      "source": "node-1782969673739-7vzpqrwhf",
+      "sourceHandle": "scalar__value",
+      "target": "noise",
+      "targetHandle": "scalar__max_ticks"
+    },
+    {
+      "source": "teleport_1782969721247_4b70",
+      "sourceHandle": "scalar__value",
+      "target": "acc_mean",
+      "targetHandle": "scalar__target_n",
+      "id": "e-1782969735131"
+    },
+    {
+      "id": "e_rf_1",
+      "source": "landcover_gt",
+      "sourceHandle": "mask__mask",
+      "target": "node-1782710392200-fj2ugkk3u",
+      "targetHandle": "mask__c",
+      "selected": false
+    },
+    {
+      "id": "e-1782972749087-2",
+      "source": "node-1782972741979-9tx4ye91z",
+      "target": "corr_dilate",
+      "sourceHandle": "main",
+      "targetHandle": "any__mask",
+      "selected": false
+    },
+    {
+      "id": "e-1782972779122-2",
+      "source": "node-1782972774702-cl7d9x8kc",
+      "target": "node-1782972741979-9tx4ye91z",
+      "sourceHandle": "main",
+      "targetHandle": "main",
+      "selected": false
+    },
+    {
+      "source": "node-1782972774702-cl7d9x8kc",
+      "sourceHandle": "mask__mask",
+      "target": "node-1782972741979-9tx4ye91z",
+      "targetHandle": "mask__mask",
+      "id": "e-1782972781262",
+      "selected": false
+    },
+    {
+      "source": "node-1782972741979-9tx4ye91z",
+      "sourceHandle": "mask__main",
+      "target": "corr_dilate",
+      "targetHandle": "any__mask",
+      "id": "e-1782972835114",
+      "selected": false
+    },
+    {
+      "id": "e-1782973187205-4yaxi11bb",
+      "source": "node-1782973187204-65mgsen8r",
+      "sourceHandle": "scalar__value",
+      "target": "node-1782972741979-9tx4ye91z",
+      "targetHandle": "scalar__min_area",
+      "selected": false
+    },
+    {
+      "id": "e-1782973228564-26lw1m8g4",
+      "source": "node-1782973228563-2w5zaft8l",
+      "sourceHandle": "scalar__value",
+      "target": "corr_dilate",
+      "targetHandle": "scalar__size",
+      "selected": false
+    },
+    {
+      "id": "e_imp_1",
+      "source": "mask_and",
+      "sourceHandle": "mask__mask",
+      "target": "acc_std",
+      "targetHandle": "any__image",
+      "selected": false
+    },
+    {
+      "id": "e_imp_2",
+      "source": "noise",
+      "sourceHandle": "scalar__tick",
+      "target": "acc_std",
+      "targetHandle": "scalar__tick",
+      "selected": false
+    },
+    {
+      "id": "e_imp_6",
+      "source": "boundary_f1",
+      "sourceHandle": "scalar__boundary_f1",
+      "target": "insp_bf1",
+      "targetHandle": "any__data",
+      "selected": false
+    },
+    {
+      "id": "e_cv_1",
+      "source": "acc_std",
+      "sourceHandle": "image__main",
+      "target": "mc_conv",
+      "targetHandle": "image__a",
+      "selected": false
+    },
+    {
+      "id": "e_cv_2",
+      "source": "acc_std",
+      "sourceHandle": "scalar__frame_count",
+      "target": "mc_conv",
+      "targetHandle": "scalar__b",
+      "selected": false
+    },
+    {
+      "id": "e_cv_3",
+      "source": "corr_dilate",
+      "sourceHandle": "mask__mask",
+      "target": "mc_conv",
+      "targetHandle": "mask__c",
+      "selected": false
+    },
+    {
+      "id": "e_cv_4",
+      "source": "mc_conv",
+      "sourceHandle": "scalar__out_optimal_N",
+      "target": "insp_conv",
+      "targetHandle": "any__data",
+      "selected": false
+    },
+    {
+      "id": "e_convp_1",
+      "source": "conv_tol",
+      "sourceHandle": "scalar__value",
+      "target": "mc_conv",
+      "targetHandle": "scalar__d",
+      "selected": false
+    },
+    {
+      "id": "e_convp_2",
+      "source": "conv_minn",
+      "sourceHandle": "scalar__value",
+      "target": "mc_conv",
+      "targetHandle": "scalar__e",
+      "selected": false
+    },
+    {
+      "id": "e_sw_1",
+      "source": "acc_mean",
+      "sourceHandle": "image__main",
+      "target": "thr_sweep",
+      "targetHandle": "image__a",
+      "selected": false
+    },
+    {
+      "id": "e_sw_4",
+      "source": "sweep_metric",
+      "sourceHandle": "scalar__value",
+      "target": "thr_sweep",
+      "targetHandle": "scalar__d",
+      "selected": false
+    },
+    {
+      "id": "e_sw_5",
+      "source": "sweep_step",
+      "sourceHandle": "scalar__value",
+      "target": "thr_sweep",
+      "targetHandle": "scalar__e",
+      "selected": false
+    },
+    {
+      "id": "e_sw_6",
+      "source": "thr_sweep",
+      "sourceHandle": "any__out_best",
+      "target": "insp_sweep",
+      "targetHandle": "any__data",
+      "selected": false
+    },
+    {
+      "id": "e_autocal_thr",
+      "source": "thr_sweep",
+      "sourceHandle": "scalar__out_optimal_threshold_255",
+      "target": "node-1782919954938-1km6n7fkh",
+      "targetHandle": "scalar__threshold",
+      "selected": false
+    },
+    {
+      "id": "e_sw_boot",
+      "source": "sweep_boot",
+      "sourceHandle": "scalar__value",
+      "target": "thr_sweep",
+      "targetHandle": "scalar__f",
+      "selected": false
+    },
+    {
+      "id": "e-1783169166576-n21b3aivh",
+      "source": "mc_conv",
+      "target": "node-1783169166496-49dy80cko",
+      "sourceHandle": "scalar__out_se",
+      "targetHandle": "any__data",
+      "selected": false
+    },
+    {
+      "source": "node-1782710392200-fj2ugkk3u",
+      "sourceHandle": "image__out_dist",
+      "target": "node-1783153860983-ijuxkbsfc",
+      "targetHandle": "image__1_3htw",
+      "id": "e-1783169944272",
+      "selected": false
+    },
+    {
+      "id": "e_sw_anchor",
+      "source": "sweep_anchor",
+      "sourceHandle": "scalar__value",
+      "target": "thr_sweep",
+      "targetHandle": "scalar__g",
+      "selected": false
+    },
+    {
+      "id": "e_cal_1",
+      "source": "acc_mean",
+      "sourceHandle": "image__main",
+      "target": "mc_cal",
+      "targetHandle": "image__a",
+      "selected": false
+    },
+    {
+      "id": "e_cal_4",
+      "source": "acc_std",
+      "sourceHandle": "image__main",
+      "target": "mc_cal",
+      "targetHandle": "image__d",
+      "selected": false
+    },
+    {
+      "id": "e_cal_5",
+      "source": "cal_bins",
+      "sourceHandle": "scalar__value",
+      "target": "mc_cal",
+      "targetHandle": "scalar__e",
+      "selected": false
+    },
+    {
+      "id": "e_cal_6",
+      "source": "mc_cal",
+      "sourceHandle": "any__out_cal",
+      "target": "insp_cal",
+      "targetHandle": "any__data",
+      "selected": false
+    },
+    {
+      "id": "e-1783229747635-63sosv2yb",
+      "source": "mc_cal",
+      "target": "node-1783229747549-z0wnkf3bz",
+      "sourceHandle": "image__out_reliability",
+      "targetHandle": "image__main",
+      "selected": false
+    },
+    {
+      "source": "node-1782710392200-fj2ugkk3u",
+      "sourceHandle": "image__out_auroc",
+      "target": "node-1783230430743-0.2936780407475206",
+      "targetHandle": "image__main",
+      "id": "e-1783230437141",
+      "selected": false
+    },
+    {
+      "id": "e-1783230513295-h8gwf5022",
+      "source": "boundary_f1",
+      "target": "node-1783230513229-xisq9ndax",
+      "sourceHandle": "image__main",
+      "targetHandle": "image__main",
+      "selected": false
+    },
+    {
+      "id": "e-1783230643242-ofdxdlham",
+      "source": "mc_conv",
+      "target": "node-1783230643172-c7veyvo3k",
+      "sourceHandle": "image__out_curve",
+      "targetHandle": "image__main",
+      "selected": false
+    },
+    {
+      "id": "e-1783230672906-nem8b2bo0",
+      "source": "acc_std",
+      "target": "node-1783230672819-byl2wub6u",
+      "sourceHandle": "image__main",
+      "targetHandle": "image__main",
+      "selected": false
+    },
+    {
+      "id": "e-1783230768339-hj9tj2r8t",
+      "source": "thr_sweep",
+      "target": "node-1783230768251-s8p8obduh",
+      "sourceHandle": "image__out_curve",
+      "targetHandle": "image__main"
+    },
+    {
+      "id": "e_pred_smm",
+      "source": "node-1782919954938-1km6n7fkh",
+      "sourceHandle": "mask__mask",
+      "target": "node-1782935904874-0.4708570372279324",
+      "targetHandle": "mask__pred",
+      "selected": false
+    },
+    {
+      "id": "e_truth_smm",
+      "source": "landcover_gt",
+      "sourceHandle": "mask__mask",
+      "target": "node-1782935904874-0.4708570372279324",
+      "targetHandle": "mask__truth",
+      "selected": false
+    },
+    {
+      "id": "e_pred_bf1",
+      "source": "node-1782919954938-1km6n7fkh",
+      "sourceHandle": "mask__mask",
+      "target": "boundary_f1",
+      "targetHandle": "mask__pred",
+      "selected": false
+    },
+    {
+      "id": "e_truth_bf1",
+      "source": "landcover_gt",
+      "sourceHandle": "mask__mask",
+      "target": "boundary_f1",
+      "targetHandle": "mask__truth",
+      "selected": false
+    },
+    {
+      "id": "e_gt_sweep",
+      "source": "landcover_gt",
+      "sourceHandle": "mask__mask",
+      "target": "thr_sweep",
+      "targetHandle": "mask__b",
+      "selected": false
+    },
+    {
+      "id": "e_gt_cal",
+      "source": "landcover_gt",
+      "sourceHandle": "mask__mask",
+      "target": "mc_cal",
+      "targetHandle": "mask__b",
+      "selected": false
+    },
+    {
+      "id": "e_water_cor_d",
+      "source": "landcover_gt",
+      "sourceHandle": "mask__mask",
+      "target": "node-1782710392200-fj2ugkk3u",
+      "targetHandle": "mask__d",
+      "selected": false
+    },
+    {
+      "id": "e_water_corr",
+      "source": "landcover_gt",
+      "sourceHandle": "mask__mask",
+      "target": "node-1782972774702-cl7d9x8kc",
+      "targetHandle": "main",
+      "selected": false
+    },
+    {
+      "id": "e_pred_oa",
+      "source": "node-1782919954938-1km6n7fkh",
+      "sourceHandle": "mask__mask",
+      "target": "overall_acc",
+      "targetHandle": "mask__a",
+      "selected": false
+    },
+    {
+      "id": "e_truth_oa",
+      "source": "landcover_gt",
+      "sourceHandle": "mask__mask",
+      "target": "overall_acc",
+      "targetHandle": "mask__b",
+      "selected": false
+    },
+    {
+      "id": "e_dom_oa",
+      "source": "corr_dilate",
+      "sourceHandle": "mask__mask",
+      "target": "overall_acc",
+      "targetHandle": "mask__c",
+      "selected": false
+    },
+    {
+      "id": "e_oa_insp",
+      "source": "overall_acc",
+      "sourceHandle": "any__out_stats",
+      "target": "insp_oa",
+      "targetHandle": "any__data",
+      "selected": false
+    }
+  ],
+  "ui": {
+    "previewSize": {
+      "w": 585.359375,
+      "h": 368
+    },
+    "previewPos": {
+      "x": 58.14453125,
+      "y": -45.8828125
+    },
+    "activePaletteIndex": 5,
+    "visualizedNodeId": "node-1782935904874-0.4708570372279324"
+  }
+}

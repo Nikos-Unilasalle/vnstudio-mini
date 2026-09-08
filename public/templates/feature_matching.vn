@@ -97,6 +97,20 @@
           "angle": 20
         }
       }
+    },
+    {
+      "id": "rot-1",
+      "type": "geom_rotate_no_crop",
+      "position": {
+        "x": 170,
+        "y": 300
+      },
+      "data": {
+        "label": "Rotation 20°",
+        "params": {
+          "angle": 20
+        }
+      }
     }
   ],
   "edges": [
@@ -162,6 +176,12 @@
       "target": "disp-1",
       "sourceHandle": "image__main",
       "targetHandle": "image__main"
+    },
+    {
+      "source": "rot-1",
+      "sourceHandle": "image__main",
+      "target": "rot-1",
+      "targetHandle": "image__image"
     },
     {
       "source": "src-2",
