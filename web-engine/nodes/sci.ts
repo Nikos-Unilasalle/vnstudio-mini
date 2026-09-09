@@ -1,5 +1,5 @@
 import type { NodeImpl } from '../types'
-import { drawPolyline, toBgr, toGray } from '../cvUtils'
+import { drawPolyline, toBgr, toGray, maxOf } from '../cvUtils'
 import { applyColormap, COLORMAPS } from '../colormaps'
 import { drawCaption, forDisplay, MASK_COLOURS } from '../overlay'
 
@@ -1615,7 +1615,7 @@ export const sciFrameAccumulator: NodeImpl = (inputs, params, ctx) => {
     else if (mode === 2) result = state.min!
     else if (mode === 3) {
       const std = state.m2!.map((v) => Math.sqrt(v / Math.max(state.count, 1)))
-      const m = Math.max(...std)
+      const m = maxOf(std)
       result = m > 0 ? std.map((v) => (v / (m + 1e-8)) * 255) : std
     } else result = state.diff!
 
@@ -1649,7 +1649,7 @@ export const sciFrameAccumulator: NodeImpl = (inputs, params, ctx) => {
     const std = new Float32Array(len)
     for (const fr of state.buffer) for (let i = 0; i < len; i++) std[i] += (fr[i] - mean[i]) ** 2 / n
     for (let i = 0; i < len; i++) std[i] = Math.sqrt(std[i])
-    const m = Math.max(...std)
+    const m = maxOf(std)
     result = m > 0 ? std.map((v) => (v / (m + 1e-8)) * 255) : std
   } else {
     result = n >= 2 ? state.buffer[n - 1].map((v, i) => Math.abs(v - state.buffer[n - 2][i]) * 4) : state.buffer[0].slice()

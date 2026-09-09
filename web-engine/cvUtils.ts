@@ -273,3 +273,24 @@ export function colorizeLabels(cv: any, labels: any): any {
   }
   return out
 }
+
+/**
+ * `Math.max` and `Math.min` over an array of any size.
+ *
+ * `Math.max(...values)` passes every element as a separate argument, so a
+ * megapixel array overflows the call stack — "Maximum call stack size
+ * exceeded", thrown from a line that reads like plain arithmetic. It only shows
+ * up once something feeds these a full image, which is exactly what a
+ * georeferenced raster does.
+ */
+export function maxOf(values: ArrayLike<number>, initial = -Infinity): number {
+  let best = initial
+  for (let i = 0; i < values.length; i++) if (values[i] > best) best = values[i]
+  return best
+}
+
+export function minOf(values: ArrayLike<number>, initial = Infinity): number {
+  let best = initial
+  for (let i = 0; i < values.length; i++) if (values[i] < best) best = values[i]
+  return best
+}

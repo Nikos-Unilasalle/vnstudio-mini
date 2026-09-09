@@ -1,5 +1,5 @@
 import type { NodeImpl } from '../types'
-import { drawArrowedLine, toBgr, toGray } from '../cvUtils'
+import { drawArrowedLine, toBgr, toGray, maxOf, minOf } from '../cvUtils'
 import { applyColormap, COLORMAPS } from '../colormaps'
 import { drawCaption, forDisplay, MASK_COLOURS } from '../overlay'
 
@@ -406,8 +406,8 @@ function median(arr: number[]): number {
 }
 
 function ordinaryBox(xs: number[], ys: number[]): [number, number, number, number] {
-  const xmin = Math.min(...xs), xmax = Math.max(...xs)
-  const ymin = Math.min(...ys), ymax = Math.max(...ys)
+  const xmin = minOf(xs), xmax = maxOf(xs)
+  const ymin = minOf(ys), ymax = maxOf(ys)
   return [xmin, ymin, xmax - xmin + 1, ymax - ymin + 1]
 }
 
@@ -642,8 +642,8 @@ export const sciClusterHeatmap: NodeImpl = (inputs, params, ctx) => {
   if (lblToVal.size === 0) return { main: img ?? null }
 
   const vals = [...lblToVal.values()]
-  const vmin = Math.min(...vals)
-  const vmax = Math.max(...vals)
+  const vmin = minOf(vals)
+  const vmax = maxOf(vals)
   const vrange = vmax > vmin ? vmax - vmin : 1
 
   const normU8 = ctx.track(new cv.Mat(h, w, cv.CV_8U, new cv.Scalar(0)))
