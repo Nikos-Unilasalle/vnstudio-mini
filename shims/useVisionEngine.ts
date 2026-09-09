@@ -126,6 +126,7 @@ export function useVisionEngine(onCapture?: (nodeId: string, base64: string) => 
   useEffect(() => {
     let cancelled = false
     const LOADING_ID = 'opencv_loading'
+    const NODE_PROGRESS_ID = 'node_progress'
 
     const worker = new Worker(new URL('../web-engine/worker.ts', import.meta.url), { type: 'module' })
     workerRef.current = worker
@@ -137,13 +138,18 @@ export function useVisionEngine(onCapture?: (nodeId: string, base64: string) => 
         case 'schemas':
           setPluginSchemas(message.schemas)
           break
-        case 'progress':
+        case 'progress': {
+          const id = message.channel === 'node' ? NODE_PROGRESS_ID : LOADING_ID
           setNotifications((prev) => {
-            const entry: EngineNotification = { id: LOADING_ID, message: message.message, progress: message.progress, level: 'info' }
-            const index = prev.findIndex((n) => n.id === LOADING_ID)
+            // An empty message retires the entry — that is how the worker says
+            // a run has ended, whether it succeeded or threw.
+            if (!message.message) return prev.filter((n) => n.id !== id)
+            const entry: EngineNotification = { id, message: message.message, progress: message.progress, level: 'info' }
+            const index = prev.findIndex((n) => n.id === id)
             return index >= 0 ? prev.map((n, i) => (i === index ? entry : n)) : [...prev, entry]
           })
           break
+        }
         case 'ready':
           setIsConnected(true)
           setNotifications((prev) => prev.filter((n) => n.id !== LOADING_ID))

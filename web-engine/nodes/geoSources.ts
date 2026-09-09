@@ -258,9 +258,18 @@ interface Query {
 async function runQuery(query: Query, ctx: RunContext): Promise<{ raster: GeoRaster; meta: Record<string, unknown> }> {
   const { collection } = query
   const grid = buildGrid(query.box, query.resolution)
-  // The only channel a worker-side node has to say "still working" is a live field.
-  const report = (fraction: number, message: string) =>
+  // Two channels, on purpose: `emit` leaves a status on the node once the run
+  // ends, `report` crosses to the main thread while the download is still going.
+  // A fetch over a real study area takes the better part of a minute, and
+  // without the second one there is nothing to tell "working" from "broken".
+  const report = (fraction: number, message: string) => {
     ctx.emit('status', `${Math.round(fraction * 100)} % — ${message}`)
+    ctx.report(fraction, `${query.collectionName} — ${message}`)
+  }
+
+  // The catalogue search alone can take seconds; say so before it starts rather
+  // than leaving the first few seconds of every fetch looking like a hang.
+  ctx.report(null, `${query.collectionName} — recherche…`)
 
   if (collection.backend === 'basemap') {
     const result = await fetchBasemap(collection.source, grid, report)
@@ -496,6 +505,7 @@ export const geoLandCover: NodeImpl = async (inputs, params, ctx) => {
   if (!cache || cache.key !== key) {
     try {
       ctx.emit('status', 'ESA WorldCover — recherche…')
+      ctx.report(null, 'ESA WorldCover — recherche…')
       const collection = COLLECTIONS['ESA WorldCover (10m)']
       const result = await withDiagnosis(fetchStac({
         collection: collection.source,
@@ -509,7 +519,10 @@ export const geoLandCover: NodeImpl = async (inputs, params, ctx) => {
         categorical: true,
         maxScenes: 1,
         method: 'first',
-        onProgress: (fraction, message) => ctx.emit('status', `${Math.round(fraction * 100)} % — ${message}`),
+        onProgress: (fraction, message) => {
+          ctx.emit('status', `${Math.round(fraction * 100)} % — ${message}`)
+          ctx.report(fraction, `ESA WorldCover — ${message}`)
+        },
       }))
       // fetchStac builds its own grid from the box; resample onto the input's.
       const classes = result.grid.width === grid.width && result.grid.height === grid.height

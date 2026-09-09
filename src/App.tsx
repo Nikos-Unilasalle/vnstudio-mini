@@ -917,6 +917,30 @@ function App() {
       pushSnapshot();
       lastParamPushRef.current = now;
     }
+    // The graph only reaches the engine while it is running (see the updateGraph
+    // effect below). A trigger pressed on a stopped engine therefore does
+    // nothing at all — and did so silently, which reads exactly like a broken
+    // node. Say it instead.
+    if (!isRunningRef.current) {
+      // nodesRef, not canvasNodesRef: the inspector may be showing a node
+      // nested inside a group, which the top-level list does not contain. The
+      // schema comes from the engine's advertised list rather than node.data,
+      // which does not always carry one.
+      const node = nodesRef.current.find(n => n.id === id);
+      const specs =
+        (node?.data as any)?.schema?.params ??
+        (pluginSchemas || []).find((sc: any) => sc.type === node?.type)?.params ??
+        [];
+      const pressed = specs.find(
+        (sp: any) => sp.type === 'trigger' && params[sp.id] === 1
+      );
+      if (pressed) {
+        pushNotification(
+          `« ${pressed.label || pressed.id} » n'a rien déclenché : le moteur est arrêté. Appuie sur Start.`,
+          'error', 6000,
+        );
+      }
+    }
     setViewNodes((nds) => nds.map((node) => {
         if (node.id === id) return { ...node, data: { ...node.data, params: { ...node.data.params, ...params } } };
         return node;

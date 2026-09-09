@@ -29,7 +29,17 @@ export type WorkerRequest =
 
 export type WorkerResponse =
   | { type: 'schemas'; schemas: typeof SCHEMAS }
-  | { type: 'progress'; progress: number | null; message: string }
+  | {
+      type: 'progress'
+      progress: number | null
+      message: string
+      /**
+       * Which notification this belongs to. Absent means the OpenCV download;
+       * 'node' means a node reporting from inside a run, which has to be a
+       * separate entry or the two would overwrite each other.
+       */
+      channel?: 'node'
+    }
   | { type: 'ready' }
   | { type: 'load-error'; message: string }
   | {
@@ -88,7 +98,14 @@ self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
   try {
     let result
     try {
-      result = await executor.run(message.nodes, message.edges, message.previewNodeId, message.frames)
+      result = await executor.run(
+        message.nodes,
+        message.edges,
+        message.previewNodeId,
+        message.frames,
+        (progress, text) =>
+          postMessage({ type: 'progress', progress, message: text, channel: 'node' } satisfies WorkerResponse)
+      )
     } finally {
       // The captured frames were transferred in, so this worker owns them and
       // nothing else will free them. An ImageBitmap holds its pixels outside
@@ -97,6 +114,8 @@ self.onmessage = async (event: MessageEvent<WorkerRequest>) => {
       // second — including on the runs that fail, which is why this releases
       // them whatever happened.
       for (const frame of Object.values(message.frames ?? {})) frame.bitmap?.close()
+      // Whatever happened, the run is over: retire any progress it was showing.
+      postMessage({ type: 'progress', progress: null, message: '', channel: 'node' } satisfies WorkerResponse)
     }
 
     const transfer = result.frameBitmap ? [result.frameBitmap] : []

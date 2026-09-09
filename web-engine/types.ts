@@ -40,6 +40,15 @@ export interface RunContext {
   /** Publishes a live field for this node, surfacing as `${nodeId}:${field}` in nodesData. */
   emit: (field: string, value: unknown) => void
   /**
+   * Reports progress *during* the run, not after it.
+   *
+   * `emit` only reaches the main thread once the whole graph has finished, which
+   * is fine for a node that takes milliseconds and useless for one that spends
+   * a minute downloading. This crosses immediately. Pass `null` for an
+   * indeterminate step.
+   */
+  report: (fraction: number | null, message: string) => void
+  /**
    * Movie/webcam frames, keyed by node id. The worker has no DOM, so it can't own
    * `<video>` elements or call getUserMedia itself — the main thread captures these
    * and transfers the bitmaps in with each run request (see shims/useVisionEngine.ts).

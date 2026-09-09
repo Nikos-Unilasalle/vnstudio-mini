@@ -191,7 +191,8 @@ export class GraphExecutor {
     nodes: GraphNode[],
     edges: GraphEdge[],
     previewNodeId: string | null,
-    frames?: Record<string, CapturedFrame>
+    frames?: Record<string, CapturedFrame>,
+    onNodeProgress?: (fraction: number | null, message: string) => void
   ): Promise<RunResult> {
     this.releaseMats()
     this.pruneState(new Set(nodes.map((n) => n.id)))
@@ -237,6 +238,9 @@ export class GraphExecutor {
         track: (mat: any) => {
           if (mat && typeof mat.delete === 'function') this.matPool.push(mat)
           return mat
+        },
+        report: (fraction: number | null, message: string) => {
+          onNodeProgress?.(fraction, message)
         },
         emit: (field: string, value: unknown) => {
           nodesData[`${nodeId}:${field}`] = value
