@@ -114,6 +114,9 @@ function topologicalOrder(nodes: GraphNode[], edges: GraphEdge[]): string[] {
  */
 const THUMBNAIL_EVERY = 6
 
+/** How long a pass may take before it starts announcing which node it is on. */
+const SLOW_RUN_MS = 1500
+
 /** The pool `.roi()` headers are added to while a run is in flight. */
 let activePool: any[] | null = null
 
@@ -204,6 +207,7 @@ export class GraphExecutor {
     const nodesData: Record<string, unknown> = {}
     const errors: Record<string, string> = {}
 
+    const runStart = Date.now()
     const order = topologicalOrder(nodes, edges)
     for (let index = 0; index < order.length; index++) {
       const nodeId = order[index]
@@ -254,8 +258,21 @@ export class GraphExecutor {
       const setPreview = (base64: string) => {
         nodesData[`${nodeId}:main_preview`] = base64
         nodesData[`${nodeId}:preview`] = base64
+        // A third name for the same thing. The desktop engine publishes node
+        // thumbnails as `_thumb`, and the ported components that draw their own
+        // preview image — the GeoTIFF reader, Copernicus, Earth Engine, the OBJ
+        // depth map — read that field and nothing else. Without it their cards
+        // sit on "No data" however well the node ran.
+        nodesData[`${nodeId}:_thumb`] = base64
       }
 
+      // A graph that takes minutes per pass — a heavy statistical script over a
+      // megapixel raster, say — looked identical to a dead engine: the run
+      // publishes nothing until the very end. Past a second and a half, say
+      // where we are, so a long pass reads as work rather than as a hang.
+      if (Date.now() - runStart > SLOW_RUN_MS) {
+        onNodeProgress?.(index / order.length, `${index + 1}/${order.length} — ${node.type}`)
+      }
       try {
         const outputs = (await implementation(inputs, params, context)) ?? {}
         outputsByNode.set(nodeId, outputs)

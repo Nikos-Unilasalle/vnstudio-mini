@@ -131,6 +131,16 @@ export function useVisionEngine(onCapture?: (nodeId: string, base64: string) => 
     const worker = new Worker(new URL('../web-engine/worker.ts', import.meta.url), { type: 'module' })
     workerRef.current = worker
 
+    // The worker had no error handlers at all: a script error or an unclonable
+    // message killed a run with no trace anywhere, and the promise it was
+    // waiting on never settled — leaving the engine latched on "a run is in
+    // flight" for the rest of the session.
+    worker.onerror = (event) => {
+      pushNotification(`Le moteur a échoué : ${event.message || 'erreur inconnue'}`, 'error', 0)
+    }
+    worker.onmessageerror = () => {
+      pushNotification('Le moteur a renvoyé un résultat impossible à transférer.', 'error', 0)
+    }
     worker.onmessage = (event: MessageEvent<WorkerResponse>) => {
       if (cancelled) return
       const message = event.data
