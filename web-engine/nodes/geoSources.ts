@@ -21,6 +21,7 @@ import { fetchStac } from '../remote/stac'
 import { fetchBasemap } from '../remote/basemap'
 import { fetchCdse } from '../remote/cdse'
 import { describeReachability, RemoteError } from '../remote/request'
+import { readRaster, writeRaster } from '../remote/store'
 
 /* ----------------------------------------------------------- collections */
 
@@ -422,13 +423,31 @@ export const geoCopernicus: NodeImpl = async (inputs, params, ctx) => {
     return { geotiff: cache.raster, main: preview, preview, meta: cache.meta }
   }
 
+  // Not in memory — but it may be on disk from an earlier session. Ask once per
+  // query, not once per frame: a graph re-runs constantly, and the answer for a
+  // given key cannot change under us.
+  const probeKey = `${stateKey}:probed`
+  if (ctx.state.get(probeKey) !== key) {
+    ctx.state.set(probeKey, key)
+    const stored = await readRaster(key)
+    if (stored) {
+      const meta = { ...stored.meta, cache: `disque, rapatrié le ${new Date(stored.savedAt).toLocaleString()}` }
+      const restored: FetchCache = { key, raster: stored.raster, meta, collection }
+      ctx.state.set(stateKey, restored)
+      const preview = renderPreview(cv, ctx, stored.raster, collection)
+      return { geotiff: stored.raster, main: preview, preview, meta }
+    }
+  }
+
   // A changed query invalidates the cache but does not itself go to the network:
   // downloading a scene on every keystroke would be hostile. Fetch is a button.
   if (!pressed) return empty
 
   const { raster, meta } = await withDiagnosis(runQuery(query, ctx))
+  meta.cache = 'réseau'
   const fresh: FetchCache = { key, raster, meta, collection }
   ctx.state.set(stateKey, fresh)
+  void writeRaster(key, raster, meta)
   const preview = renderPreview(cv, ctx, raster, collection)
   return { geotiff: raster, main: preview, preview, meta }
 }
@@ -503,49 +522,58 @@ export const geoLandCover: NodeImpl = async (inputs, params, ctx) => {
   let cache = ctx.state.get(stateKey) as LandCoverCache | undefined
 
   if (!cache || cache.key !== key) {
-    try {
-      ctx.emit('status', 'ESA WorldCover — recherche…')
-      ctx.report(null, 'ESA WorldCover — recherche…')
-      const collection = COLLECTIONS['ESA WorldCover (10m)']
-      const result = await withDiagnosis(fetchStac({
-        collection: collection.source,
-        box: gridBounds(grid),
-        dateRange: null,
-        cloudMax: null,
-        orbit: null,
-        limit: 200,
-        assetKeys: collection.assetKeys ?? collection.bands,
-        resolution: grid.resolution,
-        categorical: true,
-        maxScenes: 1,
-        method: 'first',
-        onProgress: (fraction, message) => {
-          ctx.emit('status', `${Math.round(fraction * 100)} % — ${message}`)
-          ctx.report(fraction, `ESA WorldCover — ${message}`)
-        },
-      }))
-      // fetchStac builds its own grid from the box; resample onto the input's.
-      const classes = result.grid.width === grid.width && result.grid.height === grid.height
-        ? result.bands[0]
-        : warpToGrid(
-            {
-              data: result.bands[0],
-              width: result.grid.width,
-              height: result.grid.height,
-              minX: result.grid.minX,
-              minY: result.grid.minY,
-              maxX: result.grid.maxX,
-              maxY: result.grid.maxY,
-              epsg: result.grid.zone.epsg,
-            },
-            grid,
-            true
-          )
-      cache = { key, raster: toRaster([classes], ['lulc_class'], grid, true), error: null }
-    } catch (error) {
-      // A failed fetch is cached too: without that, a graph running at video
-      // rate would re-issue the same doomed request every single frame.
-      cache = { key, raster: null, error: error instanceof Error ? error.message : String(error) }
+    // Same two-tier lookup as the Copernicus node: memory, then the persistent
+    // store, then the network. Land cover is static, so a cached tile stays
+    // correct indefinitely — this is the case that benefits most.
+    const stored = await readRaster(`landcover:${key}`)
+    if (stored) {
+      cache = { key, raster: stored.raster, error: null }
+    } else {
+      try {
+        ctx.emit('status', 'ESA WorldCover — recherche…')
+        ctx.report(null, 'ESA WorldCover — recherche…')
+        const collection = COLLECTIONS['ESA WorldCover (10m)']
+        const result = await withDiagnosis(fetchStac({
+          collection: collection.source,
+          box: gridBounds(grid),
+          dateRange: null,
+          cloudMax: null,
+          orbit: null,
+          limit: 200,
+          assetKeys: collection.assetKeys ?? collection.bands,
+          resolution: grid.resolution,
+          categorical: true,
+          maxScenes: 1,
+          method: 'first',
+          onProgress: (fraction, message) => {
+            ctx.emit('status', `${Math.round(fraction * 100)} % — ${message}`)
+            ctx.report(fraction, `ESA WorldCover — ${message}`)
+          },
+        }))
+        // fetchStac builds its own grid from the box; resample onto the input's.
+        const classes = result.grid.width === grid.width && result.grid.height === grid.height
+          ? result.bands[0]
+          : warpToGrid(
+              {
+                data: result.bands[0],
+                width: result.grid.width,
+                height: result.grid.height,
+                minX: result.grid.minX,
+                minY: result.grid.minY,
+                maxX: result.grid.maxX,
+                maxY: result.grid.maxY,
+                epsg: result.grid.zone.epsg,
+              },
+              grid,
+              true
+            )
+        cache = { key, raster: toRaster([classes], ['lulc_class'], grid, true), error: null }
+        void writeRaster(`landcover:${key}`, cache.raster, { source: 'ESA WorldCover (10m)' })
+      } catch (error) {
+        // A failed fetch is cached too: without that, a graph running at video
+        // rate would re-issue the same doomed request every single frame.
+        cache = { key, raster: null, error: error instanceof Error ? error.message : String(error) }
+      }
     }
     ctx.state.set(stateKey, cache)
   }

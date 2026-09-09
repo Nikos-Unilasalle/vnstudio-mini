@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, Eye, EyeOff, Save, Check, AlertCircle } from 'lucide-react';
+import { Settings, Eye, EyeOff, Save, Check, AlertCircle, Trash2 } from 'lucide-react';
 import { readTextFile, writeTextFile, mkdir } from '@tauri-apps/plugin-fs';
 import { BaseDirectory } from '@tauri-apps/api/path';
+import { clearRasters, summarise } from '../../../web-engine/remote/store';
 
 // ── Secret field definitions ──────────────────────────────────────────────────
 
@@ -49,6 +50,13 @@ const SECTIONS: SectionDef[] = [
 
 const SECRETS_FILE = '.vnstudio/secrets.json';
 
+function humanBytes(bytes: number): string {
+  // English units: this panel's chrome is English, unlike the node messages.
+  if (bytes < 1e6) return `${Math.round(bytes / 1e3)} kB`;
+  if (bytes < 1e9) return `${(bytes / 1e6).toFixed(1)} MB`;
+  return `${(bytes / 1e9).toFixed(2)} GB`;
+}
+
 // ── Panel component ───────────────────────────────────────────────────────────
 
 const ApiKeysPanel: React.FC = () => {
@@ -58,6 +66,10 @@ const ApiKeysPanel: React.FC = () => {
   const [status, setStatus]   = useState<'idle' | 'saved' | 'error'>('idle');
   const [errMsg, setErrMsg]   = useState('');
   const [loading, setLoading] = useState(false);
+  // Downloaded satellite rasters persist in IndexedDB so a reload does not cost
+  // the whole fetch again. They are large enough that the user needs to be able
+  // to see how much room they take, and to reclaim it.
+  const [cache, setCache] = useState<{ entries: number; bytes: number } | null>(null);
 
   // Load secrets whenever panel opens
   useEffect(() => {
@@ -68,6 +80,7 @@ const ApiKeysPanel: React.FC = () => {
       .then(raw => setValues(JSON.parse(raw) as Record<string, string>))
       .catch(() => setValues({}))   // file absent = no keys yet
       .finally(() => setLoading(false));
+    summarise().then(setCache).catch(() => setCache(null));
   }, [open]);
 
   const handleSave = useCallback(async () => {
@@ -174,6 +187,29 @@ const ApiKeysPanel: React.FC = () => {
                     </div>
                   </div>
                 ))}
+              </div>
+
+              {/* Cached rasters */}
+              <div className="px-3 pb-3">
+                <div className="text-[8px] font-black uppercase tracking-widest text-gray-500 mb-1 px-1">
+                  Cached imagery
+                </div>
+                <div className="flex items-center gap-2 bg-black/20 border border-white/5 rounded-lg px-2 py-1.5">
+                  <span className="text-[9px] text-gray-400 flex-1">
+                    {cache === null
+                      ? 'unavailable'
+                      : cache.entries === 0
+                      ? 'nothing stored'
+                      : `${cache.entries} scene${cache.entries > 1 ? 's' : ''} · ${humanBytes(cache.bytes)}`}
+                  </span>
+                  <button
+                    onClick={async () => { await clearRasters(); setCache(await summarise()); }}
+                    disabled={!cache || cache.entries === 0}
+                    className="flex items-center gap-1 text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-lg border transition-all disabled:opacity-30 disabled:cursor-not-allowed bg-white/5 hover:bg-red-500/15 border-white/10 hover:border-red-500/30 text-gray-400 hover:text-red-400"
+                  >
+                    <Trash2 size={9} /> Clear
+                  </button>
+                </div>
               </div>
 
               {/* Save bar */}
