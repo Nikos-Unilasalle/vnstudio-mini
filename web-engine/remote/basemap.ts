@@ -8,6 +8,7 @@
  */
 import { lonLatToTile, utmToLonLat, zoomForResolution } from '../proj'
 import type { TargetGrid } from './grid'
+import { request } from './request'
 
 const TILE = 256
 /** Above this many tiles the request is refused rather than hammering a server. */
@@ -19,12 +20,14 @@ export interface BasemapResult {
   bandNames: string[]
   zoom: number
   tiles: number
+  /** Tiles the server did not return; the mosaic keeps their area black. */
+  missing: number
 }
 
 async function loadTile(url: string): Promise<ImageBitmap | null> {
+  const response = await request(url)
+  if (!response.ok) return null
   try {
-    const response = await fetch(url)
-    if (!response.ok) return null
     return await createImageBitmap(await response.blob())
   } catch {
     return null
@@ -65,6 +68,7 @@ export async function fetchBasemap(
   context.fillRect(0, 0, canvas.width, canvas.height)
 
   let done = 0
+  let missing = 0
   const total = nx * ny
   for (let ty = ty0; ty <= ty1; ty++) {
     for (let tx = tx0; tx <= tx1; tx++) {
@@ -72,10 +76,20 @@ export async function fetchBasemap(
         .replace('{x}', String(tx))
         .replace('{y}', String(ty))
         .replace('{z}', String(zoom))
-      const bitmap = await loadTile(url)
+      let bitmap: ImageBitmap | null = null
+      try {
+        bitmap = await loadTile(url)
+      } catch (error) {
+        // The first tile proves whether the server is reachable at all; after
+        // that a gap is just a gap, and a mosaic with a hole beats no mosaic.
+        if (done === 0) throw error
+      }
       done += 1
       onProgress?.(done / total, `tuile ${done}/${total} (zoom ${zoom})`)
-      if (!bitmap) continue
+      if (!bitmap) {
+        missing += 1
+        continue
+      }
       context.drawImage(bitmap, (tx - tx0) * TILE, (ty - ty0) * TILE, TILE, TILE)
       bitmap.close()
     }
@@ -104,5 +118,8 @@ export async function fetchBasemap(
     }
   }
 
-  return { bands: channels, bandNames: ['R', 'G', 'B'], zoom, tiles: total }
+  if (missing === total) {
+    throw new Error(`aucune tuile reçue de ${new URL(urlTemplate.replace(/\{[xyz]\}/g, '0')).host}`)
+  }
+  return { bands: channels, bandNames: ['R', 'G', 'B'], zoom, tiles: total, missing }
 }

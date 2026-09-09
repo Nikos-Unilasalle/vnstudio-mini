@@ -9,6 +9,7 @@
  */
 import { buildGrid, composite, warpToGrid, type LonLatBox, type SourceRaster, type TargetGrid } from './grid'
 import { lonLatToUtm, utmToLonLat } from '../proj'
+import { request } from './request'
 
 const STAC_ROOT = 'https://planetarycomputer.microsoft.com/api/stac/v1'
 const SAS_ROOT = 'https://planetarycomputer.microsoft.com/api/sas/v1/token'
@@ -34,7 +35,7 @@ const sasCache = new Map<string, SasToken>()
 async function sasToken(collection: string): Promise<string> {
   const cached = sasCache.get(collection)
   if (cached && cached.expiresAt - 60_000 > Date.now()) return cached.token
-  const response = await fetch(`${SAS_ROOT}/${collection}`)
+  const response = await request(`${SAS_ROOT}/${collection}`)
   if (!response.ok) throw new Error(`jeton SAS refusé pour ${collection} (${response.status})`)
   const body = (await response.json()) as { token?: string; ['msft:expiry']?: string }
   const token = body.token ?? ''
@@ -67,7 +68,7 @@ export async function searchStac(options: SearchOptions): Promise<StacItem[]> {
   }
   if (options.dateRange) body.datetime = `${options.dateRange[0]}/${options.dateRange[1]}`
 
-  const response = await fetch(`${STAC_ROOT}/search`, {
+  const response = await request(`${STAC_ROOT}/search`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(body),
@@ -301,6 +302,7 @@ export async function fetchStac(options: StacFetchOptions): Promise<StacResult> 
   const bands: Float32Array[] = []
   const total = scenes.length * options.assetKeys.length
   let done = 0
+  let lastFailure: unknown = null
 
   for (const assetKey of options.assetKeys) {
     const layers: Float32Array[] = []
@@ -324,9 +326,15 @@ export async function fetchStac(options: StacFetchOptions): Promise<StacResult> 
         // One unreachable scene should not sink a composite built from many,
         // but a silent skip would make a whole-collection failure look empty.
         console.warn(`[STAC] ${scene.id} / ${assetKey} illisible :`, error)
+        lastFailure = error
       }
     }
-    if (layers.length === 0) throw new Error(`aucune donnée lisible pour l’asset « ${assetKey} »`)
+    if (layers.length === 0) {
+      // Say why, not just that: every scene failing for the same reason is
+      // almost always one cause, and it is the one worth reporting.
+      const cause = lastFailure instanceof Error ? ` — ${lastFailure.message}` : ''
+      throw new Error(`aucune donnée lisible pour l’asset « ${assetKey} »${cause}`)
+    }
     // Categorical tiles are disjoint in space, so "first non-NaN" mosaics them.
     bands.push(composite(layers, options.categorical ? 'first' : options.method))
   }

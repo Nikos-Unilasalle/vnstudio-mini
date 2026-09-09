@@ -20,6 +20,7 @@ import { utmZoneFromEpsg } from '../proj'
 import { fetchStac } from '../remote/stac'
 import { fetchBasemap } from '../remote/basemap'
 import { fetchCdse } from '../remote/cdse'
+import { describeReachability, RemoteError } from '../remote/request'
 
 /* ----------------------------------------------------------- collections */
 
@@ -268,7 +269,7 @@ async function runQuery(query: Query, ctx: RunContext): Promise<{ raster: GeoRas
       raster,
       meta: {
         source: query.collectionName, backend: 'basemap', zoom: result.zoom,
-        tiles: result.tiles, crs: raster.crs, width: grid.width, height: grid.height,
+        tiles: result.tiles, tiles_manquantes: result.missing, crs: raster.crs, width: grid.width, height: grid.height,
         resolution_m: grid.resolution, bounds: raster.bounds, band_names: result.bandNames,
       },
     }
@@ -344,6 +345,23 @@ async function runQuery(query: Query, ctx: RunContext): Promise<{ raster: GeoRas
   }
 }
 
+/**
+ * Re-throw a network failure with a reachability sweep attached.
+ *
+ * "NetworkError when attempting to fetch resource" says nothing about which of
+ * the four services was involved or whether the machine is online at all. When
+ * the request layer reports that nothing came back, this asks every host in
+ * turn and appends the answer, so the message names the one that is blocked.
+ */
+async function withDiagnosis<T>(work: Promise<T>): Promise<T> {
+  try {
+    return await work
+  } catch (error) {
+    if (!(error instanceof RemoteError) || !error.unreachable) throw error
+    throw new Error(`${error.message}\n\nÉtat des services : ${await describeReachability()}`)
+  }
+}
+
 /* ------------------------------------------------------- geo_copernicus */
 
 const METHODS = ['median', 'mean', 'first', 'min', 'max'] as const
@@ -399,7 +417,7 @@ export const geoCopernicus: NodeImpl = async (inputs, params, ctx) => {
   // downloading a scene on every keystroke would be hostile. Fetch is a button.
   if (!pressed) return empty
 
-  const { raster, meta } = await runQuery(query, ctx)
+  const { raster, meta } = await withDiagnosis(runQuery(query, ctx))
   const fresh: FetchCache = { key, raster, meta, collection }
   ctx.state.set(stateKey, fresh)
   const preview = renderPreview(cv, ctx, raster, collection)
@@ -479,7 +497,7 @@ export const geoLandCover: NodeImpl = async (inputs, params, ctx) => {
     try {
       ctx.emit('status', 'ESA WorldCover — recherche…')
       const collection = COLLECTIONS['ESA WorldCover (10m)']
-      const result = await fetchStac({
+      const result = await withDiagnosis(fetchStac({
         collection: collection.source,
         box: gridBounds(grid),
         dateRange: null,
@@ -492,7 +510,7 @@ export const geoLandCover: NodeImpl = async (inputs, params, ctx) => {
         maxScenes: 1,
         method: 'first',
         onProgress: (fraction, message) => ctx.emit('status', `${Math.round(fraction * 100)} % — ${message}`),
-      })
+      }))
       // fetchStac builds its own grid from the box; resample onto the input's.
       const classes = result.grid.width === grid.width && result.grid.height === grid.height
         ? result.bands[0]

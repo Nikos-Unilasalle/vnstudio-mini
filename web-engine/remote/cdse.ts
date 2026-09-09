@@ -11,6 +11,7 @@
  * warp here — the response *is* the target raster.
  */
 import { readTextFile } from '../textFiles'
+import { request } from './request'
 import type { TargetGrid } from './grid'
 
 const TOKEN_URL =
@@ -47,7 +48,7 @@ async function accessToken(credentials: Credentials): Promise<string> {
     client_id: credentials.clientId,
     client_secret: credentials.clientSecret,
   })
-  const response = await fetch(TOKEN_URL, {
+  const response = await request(TOKEN_URL, {
     method: 'POST',
     headers: { 'content-type': 'application/x-www-form-urlencoded' },
     body,
@@ -146,7 +147,7 @@ export async function fetchCdse(options: CdseOptions): Promise<Float32Array[]> {
     evalscript: evalscript(options.bands, options.toDecibels, options.units),
   }
 
-  const response = await fetch(PROCESS_URL, {
+  const response = await request(PROCESS_URL, {
     method: 'POST',
     headers: { 'content-type': 'application/json', authorization: `Bearer ${bearer}`, accept: 'image/tiff' },
     body: JSON.stringify(payload),
