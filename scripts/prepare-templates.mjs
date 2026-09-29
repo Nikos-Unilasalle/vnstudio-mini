@@ -105,6 +105,12 @@ const DEMOS = [
       'Chaîne de validation complète : bruit gaussien sur les bandes, vote k-parmi-4 d’indices spectraux, accumulation Monte-Carlo en probabilité par pixel, puis corrélation d’indices, convergence, balayage de seuil, calibration et exactitude. Portage du pipeline desktop : les six scripts sont en JavaScript et les scènes se chargent depuis un GeoTIFF.',
   },
   {
+    file: 'root_anatomy_analysis.vn',
+    name: 'Anatomie racinaire (RootScan)',
+    description:
+      'Phénotypage d’une coupe transversale de racine selon RootScan (Burton et al. 2012), en nœuds génériques : calibration par la barre d’échelle, section, stèle, métaxylème, aérenchyme, cellules corticales par watershed en trois zones, rapport des variables de la Table 1 et carte colorée. Fond clair ou fluorescence.',
+  },
+  {
     file: 'ndvi_ground_truth.vn',
     name: 'Peintre d’indices',
     description:

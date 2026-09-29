@@ -70,6 +70,11 @@
     "file": "MC-paper-web.vn"
   },
   {
+    "name": "Anatomie racinaire (RootScan)",
+    "description": "Phénotypage d’une coupe transversale de racine selon RootScan (Burton et al. 2012), en nœuds génériques : calibration par la barre d’échelle, section, stèle, métaxylème, aérenchyme, cellules corticales par watershed en trois zones, rapport des variables de la Table 1 et carte colorée. Fond clair ou fluorescence.",
+    "file": "root_anatomy_analysis.vn"
+  },
+  {
     "name": "Peintre d’indices",
     "description": "Dessinez des zones et affectez-leur une valeur d’indice (style NDVI) pour fabriquer une vérité terrain synthétique : colorisation, histogramme et propriétés des régions suivent.",
     "file": "ndvi_ground_truth.vn"
