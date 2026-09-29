@@ -414,6 +414,20 @@ export const SUPPORTED_TYPES = [
   'geo_band_calc',
   'geo_spectral_indices',
   'geo_raster_noise',
+
+  // cross-section phenotyping (Root Anatomy template)
+  'filter_local_stats',
+  'filter_dog',
+  'filter_auto_polarity',
+  'sci_scale_bar_detect',
+  'mask_keep_largest',
+  'mask_select_by_marker',
+  'mask_depth_bands',
+  'feat_peak_markers',
+  'sci_zone_stats',
+  'dict_scale',
+  'dict_report_panel',
+  'list_natural_break',
 ]
 
 

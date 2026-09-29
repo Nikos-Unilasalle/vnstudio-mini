@@ -386,6 +386,10 @@ export const geoRasterNoise: NodeImpl = (inputs, params, ctx) => {
   const clipMax = Number(params.clip_max ?? 0)
   const baseSeed = Math.round(Number(params.seed ?? -1))
   const correlation = Number(params.spatial_corr_px ?? 0)
+  // Independent error terms add in quadrature; linear stays the default so older
+  // graphs keep their behaviour (see sigma_combine in the desktop plugin).
+  const quadrature = Number(params.sigma_combine ?? 0) === 1
+  const shiftPx = Number(params.shift_px ?? 0) || 0
 
   const random = baseSeed >= 0 ? seededRandom(baseSeed + state.tick) : Math.random
   state.tick++
@@ -416,15 +420,39 @@ export const geoRasterNoise: NodeImpl = (inputs, params, ctx) => {
 
     const out = new Float32Array(pixels)
     for (let i = 0; i < pixels; i++) {
-      const sigma = sigmaAbs + sigmaRel * Math.abs(source[i])
-      let value = source[i] + noise[i] * sigma
-      // An explicit range supersedes the legacy clip-negatives floor, and is
-      // only active when max is above min so old graphs keep their behaviour.
-      if (clipMax > clipMin) value = value < clipMin ? clipMin : value > clipMax ? clipMax : value
-      else if (clipNegative && value < 0) value = 0
-      out[i] = value
+      const relative = sigmaRel * Math.abs(source[i])
+      const sigma = quadrature ? Math.sqrt(sigmaAbs * sigmaAbs + relative * relative) : sigmaAbs + relative
+      out[i] = source[i] + noise[i] * sigma
     }
     noisy.push(out)
+  }
+
+  // Rigid sub-pixel translation, identical across bands: a co-registration draw.
+  // Applied after the radiometric noise so the two are independent, with a NaN
+  // border so pixels moving in from outside the scene are marked invalid.
+  if (shiftPx > 0) {
+    const [dx, dy] = gaussianField(2, random).map((v) => v * shiftPx)
+    const shift = cv.matFromArray(2, 3, cv.CV_32F, [1, 0, dx, 0, 1, dy])
+    for (let b = 0; b < noisy.length; b++) {
+      const src = new cv.Mat(raster.height, raster.width, cv.CV_32F)
+      ;(src.data32F as Float32Array).set(noisy[b])
+      const dst = new cv.Mat()
+      cv.warpAffine(src, dst, shift, new cv.Size(raster.width, raster.height), cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar(NaN))
+      noisy[b] = (dst.data32F as Float32Array).slice()
+      src.delete()
+      dst.delete()
+    }
+    shift.delete()
+  }
+
+  // An explicit range supersedes the legacy clip-negatives floor, and is only
+  // active when max is above min so old graphs keep their behaviour. NaN stays NaN.
+  for (const band of noisy) {
+    for (let i = 0; i < band.length; i++) {
+      const value = band[i]
+      if (clipMax > clipMin) band[i] = value < clipMin ? clipMin : value > clipMax ? clipMax : value
+      else if (clipNegative && value < 0) band[i] = 0
+    }
   }
 
   const first = noisy[0]

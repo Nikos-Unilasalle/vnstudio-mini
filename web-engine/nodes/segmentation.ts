@@ -1,26 +1,74 @@
 import type { NodeImpl } from '../types'
 import { colorizeLabels, computeLabelStats, parseColor, toBgr, toGray } from '../cvUtils'
 
+// Modes: 0 Binary, 1 Binary Inv, 2 Otsu, 3 Otsu Inv, 4 70% of Max, 5 Triangle, 6 Triangle Inv
+const AUTO_MODES = new Set([2, 3, 4, 5, 6])
+const INVERTED_MODES = new Set([1, 3, 6])
+const TRIANGLE_MODES = new Set([5, 6])
+
+/** Threshold for `mode`, computed from the region's pixels for the automatic modes. */
+function thresholdValue(cv: any, mode: number, manual: number, region: Uint8Array): number {
+  if (!AUTO_MODES.has(mode)) return manual
+  if (region.length === 0) return 0
+  if (mode === 4) {
+    let max = 0
+    for (let i = 0; i < region.length; i++) if (region[i] > max) max = region[i]
+    return 0.7 * max
+  }
+  const column = cv.matFromArray(region.length, 1, cv.CV_8U, region)
+  const scratch = new cv.Mat()
+  const method = TRIANGLE_MODES.has(mode) ? cv.THRESH_TRIANGLE : cv.THRESH_OTSU
+  const t = cv.threshold(column, scratch, 0, 255, cv.THRESH_BINARY + method)
+  column.delete()
+  scratch.delete()
+  return t
+}
+
 export const featThresholdAdv: NodeImpl = (inputs, params, ctx) => {
   const src = inputs.image as any
-  if (!src) return { main: null, mask: null }
+  if (!src) return { main: null, mask: null, value: null }
   const cv = ctx.cv
-  const gray = ctx.track(toGray(cv, src))
-  const dst = ctx.track(new cv.Mat())
+  let gray = ctx.track(toGray(cv, src))
   const mode = Number(params.mode) || 0
-  const value = Number(params.threshold) || 127
-
-  if (mode === 0) cv.threshold(gray, dst, value, 255, cv.THRESH_BINARY)
-  else if (mode === 1) cv.threshold(gray, dst, value, 255, cv.THRESH_BINARY_INV)
-  else if (mode === 2) cv.threshold(gray, dst, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
-  else if (mode === 3) cv.threshold(gray, dst, 0, 255, cv.THRESH_BINARY_INV + cv.THRESH_OTSU)
-  else {
-    const data = gray.data as Uint8Array
-    let max = 0
-    for (let i = 0; i < data.length; i++) if (data[i] > max) max = data[i]
-    cv.threshold(gray, dst, 0.7 * max, 255, cv.THRESH_BINARY)
+  if (AUTO_MODES.has(mode) && gray.type() !== cv.CV_8U) {
+    const norm = ctx.track(new cv.Mat())
+    cv.normalize(gray, norm, 0, 255, cv.NORM_MINMAX, cv.CV_8U)
+    gray = norm
   }
-  return { main: dst, mask: dst }
+  // Copies: the mask conversion below allocates, which can move the WASM heap
+  // and leave earlier typed-array views stale.
+  const g = (gray.data as Uint8Array).slice()
+
+  // Optional region: automatic thresholds are computed from its pixels only and
+  // the result is clipped to it.
+  let inside: Uint8Array | null = null
+  if (inputs.mask) {
+    let m = ctx.track(toGray(cv, inputs.mask as any))
+    if (m.rows !== gray.rows || m.cols !== gray.cols) {
+      const r = ctx.track(new cv.Mat())
+      cv.resize(m, r, new cv.Size(gray.cols, gray.rows), 0, 0, cv.INTER_NEAREST)
+      m = r
+    }
+    inside = (m.data as Uint8Array).slice()
+  }
+  let region: Uint8Array = g
+  if (inside) {
+    const picked: number[] = []
+    for (let i = 0; i < g.length; i++) if (inside[i] > 0) picked.push(g[i])
+    region = Uint8Array.from(picked)
+  }
+
+  let t = thresholdValue(cv, mode, Number(params.threshold ?? 127), region)
+  if (AUTO_MODES.has(mode)) t += Number(params.offset) || 0
+
+  const dst = ctx.track(new cv.Mat(gray.rows, gray.cols, cv.CV_8U))
+  const d = dst.data as Uint8Array
+  const inverted = INVERTED_MODES.has(mode)
+  for (let i = 0; i < g.length; i++) {
+    const hit = (inverted ? g[i] <= t : g[i] > t) && (!inside || inside[i] > 0)
+    d[i] = hit ? 255 : 0
+  }
+  return { main: dst, mask: dst, value: t }
 }
 
 export const featMorphologyAdv: NodeImpl = (inputs, params, ctx) => {
@@ -149,7 +197,7 @@ export const featWatershed: NodeImpl = (inputs, params, ctx) => {
   const image = inputs.image as any
   const seeds = inputs.markers as any
   const cellMask = inputs.mask as any
-  if (!image || !seeds) return { main: image ?? null, markers_out: null, count: 0 }
+  if (!image || !seeds) return { main: image ?? null, markers_out: null, count: 0, boundaries: null }
   const cv = ctx.cv
 
   const bgr = ctx.track(toBgr(cv, image))
@@ -192,8 +240,20 @@ export const featWatershed: NodeImpl = (inputs, params, ctx) => {
 
   cv.watershed(bgr, markers)
 
-  // Renumber to a plain 1..n label map: watershed writes -1 on ridges and 1 on background.
+  // Ridge lines (-1) as a mask, before renumbering erases them. cv.watershed always
+  // flags the 1-px image frame as -1 too; that is not a boundary between regions.
+  const boundaries = ctx.track(new cv.Mat(markers.rows, markers.cols, cv.CV_8U, new cv.Scalar(0)))
+  // Views taken only after the allocation above (a growing heap invalidates them).
   const finalData = markers.data32S as Int32Array
+  const bd = boundaries.data as Uint8Array
+  for (let y = 1; y < markers.rows - 1; y++) {
+    for (let x = 1; x < markers.cols - 1; x++) {
+      const i = y * markers.cols + x
+      if (finalData[i] === -1) bd[i] = 255
+    }
+  }
+
+  // Renumber to a plain 1..n label map: watershed writes -1 on ridges and 1 on background.
   const remap = new Map<number, number>()
   let next = 1
   for (let i = 0; i < finalData.length; i++) {
@@ -243,5 +303,5 @@ export const featWatershed: NodeImpl = (inputs, params, ctx) => {
     preview = bgr
   }
 
-  return { main: preview, markers_out: markers, count: remap.size }
+  return { main: preview, markers_out: markers, count: remap.size, boundaries }
 }

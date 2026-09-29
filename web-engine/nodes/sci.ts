@@ -1550,6 +1550,20 @@ function resetAccum(s: AccumState): void {
   s.buffer = []
 }
 
+const U8_MAX = 255
+
+/**
+ * Maps a std map to the uint8 output range and returns (values, scale), where
+ * scale is the input-unit value that 255 represents — so `main / 255 * scale`
+ * recovers σ whatever `normalize` is. Mirrors _std_to_u8 in the desktop plugin.
+ */
+function stdToU8(std: Float32Array, normalize: boolean): [Float32Array, number] {
+  if (!normalize) return [std, U8_MAX]
+  const peak = maxOf(std)
+  if (peak <= 0) return [std, U8_MAX]
+  return [std.map((v) => (v / (peak + 1e-8)) * U8_MAX), peak]
+}
+
 export const sciFrameAccumulator: NodeImpl = (inputs, params, ctx) => {
   let state: AccumState = ctx.state.get(ctx.nodeId)
   if (!state) {
@@ -1568,11 +1582,13 @@ export const sciFrameAccumulator: NodeImpl = (inputs, params, ctx) => {
   }
 
   const img = inputs.image as any
-  if (!img) return { main: null, frame_count: state.count || state.buffer.length, done: 0 }
+  if (!img) return { main: null, frame_count: state.count || state.buffer.length, done: 0, scale: U8_MAX }
   const cv = ctx.cv
 
   const mode = Number(params.mode) || 0
   const cumulative = params.cumulative !== false
+  const normalize = params.normalize !== false
+  let scale = U8_MAX
 
   const bgr = toBgr(cv, img)
   const f = Float32Array.from(bgr.data as Uint8Array)
@@ -1608,22 +1624,21 @@ export const sciFrameAccumulator: NodeImpl = (inputs, params, ctx) => {
       reached = targetN > 0 && state.count >= targetN
     }
 
-    if (!state.mean || !state.shape) return { main: null, frame_count: 0, done: 0 }
+    if (!state.mean || !state.shape) return { main: null, frame_count: 0, done: 0, scale: U8_MAX }
     let result: Float32Array
     if (mode === 0) result = state.mean
     else if (mode === 1) result = state.max!
     else if (mode === 2) result = state.min!
     else if (mode === 3) {
       const std = state.m2!.map((v) => Math.sqrt(v / Math.max(state.count, 1)))
-      const m = maxOf(std)
-      result = m > 0 ? std.map((v) => (v / (m + 1e-8)) * 255) : std
+      ;[result, scale] = stdToU8(std, normalize)
     } else result = state.diff!
 
     const [h, w, c] = state.shape
     const out = ctx.track(new cv.Mat(h, w, c === 1 ? cv.CV_8UC1 : cv.CV_8UC3))
     const outData = out.data as Uint8Array
     for (let i = 0; i < result.length; i++) outData[i] = Math.max(0, Math.min(255, Math.round(result[i])))
-    return { main: out, frame_count: state.count, done: reached ? 1 : 0 }
+    return { main: out, frame_count: state.count, done: reached ? 1 : 0, scale }
   }
 
   const window = Math.round(Number(params.window) || 16)
@@ -1649,8 +1664,7 @@ export const sciFrameAccumulator: NodeImpl = (inputs, params, ctx) => {
     const std = new Float32Array(len)
     for (const fr of state.buffer) for (let i = 0; i < len; i++) std[i] += (fr[i] - mean[i]) ** 2 / n
     for (let i = 0; i < len; i++) std[i] = Math.sqrt(std[i])
-    const m = maxOf(std)
-    result = m > 0 ? std.map((v) => (v / (m + 1e-8)) * 255) : std
+    ;[result, scale] = stdToU8(std, normalize)
   } else {
     result = n >= 2 ? state.buffer[n - 1].map((v, i) => Math.abs(v - state.buffer[n - 2][i]) * 4) : state.buffer[0].slice()
   }
@@ -1659,5 +1673,5 @@ export const sciFrameAccumulator: NodeImpl = (inputs, params, ctx) => {
   const out = ctx.track(new cv.Mat(h, w, c === 1 ? cv.CV_8UC1 : cv.CV_8UC3))
   const outData = out.data as Uint8Array
   for (let i = 0; i < result.length; i++) outData[i] = Math.max(0, Math.min(255, Math.round(result[i])))
-  return { main: out, frame_count: n, done: 0 }
+  return { main: out, frame_count: n, done: 0, scale }
 }

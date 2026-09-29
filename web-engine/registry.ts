@@ -301,6 +301,9 @@ import {
   pluginFilterSavgol,
 } from './nodes/signal'
 import { dataInspector, outputDisplay, utilCsvExport } from './nodes/output'
+import { filterAutoPolarity, filterDog, filterLocalStats, sciScaleBarDetect } from './nodes/imageAnalysis'
+import { featPeakMarkers, maskDepthBands, maskKeepLargest, maskSelectByMarker, sciZoneStats } from './nodes/regionAnalysis'
+import { dictReportPanel, dictScale, listNaturalBreak } from './nodes/dictTools'
 import { geoGrainHistogram, plotterPro } from './nodes/visualize'
 
 export const SCHEMAS = rawSchemas as unknown as WebNodeSchema[]
@@ -675,6 +678,19 @@ export const IMPLEMENTATIONS: Record<string, NodeImpl> = {
   geo_band_calc: geoBandCalc,
   geo_spectral_indices: geoSpectralIndices,
   geo_raster_noise: geoRasterNoise,
+
+  filter_local_stats: filterLocalStats,
+  filter_dog: filterDog,
+  filter_auto_polarity: filterAutoPolarity,
+  sci_scale_bar_detect: sciScaleBarDetect,
+  mask_keep_largest: maskKeepLargest,
+  mask_select_by_marker: maskSelectByMarker,
+  mask_depth_bands: maskDepthBands,
+  feat_peak_markers: featPeakMarkers,
+  sci_zone_stats: sciZoneStats,
+  dict_scale: dictScale,
+  dict_report_panel: dictReportPanel,
+  list_natural_break: listNaturalBreak,
 }
 
 const schemaByType = new Map(SCHEMAS.map((s) => [s.type, s]))

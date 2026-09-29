@@ -151,7 +151,7 @@ export const sciInteractiveCalibration: NodeImpl = (inputs, params, ctx) => {
 
 export const sciCalibration: NodeImpl = (inputs, params, ctx) => {
   const value = inputs.input
-  if (value === undefined || value === null) return { output: null }
+  if (value === undefined || value === null) return { main: null, output: null }
 
   const factor = Number(params.factor) || 100
   const isArea = String(params.dimension ?? 'Area') === 'Area'
@@ -161,14 +161,15 @@ export const sciCalibration: NodeImpl = (inputs, params, ctx) => {
   if (Array.isArray(value)) {
     const converted = value.map((v) => (typeof v === 'number' ? v / divisor : v))
     ctx.emit('display_value', `${converted.length} items`)
-    return { output: converted }
+    return { main: converted, output: converted }
   }
 
   const numeric = Number(value)
-  if (Number.isNaN(numeric)) return { output: value }
+  if (Number.isNaN(numeric)) return { main: value, output: value }
   const converted = numeric / divisor
   ctx.emit('display_value', `${converted.toFixed(3)} ${unit}`)
-  return { output: converted }
+  // Desktop renamed the port to `main` (matching its UI); `output` kept for older graphs.
+  return { main: converted, output: converted }
 }
 
 export const imageMoments: NodeImpl = (inputs, params, ctx) => {

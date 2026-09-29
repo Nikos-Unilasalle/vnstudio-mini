@@ -118,7 +118,14 @@ export const utilCsvExport: NodeImpl = (inputs, params, ctx) => {
   const scalars: Record<string, unknown> = {}
   for (const [key, value] of Object.entries(inputs)) {
     if (value === null || value === undefined) continue
-    if (SCALAR_TYPES.has(typeof value)) scalars[key] = value
+    if (SCALAR_TYPES.has(typeof value)) {
+      scalars[key] = value
+    } else if (typeof value === 'object' && !Array.isArray(value) && typeof (value as any).delete !== 'function') {
+      // A dict (e.g. a measurement report) contributes one column per scalar entry.
+      for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+        if (v !== null && v !== undefined && SCALAR_TYPES.has(typeof v)) scalars[k] = v
+      }
+    }
   }
 
   // A table on any port exports whole, rather than one row per run.

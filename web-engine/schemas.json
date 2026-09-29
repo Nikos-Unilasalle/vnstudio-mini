@@ -1376,7 +1376,7 @@
   },
   {
     "type": "filter_low_pass",
-    "label": "Filter: Low Pass",
+    "label": "Low Pass",
     "category": "image",
     "icon": "Waves",
     "description": "Applies a Gaussian low-pass filter to smooth the image and reduce noise.",
@@ -1845,11 +1845,16 @@
     "label": "Threshold (Advanced)",
     "category": "segmentation",
     "icon": "Layers",
-    "description": "Advanced thresholding including Otsu's method and relative percentage thresholds.",
+    "description": "Advanced thresholding: Otsu, Triangle (one dominant background peak + a tail, e.g. objects on a flat backdrop, even faint/out-of-focus ones) and % of max. Optional mask: Otsu / % of Max are computed from masked pixels only and the result is clipped to the mask. Offset shifts the automatic threshold.",
     "inputs": [
       {
         "id": "image",
         "color": "image"
+      },
+      {
+        "id": "mask",
+        "color": "mask",
+        "label": "Region (opt.)"
       }
     ],
     "outputs": [
@@ -1860,6 +1865,11 @@
       {
         "id": "mask",
         "color": "mask"
+      },
+      {
+        "id": "value",
+        "color": "scalar",
+        "label": "Threshold"
       }
     ],
     "params": [
@@ -1872,7 +1882,9 @@
           "Binary Inv",
           "Otsu",
           "Otsu Inv",
-          "70% of Max"
+          "70% of Max",
+          "Triangle",
+          "Triangle Inv"
         ],
         "default": 0
       },
@@ -1883,6 +1895,14 @@
         "min": 0,
         "max": 255,
         "default": 127
+      },
+      {
+        "id": "offset",
+        "label": "Auto Offset",
+        "type": "scalar",
+        "min": -128,
+        "max": 128,
+        "default": 0
       }
     ],
     "resizable": false,
@@ -2030,10 +2050,10 @@
   },
   {
     "type": "feat_connected_components",
-    "label": "Connected Components",
+    "label": "Connected Components (Markers)",
     "category": "segmentation",
     "icon": "Database",
-    "description": "Labels connected regions in a binary image. Each region gets a unique ID (Markers).",
+    "description": "Labels a binary mask into a marker map to seed Watershed. No parameters: it labels whatever the mask already contains. For counting and measuring objects — with a threshold, area filters and per-object areas and centroids — use 'Connected Components' instead.",
     "inputs": [
       {
         "id": "mask",
@@ -2070,7 +2090,7 @@
     "label": "Connected Components",
     "category": "segmentation",
     "icon": "Layers",
-    "description": "Label and count connected regions (particles, cells, blobs). Measures area and centroid of each object.",
+    "description": "Label and count connected regions (particles, cells, blobs). Thresholds the input itself, filters by area, and measures the area and centroid of each object. To only build a marker map for Watershed, use 'Connected Components (Markers)' instead.",
     "inputs": [
       {
         "id": "image",
@@ -2283,6 +2303,11 @@
       {
         "id": "count",
         "color": "scalar"
+      },
+      {
+        "id": "boundaries",
+        "color": "mask",
+        "label": "Boundary Lines"
       }
     ],
     "params": [
@@ -4996,11 +5021,16 @@
       {
         "id": "input",
         "color": "any"
+      },
+      {
+        "id": "factor",
+        "color": "scalar",
+        "label": "Pixels per Unit"
       }
     ],
     "outputs": [
       {
-        "id": "output",
+        "id": "main",
         "color": "any"
       }
     ],
@@ -6304,7 +6334,7 @@
   },
   {
     "type": "sci_colormap",
-    "label": "Colormap / LUT",
+    "label": "Colormap",
     "category": "color",
     "icon": "Palette",
     "description": "Apply scientific colormap (LUT) to grayscale image. Converts intensity to false color for visualization.",
@@ -6552,6 +6582,11 @@
         "id": "done",
         "color": "scalar",
         "label": "Reached Target N (0/1)"
+      },
+      {
+        "id": "scale",
+        "color": "scalar",
+        "label": "Value of main=255, input units"
       }
     ],
     "params": [
@@ -6593,6 +6628,16 @@
         "show_if": {
           "param": "cumulative",
           "value": false
+        }
+      },
+      {
+        "id": "normalize",
+        "label": "Stretch std to 0-255 (display); off = σ in input units",
+        "type": "bool",
+        "default": true,
+        "show_if": {
+          "param": "mode",
+          "value": 3
         }
       },
       {
@@ -8420,7 +8465,7 @@
   },
   {
     "type": "geo_grain_histogram",
-    "label": "Grain Size Histogram",
+    "label": "Grain Histogram",
     "category": "geology",
     "icon": "BarChart2",
     "description": "Interactive grain size histogram + cumulative frequency curve rendered inside the node.\nConnect 'Regions' from SAM Grain Stats or from Region Properties.\n\nShows D10 / D50 / D90 percentiles, count, mean, and std directly in the chart.\nUnits follow the upstream calibration (px when uncalibrated, µm otherwise).",
@@ -10728,7 +10773,7 @@
   },
   {
     "type": "logic_compare",
-    "label": "Data Compare",
+    "label": "Compare",
     "category": "logic",
     "icon": "Layers",
     "description": "Compares two numerical values using a selected operator (>, <, ==, etc.) and returns true or false.",
@@ -15818,7 +15863,7 @@
   },
   {
     "type": "util_colormap",
-    "label": "Apply Colormap",
+    "label": "Colormap (Simple)",
     "category": "color",
     "icon": "Palette",
     "description": "Applies a scientific colormap (Heatmap, Jet, Magma) to a grayscale image.",
@@ -17840,6 +17885,11 @@
       {
         "id": "mask",
         "color": "mask"
+      },
+      {
+        "id": "min_area",
+        "color": "scalar",
+        "label": "Min Area"
       }
     ],
     "outputs": [
@@ -24353,6 +24403,25 @@
         "label": "Spatial correlation (px, 0 = iid)"
       },
       {
+        "id": "sigma_combine",
+        "type": "enum",
+        "default": 0,
+        "options": [
+          "linear (σa + σr·|v|)",
+          "quadrature (√(σa² + (σr·v)²))"
+        ],
+        "label": "Combine σ terms"
+      },
+      {
+        "id": "shift_px",
+        "type": "float",
+        "default": 0,
+        "min": 0,
+        "max": 10,
+        "step": 0.1,
+        "label": "Co-registration σ (px, 0 = off)"
+      },
+      {
         "id": "node_note",
         "type": "string",
         "default": "",
@@ -24361,6 +24430,856 @@
     ],
     "resizable": true,
     "min_width": 240,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "filter_local_stats",
+    "label": "Local Statistics",
+    "category": "image",
+    "icon": "Grid3x3",
+    "description": "Per-pixel statistic over a square window: local mean, standard deviation or variance. Std Dev is a texture map — flat backgrounds go dark, textured regions (tissue, grains, foliage, text) go bright. 'main' is min-max normalized to 0–255; 'raw' keeps float values.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "raw",
+        "color": "any",
+        "label": "Raw (float)"
+      }
+    ],
+    "params": [
+      {
+        "id": "statistic",
+        "label": "Statistic",
+        "type": "enum",
+        "options": [
+          "Mean",
+          "Std Dev",
+          "Variance"
+        ],
+        "default": 1
+      },
+      {
+        "id": "window",
+        "label": "Window (px)",
+        "type": "int",
+        "default": 15,
+        "min": 3,
+        "max": 201
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "filter_dog",
+    "label": "Difference of Gaussians",
+    "category": "image",
+    "icon": "Waves",
+    "description": "Band-pass filter: G(sigma) − G(sigma × ratio). Keeps structures whose size is roughly 2–4 × sigma (cells, grains, dots) and removes finer noise and slow illumination. Absolute output + a large blur = texture energy at that scale. Sigma can be driven by a Number node to adapt to image resolution.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      },
+      {
+        "id": "sigma",
+        "color": "scalar",
+        "label": "Sigma"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "raw",
+        "color": "any",
+        "label": "Raw (float)"
+      }
+    ],
+    "params": [
+      {
+        "id": "sigma",
+        "label": "Sigma (px)",
+        "type": "float",
+        "default": 3,
+        "min": 0.3,
+        "max": 50,
+        "step": 0.1
+      },
+      {
+        "id": "ratio",
+        "label": "Ratio (k)",
+        "type": "float",
+        "default": 2,
+        "min": 1.05,
+        "max": 8,
+        "step": 0.1
+      },
+      {
+        "id": "output",
+        "label": "Output",
+        "type": "enum",
+        "options": [
+          "Absolute (band energy)",
+          "Signed"
+        ],
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "filter_auto_polarity",
+    "label": "Auto Polarity",
+    "category": "image",
+    "icon": "Contrast",
+    "description": "Inverts the image only when needed so the background ends up bright (or dark). Background = pixels outside the optional foreground mask; otherwise the image border or the dominant histogram peak (robust when the object touches the frame). Lets one pipeline accept both bright-field (dark objects on white) and fluorescence / dark-field (bright objects on black) images.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      },
+      {
+        "id": "mask",
+        "color": "mask",
+        "label": "Foreground (opt.)"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "main",
+        "color": "image"
+      },
+      {
+        "id": "inverted",
+        "color": "boolean"
+      }
+    ],
+    "params": [
+      {
+        "id": "target",
+        "label": "Make Background",
+        "type": "enum",
+        "options": [
+          "Bright Background",
+          "Dark Background"
+        ],
+        "default": 0
+      },
+      {
+        "id": "method",
+        "label": "Detect Background By",
+        "type": "enum",
+        "options": [
+          "Image Border",
+          "Histogram Peak"
+        ],
+        "default": 0
+      },
+      {
+        "id": "border_pct",
+        "label": "Border Width (%)",
+        "type": "float",
+        "default": 5,
+        "min": 0.5,
+        "max": 25
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "sci_scale_bar_detect",
+    "label": "Scale Bar Detect",
+    "category": "measure",
+    "icon": "Ruler",
+    "description": "Finds the scale bar burnt into a micrograph or photo (the longest thin horizontal line, bright or dark) and converts its known length into a calibration: pixels per mm / per µm. Enter the length printed next to the bar. Connect px/mm to Unit Calibration or Scale Dict Values so every measurement follows the image's real magnification. Source = Manual uses the px/mm of a line drawn with Visual Calibration (unit mm) instead; if no line is drawn it falls back to automatic detection.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      },
+      {
+        "id": "bar_length",
+        "color": "scalar",
+        "label": "Bar Length"
+      },
+      {
+        "id": "manual_px_per_mm",
+        "color": "scalar",
+        "label": "Manual px/mm"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "px_per_mm",
+        "color": "scalar",
+        "label": "px / mm"
+      },
+      {
+        "id": "px_per_um",
+        "color": "scalar",
+        "label": "px / µm"
+      },
+      {
+        "id": "length_px",
+        "color": "scalar",
+        "label": "Bar Length (px)"
+      },
+      {
+        "id": "bar_mask",
+        "color": "mask"
+      },
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "source",
+        "label": "Source",
+        "type": "enum",
+        "options": [
+          "Auto (detect bar)",
+          "Manual (drawn line)"
+        ],
+        "default": 0
+      },
+      {
+        "id": "bar_length",
+        "label": "Bar Length (printed value)",
+        "type": "float",
+        "default": 500,
+        "min": 0
+      },
+      {
+        "id": "unit",
+        "label": "Unit",
+        "type": "enum",
+        "options": [
+          "µm",
+          "mm",
+          "nm",
+          "cm"
+        ],
+        "default": 0
+      },
+      {
+        "id": "fallback_px_per_mm",
+        "label": "Fallback px/mm (no bar found)",
+        "type": "float",
+        "default": 0,
+        "min": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "mask_keep_largest",
+    "label": "Keep Largest Blobs",
+    "category": "mask",
+    "icon": "Maximize2",
+    "description": "Keeps only the N largest connected blobs of a mask and drops everything else. Typical use: isolate the main object (a section, a leaf, a grain, a part) after a threshold that also picked up debris.",
+    "inputs": [
+      {
+        "id": "mask",
+        "color": "mask"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "mask",
+        "color": "mask"
+      },
+      {
+        "id": "count",
+        "color": "scalar",
+        "label": "Kept"
+      },
+      {
+        "id": "area_px",
+        "color": "scalar",
+        "label": "Area (px)"
+      }
+    ],
+    "params": [
+      {
+        "id": "count",
+        "label": "Keep N",
+        "type": "int",
+        "default": 1,
+        "min": 1,
+        "max": 100
+      },
+      {
+        "id": "connectivity",
+        "label": "Connectivity",
+        "type": "enum",
+        "options": [
+          "8-connected",
+          "4-connected"
+        ],
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "mask_select_by_marker",
+    "label": "Select Blobs by Marker",
+    "category": "mask",
+    "icon": "MousePointerClick",
+    "description": "Morphological reconstruction: keeps (or removes) every whole blob of the mask that touches the marker mask. Use a strict detector as marker and a permissive one as mask to get complete objects (e.g. full vessels from their bright highlight, whole cells from seed points, entire grains from a few confident pixels).",
+    "inputs": [
+      {
+        "id": "mask",
+        "color": "mask"
+      },
+      {
+        "id": "marker",
+        "color": "mask"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "mask",
+        "color": "mask"
+      },
+      {
+        "id": "count",
+        "color": "scalar",
+        "label": "Blobs Kept"
+      }
+    ],
+    "params": [
+      {
+        "id": "mode",
+        "label": "Mode",
+        "type": "enum",
+        "options": [
+          "Keep Marked",
+          "Remove Marked"
+        ],
+        "default": 0
+      },
+      {
+        "id": "connectivity",
+        "label": "Connectivity",
+        "type": "enum",
+        "options": [
+          "4-connected",
+          "8-connected"
+        ],
+        "default": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "mask_depth_bands",
+    "label": "Mask Depth Bands",
+    "category": "mask",
+    "icon": "Target",
+    "description": "Relative depth between an inner mask and the edge of an outer mask: 0 at the inner boundary, 1 at the outer edge. Splits the layer in between into N concentric bands (e.g. inner / middle / outer cortex, rind layers, coating thickness zones) and outputs a mask for a depth range (e.g. 0.2–0.8 = middle 60%). The image frame is not treated as an edge, so objects cut by the frame keep correct depths.",
+    "inputs": [
+      {
+        "id": "inner",
+        "color": "mask",
+        "label": "Inner (e.g. stele)"
+      },
+      {
+        "id": "outer",
+        "color": "mask",
+        "label": "Outer (e.g. section)"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "bands",
+        "color": "markers",
+        "label": "Band Labels (1..N)"
+      },
+      {
+        "id": "range_mask",
+        "color": "mask",
+        "label": "Depth Range"
+      },
+      {
+        "id": "band_1",
+        "color": "mask"
+      },
+      {
+        "id": "band_2",
+        "color": "mask"
+      },
+      {
+        "id": "band_3",
+        "color": "mask"
+      },
+      {
+        "id": "depth",
+        "color": "any",
+        "label": "Depth (0–1 float)"
+      },
+      {
+        "id": "main",
+        "color": "image"
+      }
+    ],
+    "params": [
+      {
+        "id": "bands",
+        "label": "Number of Bands",
+        "type": "int",
+        "default": 3,
+        "min": 1,
+        "max": 10
+      },
+      {
+        "id": "range_low",
+        "label": "Range Low (0–1)",
+        "type": "float",
+        "default": 0.2,
+        "min": 0,
+        "max": 1,
+        "step": 0.05
+      },
+      {
+        "id": "range_high",
+        "label": "Range High (0–1)",
+        "type": "float",
+        "default": 0.8,
+        "min": 0,
+        "max": 1,
+        "step": 0.05
+      },
+      {
+        "id": "ignore_border",
+        "label": "Image Frame Is Not an Edge",
+        "type": "bool",
+        "default": true
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "feat_peak_markers",
+    "label": "Local Maxima Markers",
+    "category": "segmentation",
+    "icon": "Crosshair",
+    "description": "One marker per bright (or dark) object: local maxima of the smoothed image, at least 'Min Distance' apart. Feed the markers to Watershed to split touching objects into whole regions (cells, nuclei, grains, stars). Sigma ≈ object radius / 2, Min Distance ≈ object radius; both can be driven by a Number.",
+    "inputs": [
+      {
+        "id": "image",
+        "color": "image"
+      },
+      {
+        "id": "mask",
+        "color": "mask",
+        "label": "Region (opt.)"
+      },
+      {
+        "id": "sigma",
+        "color": "scalar",
+        "label": "Sigma"
+      },
+      {
+        "id": "min_distance",
+        "color": "scalar",
+        "label": "Min Distance"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "markers",
+        "color": "markers"
+      },
+      {
+        "id": "points",
+        "color": "mask",
+        "label": "Marker Dots"
+      },
+      {
+        "id": "count",
+        "color": "scalar"
+      }
+    ],
+    "params": [
+      {
+        "id": "polarity",
+        "label": "Find",
+        "type": "enum",
+        "options": [
+          "Bright Peaks (maxima)",
+          "Dark Pits (minima)"
+        ],
+        "default": 0
+      },
+      {
+        "id": "sigma",
+        "label": "Smoothing Sigma (px)",
+        "type": "float",
+        "default": 3,
+        "min": 0,
+        "max": 50,
+        "step": 0.1
+      },
+      {
+        "id": "min_distance",
+        "label": "Min Distance (px)",
+        "type": "float",
+        "default": 7,
+        "min": 1,
+        "max": 200,
+        "step": 0.5
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "sci_zone_stats",
+    "label": "Zone Region Stats",
+    "category": "measure",
+    "icon": "LayoutGrid",
+    "description": "Counts labelled regions (cells, grains, particles…) and their mean / total area per zone. Each region is assigned to the zone under its centroid, so a region is counted once even if it straddles two zones. Zones = any label map (e.g. Mask Depth Bands); without zones, all regions form one zone. Watershed lines (−1) and background (0, 1 after watershed with a mask) are ignored via Min Area and the Ignore Label.",
+    "inputs": [
+      {
+        "id": "regions",
+        "color": "markers"
+      },
+      {
+        "id": "zones",
+        "color": "markers",
+        "label": "Zones (opt.)"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "stats",
+        "color": "dict"
+      },
+      {
+        "id": "total_count",
+        "color": "scalar"
+      },
+      {
+        "id": "mean_area",
+        "color": "scalar",
+        "label": "Mean Area (all)"
+      },
+      {
+        "id": "counts",
+        "color": "list"
+      },
+      {
+        "id": "mean_areas",
+        "color": "list"
+      },
+      {
+        "id": "areas",
+        "color": "list",
+        "label": "All Areas"
+      },
+      {
+        "id": "regions_mask",
+        "color": "mask",
+        "label": "Counted Regions"
+      }
+    ],
+    "params": [
+      {
+        "id": "min_area",
+        "label": "Min Area (px)",
+        "type": "int",
+        "default": 20,
+        "min": 0
+      },
+      {
+        "id": "max_area",
+        "label": "Max Area (px, 0=off)",
+        "type": "int",
+        "default": 0,
+        "min": 0
+      },
+      {
+        "id": "ignore_label",
+        "label": "Ignore Label (e.g. 1 = watershed bg)",
+        "type": "int",
+        "default": -99
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "dict_scale",
+    "label": "Scale Dict Values",
+    "category": "data",
+    "icon": "Scale",
+    "description": "Multiplies or divides every numeric value of a dict by factor^power — unit conversion of a whole table at once (e.g. areas in px² ÷ (px/mm)² = mm², lengths ÷ px/mm = mm). Non-numeric values and keys listed in 'Skip Keys' are passed through unchanged.",
+    "inputs": [
+      {
+        "id": "dict",
+        "color": "dict"
+      },
+      {
+        "id": "factor",
+        "color": "scalar"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "dict",
+        "color": "dict"
+      }
+    ],
+    "params": [
+      {
+        "id": "operation",
+        "label": "Operation",
+        "type": "enum",
+        "options": [
+          "Multiply",
+          "Divide"
+        ],
+        "default": 1
+      },
+      {
+        "id": "factor",
+        "label": "Factor",
+        "type": "float",
+        "default": 1
+      },
+      {
+        "id": "power",
+        "label": "Power (1=length, 2=area)",
+        "type": "float",
+        "default": 2
+      },
+      {
+        "id": "skip_keys",
+        "label": "Skip Keys (comma-separated)",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "id": "digits",
+        "label": "Round to Digits (-1 = off)",
+        "type": "int",
+        "default": -1,
+        "min": -1,
+        "max": 12
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "dict_report_panel",
+    "label": "Report Panel",
+    "category": "visualize",
+    "icon": "BarChart2",
+    "description": "Displays one or more dicts as a grouped measurement panel (compact and expanded views). Groups are separated by '|' (or new lines): 'Title: key1, key2 | Title2: …' ('*' = every key not listed elsewhere). Outputs the merged dict, ordered as displayed, for CSV export.",
+    "inputs": [
+      {
+        "id": "dict",
+        "color": "dict"
+      },
+      {
+        "id": "dict_2",
+        "color": "dict"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "report",
+        "color": "dict"
+      }
+    ],
+    "params": [
+      {
+        "id": "title",
+        "label": "Title",
+        "type": "string",
+        "default": "Report"
+      },
+      {
+        "id": "groups",
+        "label": "Groups (Title: key, key | Title: …)",
+        "type": "string",
+        "default": "Values: *"
+      },
+      {
+        "id": "digits",
+        "label": "Displayed Digits",
+        "type": "int",
+        "default": 4,
+        "min": 0,
+        "max": 10
+      }
+    ],
+    "resizable": true,
+    "min_width": 200,
+    "min_height": 150,
+    "colorable": true,
+    "dynamic_inputs": false,
+    "dynamic_outputs": false,
+    "variable_inputs": false,
+    "hf_model": "",
+    "hf_filename": ""
+  },
+  {
+    "type": "list_natural_break",
+    "label": "List Natural Break",
+    "category": "analyze",
+    "icon": "SplitSquareHorizontal",
+    "description": "Finds the natural break that best separates a list of numbers into two groups (Otsu's criterion in 1-D). Log scale suits sizes/areas. Typical use: split object areas into 'small' and 'large' without a hand-picked threshold, then feed the threshold to a Blob Filter.",
+    "inputs": [
+      {
+        "id": "values",
+        "color": "list"
+      },
+      {
+        "id": "min_value",
+        "color": "scalar",
+        "label": "Ignore Below"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "threshold",
+        "color": "scalar"
+      },
+      {
+        "id": "count_above",
+        "color": "scalar",
+        "label": "Count ≥"
+      },
+      {
+        "id": "count_below",
+        "color": "scalar",
+        "label": "Count <"
+      },
+      {
+        "id": "above",
+        "color": "list"
+      },
+      {
+        "id": "below",
+        "color": "list"
+      }
+    ],
+    "params": [
+      {
+        "id": "log_scale",
+        "label": "Log Scale",
+        "type": "bool",
+        "default": true
+      },
+      {
+        "id": "min_value",
+        "label": "Ignore Below",
+        "type": "float",
+        "default": 0,
+        "min": 0
+      }
+    ],
+    "resizable": false,
+    "min_width": 200,
     "min_height": 150,
     "colorable": true,
     "dynamic_inputs": false,
