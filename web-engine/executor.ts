@@ -149,6 +149,8 @@ export class GraphExecutor {
   private matPool: any[] = []
   /** Last thumbnail per node, republished on the frames we skip re-encoding. */
   private thumbnails = new Map<string, string>()
+  /** Type each node id had on the previous run — see forgetRetypedNodes. */
+  private readonly nodeTypes = new Map<string, string>()
   private frameCount = 0
 
   constructor(cv: any) {
@@ -190,6 +192,34 @@ export class GraphExecutor {
     }
   }
 
+  /**
+   * Treats a node whose id survived but whose type changed as a new node.
+   *
+   * Loading one template over another, or regenerating one, can keep an id while
+   * changing the node behind it. Its old state (a detector, an accumulated series)
+   * would otherwise be handed to the new implementation. Mirrors the desktop
+   * engine, which discards the processor instance in the same situation.
+   */
+  private forgetRetypedNodes(nodes: GraphNode[]): void {
+    const retyped = new Set<string>()
+    for (const node of nodes) {
+      const previous = this.nodeTypes.get(node.id)
+      if (previous !== undefined && previous !== node.type) retyped.add(node.id)
+      this.nodeTypes.set(node.id, node.type)
+    }
+    const liveIds = new Set(nodes.map((n) => n.id))
+    for (const id of [...this.nodeTypes.keys()]) if (!liveIds.has(id)) this.nodeTypes.delete(id)
+    if (retyped.size === 0) return
+    for (const key of [...this.nodeState.keys()]) {
+      const nodeId = key.includes(':') ? key.slice(0, key.indexOf(':')) : key
+      if (!retyped.has(nodeId)) continue
+      const value = this.nodeState.get(key)
+      if (value?.stream) for (const track of value.stream.getTracks()) track.stop()
+      this.nodeState.delete(key)
+    }
+    for (const id of retyped) this.thumbnails.delete(id)
+  }
+
   async run(
     nodes: GraphNode[],
     edges: GraphEdge[],
@@ -199,6 +229,7 @@ export class GraphExecutor {
   ): Promise<RunResult> {
     this.releaseMats()
     this.pruneState(new Set(nodes.map((n) => n.id)))
+    this.forgetRetypedNodes(nodes)
     this.frameCount++
     activePool = this.matPool
 
@@ -224,7 +255,20 @@ export class GraphExecutor {
         if (edge.target !== nodeId) continue
         const upstream = outputsByNode.get(edge.source)
         if (!upstream) continue
-        inputs[portIdOf(edge.targetHandle, defaultInput)] = upstream[portIdOf(edge.sourceHandle, defaultOutput)]
+        const port = portIdOf(edge.targetHandle, defaultInput)
+        const value = upstream[portIdOf(edge.sourceHandle, defaultOutput)]
+        inputs[port] = value
+        // Same compatibility aliases as the desktop engine: several node components
+        // draw their image handle as `main` while the plugin reads `image`, and a
+        // few read a value under any of data / in / value.
+        if (value !== undefined && value !== null) {
+          if ((port === 'main' || port === 'image') && isMat(value)) inputs.image = value
+          if (port === 'data' || port === 'in' || port === 'value') {
+            inputs.data = value
+            inputs.in = value
+            inputs.value = value
+          }
+        }
       }
 
       const params = { ...(node.data?.params ?? {}) }
@@ -232,6 +276,11 @@ export class GraphExecutor {
       // implementations can trust that every documented key is present.
       for (const spec of schema?.params ?? []) {
         if (params[spec.id] === undefined && spec.default !== undefined) params[spec.id] = spec.default
+        // Param externalisation, as in the desktop engine: an input port whose id
+        // matches a parameter drives that parameter (a Number node feeding a sigma,
+        // a computed area feeding a min_area…).
+        const driven = inputs[spec.id]
+        if (driven !== undefined && driven !== null) params[spec.id] = driven
       }
 
       const context: RunContext = {
