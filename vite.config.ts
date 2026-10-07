@@ -38,9 +38,11 @@ function baseAwareTemplateUrls() {
   }
 }
 
-export default defineConfig(({ command }) => ({
+export default defineConfig(({ command, isPreview }) => ({
   // GitHub Pages serves the project from /<repo>/; dev stays at the root.
-  base: command === 'build' ? (process.env.VITE_BASE ?? '/vnstudio-mini/') : '/',
+  // `vite preview` runs as command 'serve' but serves the build, so it needs the
+  // build's base too — without it every built asset falls through to a 404.
+  base: command === 'build' || isPreview ? (process.env.VITE_BASE ?? '/vnstudio-mini/') : '/',
   plugins: [react(), baseAwareTemplateUrls()],
   resolve: {
     alias: [
