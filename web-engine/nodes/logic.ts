@@ -1,27 +1,58 @@
 import type { NodeImpl } from '../types'
 import { downloadFile } from '../../shims/vfs'
 import { makePlot } from '../plot'
+import { runPython } from '../python'
 
 /**
- * The desktop node runs Python with numpy/OpenCV in a restricted namespace.
- * There is no Python in the browser, so this evaluates JavaScript instead,
- * keeping the same contract: inputs arrive as `a`, `b`, `c` …, and any variable
- * named `out_*` becomes an output port. Scripts written for the desktop node
- * will not run here — the editor shows a banner saying so.
- *
- * The Python side gets numpy, cv2 and matplotlib handed to it, so the
- * JavaScript side gets the same courtesy: `cv` is OpenCV, `plot` builds a
- * figure the way matplotlib would, and `track` registers a Mat for the engine
- * to free after the next run — without it a script that draws a figure every
- * frame would leak the WASM heap away.
+ * True when a script is the JavaScript dialect this node has always accepted on
+ * the web (MC-paper's scripts are), rather than Python. It has to compile as a
+ * function body *and* carry something only JavaScript writes: a one-liner like
+ * `out_a = a` is valid in both and is better run as the Python it was meant as.
  */
-export const logicPython: NodeImpl = (inputs, params, ctx) => {
+function isJavaScript(code: string): boolean {
+  // `//` only as a line comment: mid-line it is Python's floor division.
+  if (!/(^\s*\/\/|;\s*$|\bconst\s|\blet\s|\bvar\s|=>|\bfunction\b)/m.test(code)) return false
+  try {
+    new Function(code)
+    return true
+  } catch {
+    return false
+  }
+}
+
+/**
+ * The desktop node runs Python with numpy/pandas/OpenCV in a restricted
+ * namespace, and so does this one: Python goes to Pyodide (see python.ts),
+ * fetched the first time a script needs it. Scripts written in JavaScript — the
+ * only option before — still run as before, under the same contract: inputs
+ * arrive as `a`, `b`, `c` …, and any variable named `out_*` becomes an output.
+ *
+ * The JavaScript side gets `cv` (OpenCV), `plot` (a figure built the way
+ * matplotlib would) and `track`, which registers a Mat for the engine to free
+ * after the next run — without it a script that draws a figure every frame would
+ * leak the WASM heap away.
+ *
+ * Either way the error goes on `__error__`, the channel the code editor reads.
+ */
+export const logicPython: NodeImpl = async (inputs, params, ctx) => {
   const code = String(params.code ?? '')
+  const outputs = isJavaScript(code) ? runJavaScript(code, inputs, ctx) : await runPython(code, inputs, ctx)
+  // A script fed nothing yet (an upstream fetch not pressed, a camera still
+  // opening) fails on its first `a.something`; say what it is waiting for
+  // rather than showing that raw TypeError.
+  const waiting = Object.keys(inputs).filter((name) => /^[A-Za-z_]\w*$/.test(name) && (inputs[name] === null || inputs[name] === undefined))
+  if (outputs.__error__ && waiting.length) {
+    outputs.__error__ = `En attente de données sur ${waiting.sort().join(', ')} (entrée encore vide).`
+  }
+  return outputs
+}
+
+function runJavaScript(code: string, inputs: Record<string, unknown>, ctx: Parameters<NodeImpl>[2]): Record<string, unknown> {
   const inputNames = Object.keys(inputs).sort()
   const outputNames = [...code.matchAll(/\bout_([a-z0-9_]+)\s*=/gi)].map((m) => `out_${m[1]}`)
   const uniqueOutputs = [...new Set(outputNames)]
 
-  if (uniqueOutputs.length === 0) return { out_a: null }
+  if (uniqueOutputs.length === 0) return { out_a: null, __error__: '' }
 
   const declarations = uniqueOutputs.map((name) => `let ${name} = null;`).join('\n')
   const returns = `return { ${uniqueOutputs.join(', ')} };`
@@ -31,12 +62,10 @@ export const logicPython: NodeImpl = (inputs, params, ctx) => {
     const nodeState = ctx.state.get(`${ctx.nodeId}:script`) ?? {}
     ctx.state.set(`${ctx.nodeId}:script`, nodeState)
     const result = fn(...inputNames.map((n) => inputs[n]), nodeState, ctx.cv, (mat: any) => ctx.track(mat), makePlot(ctx.cv))
-    ctx.emit('error', '')
-    return result
+    return { ...result, __error__: '' }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
-    ctx.emit('error', message)
-    return Object.fromEntries(uniqueOutputs.map((name) => [name, null]))
+    return { ...Object.fromEntries(uniqueOutputs.map((name) => [name, null])), __error__: message }
   }
 }
 
