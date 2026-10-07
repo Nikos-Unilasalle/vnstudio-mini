@@ -1,5 +1,6 @@
 /** Shared OpenCV.js helpers used across the browser node implementations. */
 import { makeCanvas, canvasToBase64, drawMatToCanvas } from './canvasCompat'
+import type { RunContext } from './types'
 
 /** True when the value is a live cv.Mat rather than a scalar/dict/list payload. */
 export function isMat(v: unknown): boolean {
@@ -20,6 +21,47 @@ export function toGray(cv: any, src: any): any {
   const out = new cv.Mat()
   if (src.channels() === 1) src.copyTo(out)
   else cv.cvtColor(src, out, cv.COLOR_BGR2GRAY)
+  return out
+}
+
+/**
+ * A single-channel CV_32S view of a label map, whatever depth it arrived in —
+ * the `labels.astype(np.int32)` the desktop plugins start with. Reading
+ * `data32S` straight off an 8-bit or float Mat does not throw: it reinterprets
+ * the bytes, so a mask wired into a Label Map port yields silent garbage.
+ * Returns `labels` itself when it already fits, otherwise a new Mat the caller owns.
+ */
+export function toLabels32S(cv: any, labels: any): any {
+  if (labels.type() === cv.CV_32SC1) return labels
+  const single = labels.channels() > 1 ? new cv.Mat() : labels
+  if (single !== labels) cv.extractChannel(labels, single, 0)
+  const out = new cv.Mat()
+  single.convertTo(out, cv.CV_32S)
+  if (single !== labels) single.delete()
+  return out
+}
+
+/** toLabels32S for a node's input: a conversion is freed with the run, the input itself never is. */
+export function inputLabels32S(ctx: RunContext, labels: any): any {
+  const out = toLabels32S(ctx.cv, labels)
+  return out === labels ? labels : ctx.track(out)
+}
+
+/**
+ * A CV_32S label map at another size, nearest-neighbour so no id is blended.
+ * cv.resize has no CV_32S path, so the ids ride through float32 — exact for
+ * any id below 2²⁴. Tracked by the run, like inputLabels32S.
+ */
+export function resizeLabels32S(ctx: RunContext, labels: any, width: number, height: number): any {
+  const cv = ctx.cv
+  const asFloat = new cv.Mat()
+  labels.convertTo(asFloat, cv.CV_32F)
+  const resized = new cv.Mat()
+  cv.resize(asFloat, resized, new cv.Size(width, height), 0, 0, cv.INTER_NEAREST)
+  asFloat.delete()
+  const out = ctx.track(new cv.Mat())
+  resized.convertTo(out, cv.CV_32S)
+  resized.delete()
   return out
 }
 

@@ -1,5 +1,5 @@
 import type { NodeImpl } from '../types'
-import { toBgr, toGray } from '../cvUtils'
+import { inputLabels32S, toBgr, toGray } from '../cvUtils'
 import { applyColormap, cividisColor, hotColor, infernoColor, jetColor, magmaColor, rainbowColor, viridisColor } from '../colormaps'
 
 /** #rrggbb → BGR, the order OpenCV expects. */
@@ -147,8 +147,9 @@ export const utilDrawContours: NodeImpl = (inputs, params, ctx) => {
 
 export const utilLabelFilterArea: NodeImpl = (inputs, params, ctx) => {
   const cv = ctx.cv
-  const labels = inputs.labels as any
-  if (!labels) return { mask: null }
+  const labelsIn = inputs.labels as any
+  if (!labelsIn) return { mask: null }
+  const labels = inputLabels32S(ctx, labelsIn)
 
   const w = labels.cols
   const h = labels.rows
@@ -159,7 +160,7 @@ export const utilLabelFilterArea: NodeImpl = (inputs, params, ctx) => {
   )
   const keepMatches = Math.round(Number(params.mode) || 0) === 0
 
-  const data = labels.data32S ?? labels.data
+  const data = labels.data32S as Int32Array
   const counts = new Map<number, number>()
   for (let i = 0; i < totalPx; i++) {
     const label = data[i]

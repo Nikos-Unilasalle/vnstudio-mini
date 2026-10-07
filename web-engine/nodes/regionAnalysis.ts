@@ -9,7 +9,7 @@
  * write views are only taken once every output Mat exists.
  */
 import type { NodeImpl } from '../types'
-import { toGray } from '../cvUtils'
+import { inputLabels32S, resizeLabels32S, toGray } from '../cvUtils'
 import { viridisColor } from '../colormaps'
 
 /** 0/1 CV_8U Mat of any mask, resized to (w, h) when given. */
@@ -256,17 +256,13 @@ export const sciZoneStats: NodeImpl = (inputs, params, ctx) => {
   const cv = ctx.cv
   const h = regions.rows
   const w = regions.cols
-  const lab = (regions.data32S as Int32Array).slice()
+  const lab = (inputLabels32S(ctx, regions).data32S as Int32Array).slice()
   let zones: Int32Array | null = null
   let nZones = 1
   const zonesIn = inputs.zones as any
   if (zonesIn) {
-    let z = zonesIn
-    if (z.rows !== h || z.cols !== w) {
-      const rz = ctx.track(new cv.Mat())
-      cv.resize(z, rz, new cv.Size(w, h), 0, 0, cv.INTER_NEAREST)
-      z = rz
-    }
+    let z = inputLabels32S(ctx, zonesIn)
+    if (z.rows !== h || z.cols !== w) z = resizeLabels32S(ctx, z, w, h)
     zones = (z.data32S as Int32Array).slice()
     for (let i = 0; i < zones.length; i++) if (zones[i] > nZones) nZones = zones[i]
   }

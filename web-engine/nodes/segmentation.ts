@@ -1,5 +1,5 @@
 import type { NodeImpl } from '../types'
-import { colorizeLabels, computeLabelStats, parseColor, toBgr, toGray } from '../cvUtils'
+import { colorizeLabels, computeLabelStats, inputLabels32S, parseColor, toBgr, toGray } from '../cvUtils'
 
 // Modes: 0 Binary, 1 Binary Inv, 2 Otsu, 3 Otsu Inv, 4 70% of Max, 5 Triangle, 6 Triangle Inv
 const AUTO_MODES = new Set([2, 3, 4, 5, 6])
@@ -160,9 +160,10 @@ export const sciConnectedComponents: NodeImpl = (inputs, params, ctx) => {
 }
 
 export const featMarkerFilter: NodeImpl = (inputs, params, ctx) => {
-  const src = inputs.markers as any
-  if (!src) return { main: null, markers_out: null, count: 0 }
+  const markersIn = inputs.markers as any
+  if (!markersIn) return { main: null, markers_out: null, count: 0 }
   const cv = ctx.cv
+  const src = inputLabels32S(ctx, markersIn)
 
   const usesPercent = Number(params.area_unit) === 1
   const imageArea = src.rows * src.cols
@@ -195,10 +196,11 @@ const WATERSHED_BACKGROUND = 1
 
 export const featWatershed: NodeImpl = (inputs, params, ctx) => {
   const image = inputs.image as any
-  const seeds = inputs.markers as any
+  const seedsIn = inputs.markers as any
   const cellMask = inputs.mask as any
-  if (!image || !seeds) return { main: image ?? null, markers_out: null, count: 0, boundaries: null }
+  if (!image || !seedsIn) return { main: image ?? null, markers_out: null, count: 0, boundaries: null }
   const cv = ctx.cv
+  const seeds = inputLabels32S(ctx, seedsIn)
 
   const bgr = ctx.track(toBgr(cv, image))
 

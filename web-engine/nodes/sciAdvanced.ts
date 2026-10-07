@@ -1,5 +1,5 @@
 import type { NodeImpl } from '../types'
-import { drawArrowedLine, toBgr, toGray, maxOf, minOf } from '../cvUtils'
+import { drawArrowedLine, inputLabels32S, resizeLabels32S, toBgr, toGray, maxOf, minOf } from '../cvUtils'
 import { applyColormap, COLORMAPS } from '../colormaps'
 import { drawCaption, forDisplay, MASK_COLOURS } from '../overlay'
 
@@ -529,12 +529,12 @@ export const sciRegionClassifier: NodeImpl = (inputs, params, ctx) => {
   let overlay: any = img ?? null
   if (img && labelsMap) {
     const src = ctx.track(toBgr(cv, img))
-    let labelData = labelsMap.data32S as Int32Array
-    let lw = labelsMap.cols
-    let lh = labelsMap.rows
+    const labels32 = inputLabels32S(ctx, labelsMap)
+    let labelData = labels32.data32S as Int32Array
+    let lw = labels32.cols
+    let lh = labels32.rows
     if (lw !== src.cols || lh !== src.rows) {
-      const resized = ctx.track(new cv.Mat())
-      cv.resize(labelsMap, resized, new cv.Size(src.cols, src.rows), 0, 0, cv.INTER_NEAREST)
+      const resized = resizeLabels32S(ctx, labels32, src.cols, src.rows)
       labelData = resized.data32S as Int32Array
       lw = resized.cols
       lh = resized.rows
@@ -605,15 +605,40 @@ export const sciRegionClassifier: NodeImpl = (inputs, params, ctx) => {
 // ---------------------------------------------------------------------------
 const CLUSTER_CMAP_NAMES = ['Viridis', 'Plasma', 'Turbo', 'Jet', 'Hot', 'Cool', 'Inferno', 'Magma']
 const ID_KEYS = ['id', 'label', 'cluster_id', 'region_id', 'idx']
+/**
+ * `feature` used to be an enum over this list before the desktop turned it into
+ * a free key. Graphs saved back then — two of the bundled templates among them —
+ * still carry the index, which as a key matches nothing and leaves the node
+ * passing its background through untouched. This is the last list the enum had.
+ */
+const LEGACY_FEATURES = [
+  'area', 'radius', 'cluster_id', 'circularity', 'aspect_ratio', 'solidity', 'eccentricity',
+  'perimeter', 'equivalent_diameter', 'mean_intensity', 'max_intensity', 'std_intensity', 'orientation',
+]
+
+function featureName(raw: unknown): string {
+  const text = String(raw ?? 'area').trim()
+  if (/^\d+$/.test(text)) return LEGACY_FEATURES[Number(text)] ?? 'area'
+  return text || 'area'
+}
 
 export const sciClusterHeatmap: NodeImpl = (inputs, params, ctx) => {
-  const labels = inputs.labels_map as any
-  const regions = (inputs.regions as Record<string, unknown>[]) ?? []
+  const labelsIn = inputs.labels_map as any
+  const regions = Array.isArray(inputs.regions) ? (inputs.regions as Record<string, unknown>[]) : []
   const img = inputs.image as any
-  if (!labels || regions.length === 0) return { main: img ?? null }
+
+  // Feeds the Feature field's key picker (`hints: item_keys`), as on desktop.
+  const availableKeys = [
+    ...new Set(
+      regions.flatMap((r) =>
+        r && typeof r === 'object' ? Object.entries(r).filter(([, v]) => typeof v === 'number').map(([k]) => k) : []
+      )
+    ),
+  ].sort()
+  if (!labelsIn || regions.length === 0) return { main: img ?? null, _available_keys: availableKeys }
   const cv = ctx.cv
 
-  const featName = String(params.feature ?? 'area').trim() || 'area'
+  const featName = featureName(params.feature)
   const cmapName = CLUSTER_CMAP_NAMES[Number(params.colormap) || 0] ?? 'Viridis'
   const cmapFn = COLORMAPS[cmapName] ?? COLORMAPS.Viridis
   const alpha = Number(params.alpha ?? 0.85)
@@ -621,6 +646,7 @@ export const sciClusterHeatmap: NodeImpl = (inputs, params, ctx) => {
   const showValues = !!params.show_values
   const showColorbar = params.colorbar !== false
 
+  const labels = inputLabels32S(ctx, labelsIn)
   const labelData = labels.data32S as Int32Array
   const h = labels.rows
   const w = labels.cols
@@ -631,7 +657,7 @@ export const sciClusterHeatmap: NodeImpl = (inputs, params, ctx) => {
     let id: number | null = null
     for (const k of ID_KEYS) {
       if (k in r) {
-        const v = Number(r[k])
+        const v = Math.trunc(Number(r[k]))
         if (Number.isFinite(v)) { id = v; break }
       }
     }
@@ -639,7 +665,7 @@ export const sciClusterHeatmap: NodeImpl = (inputs, params, ctx) => {
     const val = Number(r[featName])
     if (Number.isFinite(val)) lblToVal.set(id, val)
   }
-  if (lblToVal.size === 0) return { main: img ?? null }
+  if (lblToVal.size === 0) return { main: img ?? null, _available_keys: availableKeys }
 
   const vals = [...lblToVal.values()]
   const vmin = minOf(vals)
@@ -711,5 +737,5 @@ export const sciClusterHeatmap: NodeImpl = (inputs, params, ctx) => {
     putLines(cv, out, [featName.slice(0, 8)], barX - 2, barY + barH + 12, 0, 0.26, [180, 180, 180])
   }
 
-  return { main: out }
+  return { main: out, _available_keys: availableKeys }
 }

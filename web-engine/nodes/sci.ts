@@ -1,5 +1,5 @@
 import type { NodeImpl } from '../types'
-import { drawPolyline, toBgr, toGray, maxOf } from '../cvUtils'
+import { drawPolyline, inputLabels32S, resizeLabels32S, toBgr, toGray, maxOf } from '../cvUtils'
 import { applyColormap, COLORMAPS } from '../colormaps'
 import { drawCaption, forDisplay, MASK_COLOURS } from '../overlay'
 
@@ -1423,17 +1423,17 @@ export const sciRangeChecker: NodeImpl = (inputs, params, ctx) => {
 // ---------------------------------------------------------------------------
 export const sciRegionColorStats: NodeImpl = (inputs, params, ctx) => {
   const img = inputs.image as any
-  const labels = inputs.labels_map as any
-  if (!img || !labels) return { regions: inputs.regions_in ?? [], count: 0, main: img ?? null }
+  const labelsIn = inputs.labels_map as any
+  if (!img || !labelsIn) return { regions: inputs.regions_in ?? [], count: 0, main: img ?? null }
   const cv = ctx.cv
+  const labels = inputLabels32S(ctx, labelsIn)
 
   const src = ctx.track(toBgr(cv, img))
   let labelData = labels.data32S as Int32Array
   let lw = labels.cols
   let lh = labels.rows
   if (lw !== src.cols || lh !== src.rows) {
-    const resized = ctx.track(new cv.Mat())
-    cv.resize(labels, resized, new cv.Size(src.cols, src.rows), 0, 0, cv.INTER_NEAREST)
+    const resized = resizeLabels32S(ctx, labels, src.cols, src.rows)
     labelData = resized.data32S as Int32Array
     lw = resized.cols
     lh = resized.rows

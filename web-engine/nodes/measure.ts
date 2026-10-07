@@ -1,10 +1,12 @@
 import type { NodeImpl } from '../types'
-import { colorizeLabels, computeLabelStats, huMoments, toBgr, toGray } from '../cvUtils'
+import type { LabelStat } from '../cvUtils'
+import { colorizeLabels, computeLabelStats, huMoments, inputLabels32S, toBgr, toGray } from '../cvUtils'
 
 export const sciMarkerFilter: NodeImpl = (inputs, params, ctx) => {
-  const src = inputs.markers as any
-  if (!src) return { markers: null, count: 0 }
+  const srcIn = inputs.markers as any
+  if (!srcIn) return { markers: null, count: 0 }
   const cv = ctx.cv
+  const src = inputLabels32S(ctx, srcIn)
   const minArea = Number(params.min_area ?? 200)
   const maxArea = Number(params.max_area ?? 1000000)
 
@@ -34,12 +36,125 @@ export interface MeasuredRegion {
   /** Present only when a calibration is connected — undefined means "pixels only". */
   equivalent_diameter_um?: number
   area_um2?: number
+  // Shape descriptors, as the desktop plugin defines them (lengths in pixels).
+  perimeter: number
+  circularity: number
+  aspect_ratio: number
+  solidity: number
+  convexity: number
+  extent: number
+  rectangularity: number
+  roundness: number
+  eccentricity: number
+  anisotropy: number
+  orientation: number
+  feret_max: number
+  feret_min: number
+  perimeter_um?: number
+  feret_max_um?: number
+  feret_min_um?: number
+  max_intensity?: number
+  min_intensity?: number
+  std_intensity?: number
+}
+
+type ShapeDescriptors = Pick<
+  MeasuredRegion,
+  | 'perimeter' | 'circularity' | 'aspect_ratio' | 'solidity' | 'convexity' | 'extent' | 'rectangularity'
+  | 'roundness' | 'eccentricity' | 'anisotropy' | 'orientation' | 'feret_max' | 'feret_min'
+>
+
+/**
+ * Contour- and moment-based descriptors for one label, following the desktop
+ * plugin (skimage regionprops + its own contour measures): circularity from the
+ * contour perimeter, solidity/convexity from the hull, rectangularity and
+ * aspect ratio from the minimum-area rectangle, eccentricity, orientation and
+ * anisotropy from the region's central moments.
+ */
+function shapeDescriptors(cv: any, labelData: Int32Array, width: number, s: LabelStat): ShapeDescriptors {
+  const bw = s.maxX - s.minX + 1
+  const bh = s.maxY - s.minY + 1
+  // One pixel of padding so a region touching its bbox edge still gets a closed contour.
+  const mask = new cv.Mat(bh + 2, bw + 2, cv.CV_8U, new cv.Scalar(0))
+  const maskData = mask.data as Uint8Array
+  for (let y = s.minY; y <= s.maxY; y++) {
+    for (let x = s.minX; x <= s.maxX; x++) {
+      if (labelData[y * width + x] === s.id) maskData[(y - s.minY + 1) * (bw + 2) + (x - s.minX + 1)] = 255
+    }
+  }
+
+  const m = cv.moments(mask, true)
+  const contours = new cv.MatVector()
+  const hierarchy = new cv.Mat()
+  cv.findContours(mask, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
+  let cnt: any = null
+  let best = -1
+  for (let i = 0; i < contours.size(); i++) {
+    const c = contours.get(i)
+    const a = cv.contourArea(c)
+    if (a > best) { best = a; cnt?.delete(); cnt = c } else c.delete()
+  }
+
+  const area = s.area
+  let perimeter = 0, solidity = 1, convexity = 1, rectangularity = 0, aspectRatio = 0
+  let feretMax = 0, feretMin = 0
+  if (cnt && cnt.rows >= 3) {
+    perimeter = cv.arcLength(cnt, true)
+    const hull = new cv.Mat()
+    cv.convexHull(cnt, hull, false, true)
+    const hullArea = cv.contourArea(hull)
+    solidity = hullArea > 0 ? Math.min(1, area / hullArea) : 1
+    convexity = perimeter > 0 ? cv.arcLength(hull, true) / perimeter : 1
+    // Feret max is the widest caliper, which always spans two hull vertices.
+    const hp = hull.data32S as Int32Array
+    for (let i = 0; i < hp.length; i += 2) {
+      for (let j = i + 2; j < hp.length; j += 2) {
+        const d = Math.hypot(hp[i] - hp[j], hp[i + 1] - hp[j + 1])
+        if (d > feretMax) feretMax = d
+      }
+    }
+    hull.delete()
+    const rect = cv.minAreaRect(cnt)
+    const rw = rect.size.width
+    const rh = rect.size.height
+    rectangularity = rw * rh > 0 ? area / (rw * rh) : 0
+    aspectRatio = Math.min(rw, rh) > 0 ? Math.max(rw, rh) / Math.min(rw, rh) : 0
+    feretMin = Math.min(rw, rh)
+  }
+  cnt?.delete()
+  contours.delete()
+  hierarchy.delete()
+  mask.delete()
+
+  // Central moments, OpenCV's x/y naming: mu20 spreads along x (columns).
+  const mu20 = m.mu20, mu02 = m.mu02, mu11 = m.mu11
+  const spread = mu20 + mu02
+  const half = Math.sqrt(((mu20 - mu02) / 2) ** 2 + mu11 ** 2)
+  const l1 = spread / 2 + half
+  const l2 = spread / 2 - half
+  return {
+    perimeter,
+    circularity: perimeter > 0 ? (4 * Math.PI * area) / (perimeter * perimeter) : 0,
+    aspect_ratio: aspectRatio,
+    solidity,
+    convexity,
+    extent: area / (bw * bh),
+    rectangularity,
+    roundness: feretMax > 0 ? (4 * area) / (Math.PI * feretMax * feretMax) : 0,
+    eccentricity: l1 > 0 ? Math.sqrt(Math.max(0, 1 - l2 / l1)) : 0,
+    anisotropy: spread > 0 ? (2 * half) / spread : 0,
+    // skimage's convention: angle between the row axis and the major axis, in [-π/2, π/2].
+    orientation: mu20 === mu02 ? (mu11 > 0 ? -Math.PI / 4 : mu11 < 0 ? Math.PI / 4 : 0) : 0.5 * Math.atan2(2 * mu11, mu02 - mu20),
+    feret_max: feretMax,
+    feret_min: feretMin,
+  }
 }
 
 export const sciRegionProps: NodeImpl = (inputs, params, ctx) => {
-  const labels = inputs.labels_map as any
-  if (!labels) return { regions: [], count: 0, main: null }
+  const labelsIn = inputs.labels_map as any
+  if (!labelsIn) return { regions: [], count: 0, main: null }
   const cv = ctx.cv
+  const labels = inputLabels32S(ctx, labelsIn)
 
   const connected = typeof inputs.um_per_px === 'number' ? (inputs.um_per_px as number) : null
   const umPerPx = connected ?? (Number(params.um_per_px) || 0)
@@ -52,11 +167,19 @@ export const sciRegionProps: NodeImpl = (inputs, params, ctx) => {
   const stats = computeLabelStats(labels)
   const labelData = labels.data32S as Int32Array
   const intensitySums = new Map<number, number>()
+  const intensitySquares = new Map<number, number>()
+  const intensityMin = new Map<number, number>()
+  const intensityMax = new Map<number, number>()
   if (gray) {
     const grayData = gray.data as Uint8Array
     for (let i = 0; i < labelData.length; i++) {
       const label = labelData[i]
-      if (label > 0) intensitySums.set(label, (intensitySums.get(label) ?? 0) + grayData[i])
+      if (label <= 0) continue
+      const v = grayData[i]
+      intensitySums.set(label, (intensitySums.get(label) ?? 0) + v)
+      intensitySquares.set(label, (intensitySquares.get(label) ?? 0) + v * v)
+      if (v < (intensityMin.get(label) ?? Infinity)) intensityMin.set(label, v)
+      if (v > (intensityMax.get(label) ?? -Infinity)) intensityMax.set(label, v)
     }
   }
 
@@ -72,10 +195,20 @@ export const sciRegionProps: NodeImpl = (inputs, params, ctx) => {
       bbox_width: s.maxX - s.minX + 1,
       bbox_height: s.maxY - s.minY + 1,
       mean_intensity: gray ? (intensitySums.get(id) ?? 0) / s.area : null,
+      ...shapeDescriptors(cv, labelData, labels.cols, s),
     }
     if (calibrated) {
       region.equivalent_diameter_um = equivalentDiameter * umPerPx
       region.area_um2 = s.area * umPerPx * umPerPx
+      region.perimeter_um = region.perimeter * umPerPx
+      region.feret_max_um = region.feret_max * umPerPx
+      region.feret_min_um = region.feret_min * umPerPx
+    }
+    if (gray) {
+      const mean = (intensitySums.get(id) ?? 0) / s.area
+      region.max_intensity = intensityMax.get(id) ?? 0
+      region.min_intensity = intensityMin.get(id) ?? 0
+      region.std_intensity = Math.sqrt(Math.max(0, (intensitySquares.get(id) ?? 0) / s.area - mean * mean))
     }
     regions.push(region)
   }
