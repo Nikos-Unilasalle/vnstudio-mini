@@ -101,7 +101,7 @@
       "id": "e3",
       "source": "hand-1",
       "target": "sel-1",
-      "sourceHandle": "data__hand_0",
+      "sourceHandle": "dict__hand_0",
       "targetHandle": "list__list_in"
     },
     {

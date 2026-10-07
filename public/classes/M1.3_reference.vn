@@ -732,28 +732,28 @@
     {
       "id": "e-cc-bg-dict_out-d-bouche-p1",
       "source": "cc-bg",
-      "sourceHandle": "coords__dict_out",
+      "sourceHandle": "dict__dict_out",
       "target": "d-bouche",
       "targetHandle": "dict__p1"
     },
     {
       "id": "e-cc-bd-dict_out-d-bouche-p2",
       "source": "cc-bd",
-      "sourceHandle": "coords__dict_out",
+      "sourceHandle": "dict__dict_out",
       "target": "d-bouche",
       "targetHandle": "dict__p2"
     },
     {
       "id": "e-cc-og-dict_out-d-etalon-p1",
       "source": "cc-og",
-      "sourceHandle": "coords__dict_out",
+      "sourceHandle": "dict__dict_out",
       "target": "d-etalon",
       "targetHandle": "dict__p1"
     },
     {
       "id": "e-cc-od-dict_out-d-etalon-p2",
       "source": "cc-od",
-      "sourceHandle": "coords__dict_out",
+      "sourceHandle": "dict__dict_out",
       "target": "d-etalon",
       "targetHandle": "dict__p2"
     },

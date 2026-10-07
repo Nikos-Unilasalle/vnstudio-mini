@@ -2395,7 +2395,7 @@
    "id": "e-1782972749087-2",
    "source": "node-1782972741979-9tx4ye91z",
    "target": "corr_dilate",
-   "sourceHandle": "main",
+   "sourceHandle": "mask__main",
    "targetHandle": "any__mask",
    "selected": false
   },
@@ -2403,8 +2403,8 @@
    "id": "e-1782972779122-2",
    "source": "node-1782972774702-cl7d9x8kc",
    "target": "node-1782972741979-9tx4ye91z",
-   "sourceHandle": "main",
-   "targetHandle": "main",
+   "sourceHandle": "image__main",
+   "targetHandle": "mask__mask",
    "selected": false
   },
   {
@@ -2723,7 +2723,7 @@
    "source": "landcover_gt",
    "sourceHandle": "mask__mask",
    "target": "node-1782972774702-cl7d9x8kc",
-   "targetHandle": "main",
+   "targetHandle": "image__image",
    "selected": false
   },
   {
