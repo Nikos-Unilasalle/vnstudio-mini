@@ -79,7 +79,10 @@ export function useVisionEngine(onCapture?: (nodeId: string, base64: string) => 
   const [computingNodeId, setComputingNodeId] = useState<string | null>(null)
 
   const workerRef = useRef<Worker | null>(null)
-  const mediaRef = useRef<MediaFrameSource>(new MediaFrameSource())
+  // A video or camera that finishes opening asks for a run, so its first frame
+  // shows up even when nothing else is driving the graph.
+  const mediaRef = useRef<MediaFrameSource>(null as unknown as MediaFrameSource)
+  if (!mediaRef.current) mediaRef.current = new MediaFrameSource(() => void executeRef.current?.())
   const pendingRuns = useRef(
     new Map<number, { resolve: (r: { nodesData: Record<string, unknown>; frameBitmap: ImageBitmap | null; frame: string | null; errors: Record<string, string> }) => void; reject: (e: Error) => void }>()
   )

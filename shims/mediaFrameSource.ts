@@ -15,14 +15,24 @@ import type { CapturedFrame } from '../web-engine/types'
 /** Desktop reads fps from the container; in the browser it is not exposed, so assume 25. */
 const ASSUMED_FPS = 25
 
+/** Longest a seek may hold up a run; past it the frame is taken where the video is. */
+const SEEK_TIMEOUT_MS = 1500
+
+/**
+ * `video` is null while the file loads or the camera opens. Both happen off the
+ * run: a run never waits on them, it just gets no frame yet — waiting would
+ * freeze the whole graph on a camera prompt the student has not answered.
+ */
 interface MovieState {
-  video: HTMLVideoElement
+  video: HTMLVideoElement | null
   src: string
+  closed: boolean
 }
 
 interface WebcamState {
-  video: HTMLVideoElement
-  stream: MediaStream
+  video: HTMLVideoElement | null
+  stream: MediaStream | null
+  closed: boolean
 }
 
 function loadVideo(src: string): Promise<HTMLVideoElement> {
@@ -45,11 +55,13 @@ function seek(video: HTMLVideoElement, time: number): Promise<void> {
       resolve()
       return
     }
-    const onSeeked = () => {
-      video.removeEventListener('seeked', onSeeked)
+    const done = () => {
+      video.removeEventListener('seeked', done)
+      clearTimeout(timer)
       resolve()
     }
-    video.addEventListener('seeked', onSeeked)
+    const timer = setTimeout(done, SEEK_TIMEOUT_MS)
+    video.addEventListener('seeked', done)
     video.currentTime = target
   })
 }
@@ -58,18 +70,21 @@ export class MediaFrameSource {
   private readonly movies = new Map<string, MovieState>()
   private readonly webcams = new Map<string, WebcamState>()
 
+  /** `onReady` asks for a run once a video or camera that was opening can deliver frames. */
+  constructor(private readonly onReady?: () => void) {}
+
   /** Drops state for nodes that no longer exist, stopping their video/webcam. */
   pruneState(liveIds: Set<string>): void {
     for (const [id, state] of this.movies) {
       if (!liveIds.has(id)) {
-        state.video.pause()
-        state.video.removeAttribute('src')
+        this.closeMovie(state)
         this.movies.delete(id)
       }
     }
     for (const [id, state] of this.webcams) {
       if (!liveIds.has(id)) {
-        for (const track of state.stream.getTracks()) track.stop()
+        state.closed = true
+        for (const track of state.stream?.getTracks() ?? []) track.stop()
         this.webcams.delete(id)
       }
     }
@@ -79,6 +94,12 @@ export class MediaFrameSource {
     this.pruneState(new Set())
   }
 
+  private closeMovie(state: MovieState): void {
+    state.closed = true
+    state.video?.pause()
+    state.video?.removeAttribute('src')
+  }
+
   private async movieFrame(nodeId: string, params: Record<string, any>): Promise<CapturedFrame | null> {
     const path = String(params.path ?? '')
     if (!path) return null
@@ -86,10 +107,22 @@ export class MediaFrameSource {
 
     let state = this.movies.get(nodeId)
     if (!state || state.src !== src) {
-      state?.video.pause()
-      state = { video: await loadVideo(src), src }
-      this.movies.set(nodeId, state)
+      if (state) this.closeMovie(state)
+      const opening: MovieState = { video: null, src, closed: false }
+      this.movies.set(nodeId, opening)
+      loadVideo(src).then(
+        (video) => {
+          if (opening.closed) return
+          opening.video = video
+          this.onReady?.()
+        },
+        () => {
+          // Missing file: the node emits nothing, as before.
+        }
+      )
+      return null
     }
+    if (!state.video) return null
 
     const totalFrames = Math.max(1, Math.floor((state.video.duration || 0) * ASSUMED_FPS))
     const start = Math.max(0, Number(params.start_frame) || 0)
@@ -108,18 +141,32 @@ export class MediaFrameSource {
   }
 
   private async webcamFrame(nodeId: string): Promise<CapturedFrame | null> {
-    let state = this.webcams.get(nodeId)
+    const state = this.webcams.get(nodeId)
     if (!state) {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true })
-      const video = document.createElement('video')
-      video.srcObject = stream
-      video.muted = true
-      video.playsInline = true
-      await video.play()
-      state = { video, stream }
-      this.webcams.set(nodeId, state)
+      const opening: WebcamState = { video: null, stream: null, closed: false }
+      this.webcams.set(nodeId, opening)
+      navigator.mediaDevices.getUserMedia({ video: true }).then(
+        async (stream) => {
+          if (opening.closed) {
+            for (const track of stream.getTracks()) track.stop()
+            return
+          }
+          const video = document.createElement('video')
+          video.srcObject = stream
+          video.muted = true
+          video.playsInline = true
+          opening.stream = stream
+          await video.play().catch(() => {})
+          opening.video = video
+          this.onReady?.()
+        },
+        () => {
+          // Denied or no camera: the node emits nothing, as before.
+        }
+      )
+      return null
     }
-    if (!state.video.videoWidth) return null
+    if (!state.video?.videoWidth) return null
     const bitmap = await createImageBitmap(state.video)
     return { bitmap, extra: { fps: 30 } }
   }
