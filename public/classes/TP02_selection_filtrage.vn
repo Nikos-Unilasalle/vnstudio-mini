@@ -172,7 +172,7 @@
         "params": {
           "enabled": true,
           "column": "alcohol",
-          "operator": 0,
+          "operator": 2,
           "value": "13.0",
           "dropna": false,
           "node_note": "Filtre Alcool"
@@ -335,7 +335,7 @@
         "label": "Note",
         "id": "nC_inst",
         "params": {
-          "text": "EXERCICE 1 — Filtrage guidé\n\nObjectif : extraire les vins de haute qualité\n\nÉtapes :\n1. Connectez 'Iris Dataset Ex1' au node\n   'Filtre Guidé'\n\n2. Dans 'Filtre Guidé', configurez :\n   • Column    : sepal length (cm)\n   • Operator  : > (greater)\n   • Value     : 6.0\n\n3. Ajoutez un 2e DF Filter pour aussi\n   filtrer petal width (cm) > 1.5\n\n4. Combien de fleurs restent-il ?\n   → Observez le compteur 'Lignes'",
+          "text": "EXERCICE 1 — Filtrage guidé\n\nObjectif : extraire les grandes fleurs\n\nÉtapes :\n1. Connectez 'Iris Dataset Ex1' au node\n   'Filtre Guidé'\n\n2. Dans 'Filtre Guidé', configurez :\n   • Column    : sepal length (cm)\n   • Operator  : > (greater)\n   • Value     : 6.0\n\n3. Ajoutez un 2e DF Filter pour aussi\n   filtrer petal width (cm) > 1.5\n\n4. Combien de fleurs restent-il ?\n   → Observez le compteur 'Lignes'",
           "bg_color": "#fef9c3",
           "text_color": "#713f12"
         }

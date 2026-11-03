@@ -170,10 +170,9 @@
       "data": {
         "label": "DF New Column",
         "params": {
-          "col_name": "ratio_petale_sepale",
-          "expression": "petal length (cm) / sepal length (cm)",
-          "col_type": 0,
-          "node_note": "Ratio pétale/sépale"
+          "node_note": "Ratio pétale/sépale",
+          "name": "ratio_petale_sepale",
+          "expr": "df['petal length (cm)'] / df['sepal length (cm)']"
         }
       },
       "width": 300,
@@ -208,8 +207,8 @@
       "data": {
         "label": "DF Rename",
         "params": {
-          "mapping": "sepal length (cm):long_sepale, petal length (cm):long_petale",
-          "node_note": "Renommer"
+          "node_note": "Renommer",
+          "map": "sepal length (cm):long_sepale, petal length (cm):long_petale"
         }
       },
       "width": 300,

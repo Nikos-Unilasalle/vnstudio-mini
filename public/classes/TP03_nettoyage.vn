@@ -171,9 +171,9 @@
         "label": "DF Fill NA",
         "params": {
           "strategy": 0,
-          "fill_value": "0",
-          "subset": "",
-          "node_note": "Traiter NaN"
+          "node_note": "Traiter NaN",
+          "value": "0",
+          "columns": ""
         }
       },
       "width": 290,
@@ -469,7 +469,7 @@
       "data": {
         "label": "DF Fill NA",
         "params": {
-          "strategy": 0,
+          "strategy": 1,
           "node_note": "Stratégie : Mean"
         }
       },
@@ -487,7 +487,7 @@
       "data": {
         "label": "DF Fill NA",
         "params": {
-          "strategy": 1,
+          "strategy": 2,
           "node_note": "Stratégie : Median"
         }
       },

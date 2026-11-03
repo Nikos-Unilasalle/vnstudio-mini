@@ -171,9 +171,9 @@
         "label": "DF GroupBy",
         "params": {
           "by": "target",
-          "agg_col": "sepal length (cm)",
-          "func": 0,
-          "node_note": "Groupe par espèce"
+          "node_note": "Groupe par espèce",
+          "cols": "sepal length (cm)",
+          "agg": 0
         }
       },
       "width": 310,
@@ -209,9 +209,9 @@
         "label": "DF GroupBy",
         "params": {
           "by": "target",
-          "agg_col": "petal length (cm)",
-          "func": 2,
-          "node_note": "Max par espèce"
+          "node_note": "Max par espèce",
+          "cols": "petal length (cm)",
+          "agg": 4
         }
       },
       "width": 310,
@@ -251,7 +251,7 @@
         "label": "Note",
         "id": "nB_tip",
         "params": {
-          "text": "Lecture du résultat groupby :\n\n• target=0 → Iris Setosa\n• target=1 → Iris Versicolor\n• target=2 → Iris Virginica\n\nObservations attendues :\n• Setosa a des pétales beaucoup plus courts\n• Virginica a la plus grande sepal length\n• La variance intra-groupe << variance totale\n\n→ C'est exactement ce que les algorithmes\n   de classification apprennent à distinguer !",
+          "text": "Lecture du résultat groupby :\n\n• target = setosa, versicolor ou virginica\n  (une ligne par espèce)\n\nObservations attendues :\n• Setosa a des pétales beaucoup plus courts\n• Virginica a la plus grande sepal length\n• La variance intra-groupe << variance totale\n\n→ C'est exactement ce que les algorithmes\n   de classification apprennent à distinguer !",
           "bg_color": "#dcfce7",
           "text_color": "#166534"
         }
