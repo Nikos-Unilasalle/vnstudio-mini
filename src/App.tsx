@@ -812,11 +812,10 @@ function App() {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!isConnected) return;
-      if (isRunning) updateGraph(canvasNodes, canvasEdges.filter(e => !inactiveEdgeIds.has(e.id)));
-      else updateGraph([], []);
+      updateGraph(canvasNodes, canvasEdges.filter(e => !inactiveEdgeIds.has(e.id)));
     }, 100);
     return () => clearTimeout(timer);
-  }, [canvasNodes, canvasEdges, isConnected, updateGraph, inactiveEdgeIds, isRunning]);
+  }, [canvasNodes, canvasEdges, isConnected, updateGraph, inactiveEdgeIds]);
 
   // Start means "keep the engine ticking", not "run the graph once": webcams
   // and stateful generators only make sense against a clock.
@@ -1111,7 +1110,7 @@ function App() {
     if (!prev) return;
     setGroupStack([]); groupStackRef.current = [];
     setNodes(prev.nodes); setEdges(prev.edges);
-    if (isConnected && isRunningRef.current) updateGraph(prev.nodes, prev.edges.filter((e: any) => !inactiveEdgeIds.has(e.id)));
+    if (isConnected) updateGraph(prev.nodes, prev.edges.filter((e: any) => !inactiveEdgeIds.has(e.id)));
   }, [histUndo, activeCanvasId, setNodes, setEdges, isConnected, updateGraph, inactiveEdgeIds]);
 
   const handleRedo = useCallback(() => {
@@ -1119,7 +1118,7 @@ function App() {
     if (!next) return;
     setGroupStack([]); groupStackRef.current = [];
     setNodes(next.nodes); setEdges(next.edges);
-    if (isConnected && isRunningRef.current) updateGraph(next.nodes, next.edges.filter((e: any) => !inactiveEdgeIds.has(e.id)));
+    if (isConnected) updateGraph(next.nodes, next.edges.filter((e: any) => !inactiveEdgeIds.has(e.id)));
   }, [histRedo, activeCanvasId, setNodes, setEdges, isConnected, updateGraph, inactiveEdgeIds]);
 
   const copyNodes = useCallback(() => {

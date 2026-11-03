@@ -60,9 +60,10 @@ export const InputImageNode = memo(({ selected, data }: any) => {
 
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     const file = e.dataTransfer.files[0];
     if (file) {
-      data.onChangeParams?.({ path: (file as any).path || file.name });
+      data.onChangeParams?.({ path: (file as any).path || (file.name ? `vfs:/${file.name}` : '') });
     }
   };
 
@@ -126,9 +127,10 @@ export const InputMovieNode = memo(({ selected, data }: any) => {
 
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     const file = e.dataTransfer.files[0];
     if (file) {
-      data.onChangeParams?.({ path: (file as any).path || file.name });
+      data.onChangeParams?.({ path: (file as any).path || (file.name ? `vfs:/${file.name}` : '') });
     }
   };
 
@@ -211,8 +213,9 @@ export const ObjDepthMapNode = memo(({ selected, data }: any) => {
 
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     const file = e.dataTransfer.files[0];
-    if (file) data.onChangeParams?.({ obj_path: (file as any).path || file.name });
+    if (file) data.onChangeParams?.({ obj_path: (file as any).path || (file.name ? `vfs:/${file.name}` : '') });
   };
 
   return (

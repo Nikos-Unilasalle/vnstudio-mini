@@ -104,8 +104,14 @@
       {
         "id": "path",
         "label": "File Path",
-        "type": "string",
-        "default": "samples/car.jpg"
+        "type": "file_open",
+        "default": "samples/car.jpg",
+        "filters": [
+          {
+            "name": "Image",
+            "extensions": ["png", "jpg", "jpeg", "webp", "bmp", "tif", "tiff"]
+          }
+        ]
       }
     ],
     "resizable": false,

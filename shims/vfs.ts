@@ -85,11 +85,18 @@ export function readVirtualBinary(path: string): ArrayBuffer | null {
  * uploaded file, or the path itself when it points at a bundled asset.
  */
 export function resolveMediaUrl(path: string): string {
-  const entry = binaryFiles.get(path)
+  let entry = binaryFiles.get(path)
+  if (!entry && !path.startsWith('vfs:')) {
+    entry = binaryFiles.get(`vfs:/${path.replace(/^\//, '')}`)
+  }
+  if (!entry && path.startsWith('vfs:/')) {
+    entry = binaryFiles.get(path.slice('vfs:/'.length))
+  }
   if (entry) return entry.url
   const text = readVirtualFile(path)
   if (text !== null && text.startsWith('data:')) return text
   if (/^(https?:|data:|blob:)/.test(path)) return path
+  if (path.startsWith('vfs:')) return ''
   // A bundled asset ("samples/foo.jpg") has to be resolved against the deploy
   // base, which is /<repo>/ on GitHub Pages rather than /.
   return import.meta.env.BASE_URL + path.replace(/^\//, '')

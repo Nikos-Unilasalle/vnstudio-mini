@@ -165,8 +165,9 @@ export const GeoTIFFReaderNode = memo(({ selected, data }: any) => {
 
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     const file = e.dataTransfer.files[0];
-    if (file) data.onChangeParams?.({ file_path: (file as any).path || file.name });
+    if (file) data.onChangeParams?.({ file_path: (file as any).path || (file.name ? `vfs:/${file.name}` : '') });
   };
 
   return (

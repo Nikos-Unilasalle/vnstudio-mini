@@ -39,15 +39,40 @@ function acceptFromFilters(filters?: DialogFilter[]): string {
     .join(',')
 }
 
+function mimeFor(name: string): string {
+  const ext = name.split('.').pop()?.toLowerCase() ?? ''
+  switch (ext) {
+    case 'png': return 'image/png'
+    case 'jpg':
+    case 'jpeg': return 'image/jpeg'
+    case 'webp': return 'image/webp'
+    case 'bmp': return 'image/bmp'
+    case 'gif': return 'image/gif'
+    case 'tif':
+    case 'tiff': return 'image/tiff'
+    case 'mp4': return 'video/mp4'
+    case 'webm': return 'video/webm'
+    case 'mov': return 'video/quicktime'
+    case 'avi': return 'video/x-msvideo'
+    case 'mkv': return 'video/x-matroska'
+    default: return 'application/octet-stream'
+  }
+}
+
 function pickFiles(accept: string, multiple: boolean): Promise<File[]> {
   return new Promise((resolve) => {
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = accept
     input.multiple = multiple
-    input.style.display = 'none'
-    // A cancelled picker fires no 'change' event in most browsers; 'cancel' is
-    // the standardised signal, and the focus fallback covers the rest.
+    // Safari / WebKit ignores .click() on elements with display: none.
+    // Offscreen fixed positioning hides the element visually without breaking programmatic click.
+    input.style.position = 'fixed'
+    input.style.top = '-1000px'
+    input.style.left = '-1000px'
+    input.style.opacity = '0'
+    input.style.pointerEvents = 'none'
+
     let settled = false
     const done = (files: File[]) => {
       if (settled) return
@@ -57,6 +82,15 @@ function pickFiles(accept: string, multiple: boolean): Promise<File[]> {
     }
     input.addEventListener('change', () => done(input.files ? Array.from(input.files) : []))
     input.addEventListener('cancel', () => done([]))
+    window.addEventListener(
+      'focus',
+      () => {
+        setTimeout(() => {
+          if (!settled) done([])
+        }, 1000)
+      },
+      { once: true }
+    )
     document.body.appendChild(input)
     input.click()
   })
@@ -65,10 +99,11 @@ function pickFiles(accept: string, multiple: boolean): Promise<File[]> {
 async function ingest(file: File): Promise<string> {
   const ext = file.name.split('.').pop()?.toLowerCase() ?? ''
   const path = `vfs:/${file.name}`
+  ;(file as any).path = path
   if (TEXT_EXTENSIONS.has(ext)) {
     writeVirtualFile(path, await file.text())
   } else {
-    writeVirtualBinary(path, await file.arrayBuffer(), file.type)
+    writeVirtualBinary(path, await file.arrayBuffer(), file.type || mimeFor(file.name))
   }
   return path
 }
