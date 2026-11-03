@@ -2,6 +2,7 @@ import type { NodeImpl } from '../types'
 import { downloadFile } from '../../shims/vfs'
 import { makePlot } from '../plot'
 import { runPython } from '../python'
+import { renderConsole } from '../console'
 
 /**
  * True when a script is the JavaScript dialect this node has always accepted on
@@ -37,6 +38,11 @@ function isJavaScript(code: string): boolean {
 export const logicPython: NodeImpl = async (inputs, params, ctx) => {
   const code = String(params.code ?? '')
   const outputs = isJavaScript(code) ? runJavaScript(code, inputs, ctx) : await runPython(code, inputs, ctx)
+  // What the script printed becomes the out_print console, unless the script
+  // uses that name itself. Added last so it never shifts the out_a/out_b order.
+  const printed = outputs.__printed__
+  delete outputs.__printed__
+  if (typeof printed === 'string' && !('out_print' in outputs)) outputs.out_print = renderConsole(ctx.cv, ctx.track, printed)
   aliasLetterPorts(outputs)
   // A script fed nothing yet (an upstream fetch not pressed, a camera still
   // opening) fails on its first `a.something`; say what it is waiting for

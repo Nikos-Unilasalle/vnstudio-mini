@@ -24,9 +24,13 @@ const PYODIDE_BASE = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/
 
 /** Mirrors the desktop node's sandbox, then adds the converters both ways. */
 const PRELUDE = String.raw`
-import builtins as _builtins, traceback as _traceback
+import builtins as _builtins, traceback as _traceback, os as _os, sys as _sys
 import numpy as np
 import pandas as pd
+
+# matplotlib, if a script imports it, must draw off-screen: there is no window
+# in a worker. Figures reach the canvas through _vn_figure below.
+_os.environ['MPLBACKEND'] = 'Agg'
 
 _BLOCKED_IMPORTS = frozenset([
     'os', 'sys', 'subprocess', 'shutil', 'socket', 'http', 'urllib',
@@ -37,7 +41,7 @@ _BLOCKED_IMPORTS = frozenset([
 def _safe_import(name, globals=None, locals=None, fromlist=(), level=0):
     top = (name or '').split('.')[0]
     if top in _BLOCKED_IMPORTS:
-        raise ImportError(f"Import of '{name}' blocked in Python Node")
+        raise ImportError(f"Le module '{top}' est bloqué dans la node Python : il donne accès au système ou au réseau.")
     return _builtins.__import__(name, globals, locals, fromlist, level)
 
 _ALLOWED = {
@@ -95,7 +99,40 @@ def _vn_frame(df):
     rows = [[_vn_plain(x) for x in row] for row in df.itertuples(index=False, name=None)]
     return {'kind': 'df', 'columns': columns, 'rows': rows}
 
+def _vn_figure(v):
+    """A matplotlib figure (or pyplot, or an Axes, or a grid of Axes) → BGR image, else None."""
+    if 'matplotlib' not in _sys.modules:
+        return None
+    from matplotlib.figure import Figure
+    from matplotlib.axes import Axes
+    plt = _sys.modules.get('matplotlib.pyplot')
+    if plt is not None and v is plt:
+        v = plt.gcf()
+    if isinstance(v, np.ndarray) and v.dtype == object and v.size and isinstance(v.flat[0], Axes):
+        v = v.flat[0]
+    if isinstance(v, Axes):
+        v = v.figure
+    if not isinstance(v, Figure):
+        return None
+    from matplotlib.backends.backend_agg import FigureCanvasAgg
+    canvas = FigureCanvasAgg(v)
+    canvas.draw()
+    rgba = np.asarray(canvas.buffer_rgba())
+    return np.ascontiguousarray(rgba[:, :, 2::-1])  # RGBA → BGR, the engine's convention
+
+def _vn_is_figure(v):
+    if 'matplotlib' not in _sys.modules:
+        return False
+    from matplotlib.figure import Figure
+    from matplotlib.axes import Axes
+    if isinstance(v, np.ndarray) and v.dtype == object and v.size:
+        v = v.flat[0]
+    return v is _sys.modules.get('matplotlib.pyplot') or isinstance(v, (Figure, Axes))
+
 def _vn_export(v):
+    image = _vn_figure(v)
+    if image is not None:
+        v = image
     if isinstance(v, pd.DataFrame):
         return _vn_frame(v)
     if isinstance(v, pd.Series):
@@ -110,6 +147,53 @@ def _vn_export(v):
         return {'kind': 'mat', 'dtype': str(a.dtype), 'shape': list(a.shape), 'data': a.tobytes()}
     return {'kind': 'value', 'value': _vn_plain(v)}
 
+_NOT_HERE = {
+    'open': "lire ou écrire un fichier est impossible ici : les données arrivent par les entrées a, b, c…",
+    'input': "un script ne peut pas poser de question au clavier : branchez une node Number sur une entrée",
+    'dir': "pour découvrir ce que contient a, renvoyez par exemple out_info = str(type(a)) ou out_colonnes = list(a.columns)",
+    'help': "la documentation se lit dans le navigateur (pandas.pydata.org, scikit-learn.org)",
+    'exit': "un script s'arrête tout seul à la dernière ligne",
+    'quit': "un script s'arrête tout seul à la dernière ligne",
+}
+_FORBIDDEN = {'eval', 'exec', 'compile', 'globals', 'locals', 'vars', '__import__', 'breakpoint', 'memoryview', 'object', 'super', 'property', 'classmethod', 'staticmethod', 'callable', 'id'}
+
+def _vn_hint(e, ctx):
+    """A short French explanation of the error a beginner most likely made, or ''."""
+    if isinstance(e, IndentationError):
+        return "Indentation incorrecte : après une ligne qui finit par « : » (if, for, def…), les lignes du bloc doivent être décalées de 4 espaces, toutes pareil."
+    if isinstance(e, SyntaxError):
+        return "Erreur de syntaxe : vérifiez les parenthèses et guillemets fermés, et le « : » en fin de if / for / def."
+    if isinstance(e, NameError):
+        name = getattr(e, 'name', None)
+        if name == '__build_class__' or '__build_class__' in str(e):
+            return "Les classes (mot-clé class) ne sont pas disponibles dans la node Python : utilisez des fonctions (def)."
+        if name in _NOT_HERE:
+            return f"{name}() n'est pas disponible dans la node Python : {_NOT_HERE[name]}."
+        if name in _FORBIDDEN:
+            return f"{name} est bloqué dans la node Python pour des raisons de sécurité."
+        if name and len(name) == 1 and name.isalpha() and name.islower():
+            return f"Rien n'est branché sur l'entrée « {name} » : reliez une node au « + » d'entrée (la 1re devient a, la 2e b, etc.)."
+        if name in ('plt', 'sns', 'math', 'random', 'sklearn', 'scipy'):
+            return f"« {name} » n'est pas importé : ajoutez l'import en haut du script (ex. import matplotlib.pyplot as plt)."
+        if name:
+            return f"La variable « {name} » n'existe pas : faute de frappe ? majuscule ? variable créée plus bas dans le script ?"
+    if isinstance(e, KeyError) and e.args and isinstance(e.args[0], str):
+        key = e.args[0]
+        for var, value in ctx.items():
+            if isinstance(value, pd.DataFrame) and not var.startswith('_') and key not in value.columns:
+                cols = ', '.join(repr(str(c)) for c in list(value.columns)[:12])
+                more = '…' if len(value.columns) > 12 else ''
+                return f"La colonne « {key} » n'existe pas. Colonnes de {var} : {cols}{more}. Recopiez le nom exactement (majuscules, espaces, unités)."
+    if isinstance(e, ModuleNotFoundError):
+        return f"Le module « {e.name} » n'existe pas dans le navigateur : vérifiez l'orthographe (numpy, pandas, scikit-learn → sklearn, scipy et matplotlib sont disponibles)."
+    if isinstance(e, AttributeError) and "'DataFrame' object has no attribute" in str(e):
+        return "Le tableau n'a ni méthode ni colonne de ce nom : vérifiez l'orthographe. Pour une colonne, écrivez a['nom de la colonne']."
+    if isinstance(e, ValueError) and 'could not convert string to float' in str(e):
+        return "Un calcul a reçu du texte au lieu de nombres : retirez les colonnes de texte (ex. 'target') avant d'entraîner ou de calculer."
+    if isinstance(e, ValueError) and 'Input X contains NaN' in str(e):
+        return "Le modèle refuse les valeurs manquantes (NaN) : nettoyez d'abord, avec dropna() ou fillna()."
+    return ''
+
 def _vn_run(code, node_id, inputs):
     ctx = {'__builtins__': _SAFE_BUILTINS, 'np': np, 'pd': pd, 'state': _STATES.setdefault(node_id, {})}
     try:
@@ -117,6 +201,12 @@ def _vn_run(code, node_id, inputs):
         ctx['cv2'] = cv2
     except ImportError:
         pass
+    # print() has no terminal to write to here: its text is collected instead
+    # and comes back as the out_print console (see logic.ts).
+    printed = []
+    def _print(*args, sep=' ', end='\n', **_ignored):
+        printed.append(sep.join(str(a) for a in args) + end)
+    ctx['print'] = _print
     ctx.update(inputs)
     error = ''
     try:
@@ -129,9 +219,20 @@ def _vn_run(code, node_id, inputs):
             for frame in _traceback.extract_tb(e.__traceback__):
                 if frame.filename == '<script>':
                     line = frame.lineno
-        error = (f"Ligne {line} — " if line else '') + f"{type(e).__name__}: {e}"
+        where = f"Ligne {line} — " if line else ''
+        technical = f"{type(e).__name__}: {e}"
+        hint = _vn_hint(e, ctx)
+        error = where + (f"{hint} ({technical})" if hint else technical)
     outputs = {k: _vn_export(v) for k, v in ctx.items() if k.startswith('out_')}
-    return {'outputs': outputs, 'error': error}
+    # A figure drawn with plt but never handed to an out_ variable is what a
+    # notebook would show under plt.show(): it becomes out_plot.
+    plt = _sys.modules.get('matplotlib.pyplot')
+    if plt is not None:
+        if plt.get_fignums() and 'out_plot' not in outputs and not any(_vn_is_figure(ctx[k]) for k in outputs):
+            outputs['out_plot'] = _vn_export(plt.gcf())
+        plt.close('all')
+    used_print = 'print' in code
+    return {'outputs': outputs, 'error': error, 'printed': ''.join(printed) if used_print or printed else None}
 `
 
 let loading: Promise<any> | null = null
@@ -285,6 +386,7 @@ export async function runPython(code: string, inputs: Record<string, unknown>, c
   result.destroy()
 
   const outputs: Record<string, unknown> = { __error__: plain.error }
+  if (typeof plain.printed === 'string') outputs.__printed__ = plain.printed
   for (const [name, exported] of Object.entries(plain.outputs as Record<string, any>)) {
     outputs[name] = fromPython(ctx, exported)
     if (outputs.df_meta === undefined && isDf(outputs[name])) outputs.df_meta = dfMeta(outputs[name] as any)
