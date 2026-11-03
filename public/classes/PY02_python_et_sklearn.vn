@@ -1,0 +1,1450 @@
+{
+  "nodes": [
+    {
+      "id": "titre",
+      "type": "canvas_note",
+      "position": {
+        "x": -120,
+        "y": -230
+      },
+      "style": {
+        "width": 2580,
+        "height": 110
+      },
+      "data": {
+        "label": "Note",
+        "id": "titre",
+        "params": {
+          "text": "# Python 2 — Python et scikit-learn dans VNStudio\nEntraîner, évaluer et comparer des modèles de machine learning **dans la node Python**, avec le même code que dans votre cours. Prérequis : le TP *Python 1 — Premiers pas* (entrées `a`, `b`…, sorties `out_…`, `print`, graphiques). Lisez les cadres dans l'ordre, de A à G.",
+          "bg_color": "#0f172a",
+          "text_color": "#f8fafc"
+        }
+      },
+      "width": 2580,
+      "height": 110,
+      "selected": false
+    },
+    {
+      "id": "fA",
+      "type": "canvas_frame",
+      "position": {
+        "x": -120,
+        "y": -90
+      },
+      "style": {
+        "width": 2580,
+        "height": 600,
+        "zIndex": -1
+      },
+      "data": {
+        "label": "Frame",
+        "id": "fA",
+        "params": {
+          "title": "A — La recette du machine learning supervisé",
+          "color_index": 0
+        }
+      },
+      "width": 2580,
+      "height": 600,
+      "selected": false
+    },
+    {
+      "id": "nA1",
+      "type": "canvas_note",
+      "position": {
+        "x": -90,
+        "y": -40
+      },
+      "style": {
+        "width": 600,
+        "height": 520
+      },
+      "data": {
+        "label": "Note",
+        "id": "nA1",
+        "params": {
+          "text": "## Les 5 étapes, toujours les mêmes\n\n```python\n# 1. X : les colonnes qui servent à prédire\nX = a.drop(columns=['target'])\n# 2. y : ce qu'on veut prédire\ny = a['target']\n# 3. Découper : une part pour apprendre, une pour tester\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.2, random_state=42)\n# 4. Créer le modèle et l'entraîner\nmodele = KNeighborsClassifier(n_neighbors=5)\nmodele.fit(X_train, y_train)\n# 5. Prédire sur le test, et mesurer\ny_pred = modele.predict(X_test)\nscore = accuracy_score(y_test, y_pred)\n```\n\nOn ne note jamais un modèle sur les données qui ont servi à l'entraîner : ce serait comme corriger un examen dont on a donné les réponses.",
+          "bg_color": "#dbeafe",
+          "text_color": "#1e40af"
+        }
+      },
+      "width": 600,
+      "height": 520,
+      "selected": false
+    },
+    {
+      "id": "nA2",
+      "type": "canvas_note",
+      "position": {
+        "x": 540,
+        "y": -40
+      },
+      "style": {
+        "width": 620,
+        "height": 520
+      },
+      "data": {
+        "label": "Note",
+        "id": "nA2",
+        "params": {
+          "text": "## Ce qui change par rapport à votre cours\n\n- Les données ne se chargent pas avec `pd.read_csv` : elles **arrivent dans `a`**.\n- `print(score)` fonctionne : la console sort sur **`out_print`**.\n- Les graphiques sortent sur **`out_plot`** (ou `out_nom = fig`).\n- Pour un résultat à réutiliser : `out_score = score`.\n- Le script se **relance à chaque modification** :\n  - fixez `random_state=42` pour retrouver le même découpage, donc les mêmes résultats ;\n  - gardez des modèles raisonnables : un entraînement de plusieurs minutes se relancerait à chaque frappe.\n- Les imports sklearn s'écrivent **normalement**. Le premier import télécharge scikit-learn (quelques secondes).",
+          "bg_color": "#1e293b",
+          "text_color": "#cbd5e1"
+        }
+      },
+      "width": 620,
+      "height": 520,
+      "selected": false
+    },
+    {
+      "id": "nA3",
+      "type": "canvas_note",
+      "position": {
+        "x": 1190,
+        "y": -40
+      },
+      "style": {
+        "width": 820,
+        "height": 520
+      },
+      "data": {
+        "label": "Note",
+        "id": "nA3",
+        "params": {
+          "text": "## Les erreurs que vous allez rencontrer\n\n| Message | Cause | Solution |\n|---|---|---|\n| `could not convert string to float` | une colonne de texte dans `X` (souvent `'target'`) | `X = a.drop(columns=['target'])` |\n| `Input X contains NaN` | des valeurs manquantes | `dropna()` ou `fillna()` avant |\n| `KeyError: 'xxx'` | nom de colonne mal recopié | `list(a.columns)` |\n| `Found input variables with inconsistent numbers of samples` | `X` et `y` n'ont pas le même nombre de lignes | découpez et filtrez `X` et `y` ensemble |\n| `NameError: train_test_split` | import oublié | `from sklearn.model_selection import train_test_split` |",
+          "bg_color": "#ffe4e6",
+          "text_color": "#9f1239"
+        }
+      },
+      "width": 820,
+      "height": 520,
+      "selected": false
+    },
+    {
+      "id": "fB",
+      "type": "canvas_frame",
+      "position": {
+        "x": -120,
+        "y": 540
+      },
+      "style": {
+        "width": 2580,
+        "height": 520,
+        "zIndex": -1
+      },
+      "data": {
+        "label": "Frame",
+        "id": "fB",
+        "params": {
+          "title": "B — Préparer X et y",
+          "color_index": 2
+        }
+      },
+      "width": 2580,
+      "height": 520,
+      "selected": false
+    },
+    {
+      "id": "nB",
+      "type": "canvas_note",
+      "position": {
+        "x": -90,
+        "y": 590
+      },
+      "style": {
+        "width": 560,
+        "height": 440
+      },
+      "data": {
+        "label": "Note",
+        "id": "nB",
+        "params": {
+          "text": "## X et y\n\n- **X** : un tableau, une ligne par exemple (une fleur), une colonne par mesure. Que des **nombres**.\n- **y** : une seule colonne, la réponse attendue (l'espèce).\n\n`a.drop(columns=['target'])` renvoie une **copie** de `a` sans la colonne `target` : le tableau `a` n'est pas modifié.\n\n**À vérifier à chaque fois** : `X` et `y` ont le même nombre de lignes, et `X` ne contient pas la réponse — sinon le modèle « triche ».\n\n`y.value_counts()` compte les exemples de chaque classe : ici 50 fleurs par espèce, le jeu est **équilibré**.",
+          "bg_color": "#dbeafe",
+          "text_color": "#1e40af"
+        }
+      },
+      "width": 560,
+      "height": 440,
+      "selected": false
+    },
+    {
+      "id": "dsB",
+      "type": "ml_sklearn_dataset",
+      "position": {
+        "x": 520,
+        "y": 610
+      },
+      "data": {
+        "label": "Sklearn Dataset",
+        "params": {
+          "dataset": 0,
+          "node_note": "Iris"
+        }
+      },
+      "width": 208,
+      "height": 153,
+      "selected": false
+    },
+    {
+      "id": "pyB",
+      "type": "logic_python",
+      "position": {
+        "x": 790,
+        "y": 600
+      },
+      "data": {
+        "label": "Python Node",
+        "params": {
+          "code": "# B — Séparer X (les mesures) et y (l'espèce à prédire)\n\nX = a.drop(columns=['target'])   # toutes les colonnes sauf 'target'\ny = a['target']                  # seulement 'target'\n\nprint(\"X :\", X.shape[0], \"fleurs,\", X.shape[1], \"mesures\")\nprint(\"y :\", y.shape[0], \"réponses\")\nprint()\nprint(\"Exemples par espèce :\")\nprint(y.value_counts())\n\nout_X = X\nout_y = y\n",
+          "node_note": "X et y"
+        },
+        "ports": [
+          {
+            "id": "data__a",
+            "color": "data",
+            "label": "a"
+          }
+        ],
+        "outPorts": [
+          {
+            "id": "data__out_X",
+            "color": "data",
+            "label": "out_X"
+          },
+          {
+            "id": "data__out_y",
+            "color": "data",
+            "label": "out_y"
+          },
+          {
+            "id": "image__out_print",
+            "color": "image",
+            "label": "out_print"
+          }
+        ]
+      },
+      "width": 208,
+      "height": 221,
+      "selected": false
+    },
+    {
+      "id": "edB1",
+      "type": "df_editor",
+      "position": {
+        "x": 1080,
+        "y": 600
+      },
+      "data": {
+        "label": "DF Editor",
+        "params": {
+          "node_note": "X"
+        }
+      },
+      "width": 208,
+      "height": 150,
+      "selected": false
+    },
+    {
+      "id": "dB1",
+      "type": "output_display",
+      "position": {
+        "x": 1330,
+        "y": 600
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "node_note": "X (aperçu)"
+        },
+        "mainConnected": true
+      },
+      "width": 208,
+      "height": 200,
+      "selected": false
+    },
+    {
+      "id": "edB2",
+      "type": "df_editor",
+      "position": {
+        "x": 1080,
+        "y": 810
+      },
+      "data": {
+        "label": "DF Editor",
+        "params": {
+          "node_note": "y"
+        }
+      },
+      "width": 208,
+      "height": 150,
+      "selected": false
+    },
+    {
+      "id": "dB2",
+      "type": "output_display",
+      "position": {
+        "x": 1580,
+        "y": 600
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "node_note": "console"
+        },
+        "mainConnected": true
+      },
+      "width": 208,
+      "height": 200,
+      "selected": false
+    },
+    {
+      "id": "fC",
+      "type": "canvas_frame",
+      "position": {
+        "x": -120,
+        "y": 1090
+      },
+      "style": {
+        "width": 2580,
+        "height": 680,
+        "zIndex": -1
+      },
+      "data": {
+        "label": "Frame",
+        "id": "fC",
+        "params": {
+          "title": "C — Un modèle complet : k plus proches voisins (k-NN)",
+          "color_index": 4
+        }
+      },
+      "width": 2580,
+      "height": 680,
+      "selected": false
+    },
+    {
+      "id": "nC",
+      "type": "canvas_note",
+      "position": {
+        "x": -90,
+        "y": 1140
+      },
+      "style": {
+        "width": 560,
+        "height": 600
+      },
+      "data": {
+        "label": "Note",
+        "id": "nC",
+        "params": {
+          "text": "## Classer une fleur d'après ses voisins\n\nLe k-NN regarde les **k fleurs les plus proches** dans les données d'entraînement et vote pour l'espèce majoritaire.\n\nLa node **Number** règle **k** : elle arrive dans le script sous le nom `b`. Changez-la et regardez la précision et la matrice de confusion évoluer.\n\n**Lire les sorties**\n- **Précision** (*accuracy*) : la part de fleurs bien classées sur le test.\n- **Matrice de confusion** : en ligne la vraie espèce, en colonne l'espèce prédite. Tout ce qui sort de la diagonale est une erreur.\n- **Rapport** (console) : précision, rappel et f1 pour chaque espèce.\n- **Tableau** : chaque fleur de test, sa vraie espèce et la prédiction.\n\n`stratify=y` garde la même proportion d'espèces dans le train et dans le test.",
+          "bg_color": "#dbeafe",
+          "text_color": "#1e40af"
+        }
+      },
+      "width": 560,
+      "height": 600,
+      "selected": false
+    },
+    {
+      "id": "dsC",
+      "type": "ml_sklearn_dataset",
+      "position": {
+        "x": 580,
+        "y": 1160
+      },
+      "data": {
+        "label": "Sklearn Dataset",
+        "params": {
+          "dataset": 0,
+          "node_note": "Iris"
+        }
+      },
+      "width": 208,
+      "height": 153,
+      "selected": false
+    },
+    {
+      "id": "numC",
+      "type": "scalar_input",
+      "position": {
+        "x": 580,
+        "y": 1350
+      },
+      "data": {
+        "label": "Number",
+        "params": {
+          "value": 5,
+          "format": 0,
+          "min": 1,
+          "max": 50,
+          "node_note": "k (voisins)"
+        }
+      },
+      "width": 208,
+      "height": 111,
+      "selected": false
+    },
+    {
+      "id": "pyC",
+      "type": "logic_python",
+      "position": {
+        "x": 850,
+        "y": 1180
+      },
+      "data": {
+        "label": "Python Node",
+        "params": {
+          "code": "# C — Classification par k plus proches voisins (k-NN)\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.neighbors import KNeighborsClassifier\nfrom sklearn.metrics import accuracy_score, classification_report, ConfusionMatrixDisplay\nimport matplotlib.pyplot as plt\n\n# 1-2. X : les mesures, y : l'espèce\nX = a.drop(columns=['target'])\ny = a['target']\n\n# 3. 80 % pour apprendre, 20 % pour tester\n#    random_state=42 : le même découpage à chaque exécution\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.2, random_state=42, stratify=y)\n\n# 4. Le modèle : k vient de la node Number (entrée b)\nk = int(b)\nmodele = KNeighborsClassifier(n_neighbors=k)\nmodele.fit(X_train, y_train)\n\n# 5. Prédire sur le test, puis mesurer\ny_pred = modele.predict(X_test)\nout_score = accuracy_score(y_test, y_pred)\n\n# Chaque fleur de test : vraie espèce et espèce prédite\nout_predictions = pd.DataFrame({'vraie': y_test.values, 'predite': y_pred})\n\n# Le rapport détaillé, dans la console (out_print)\nprint(f\"k = {k}   précision = {out_score:.1%}\")\nprint()\nprint(classification_report(y_test, y_pred))\n\n# La matrice de confusion (sort sur out_plot)\nConfusionMatrixDisplay.from_predictions(y_test, y_pred, cmap='Blues')\nplt.title(f\"Matrice de confusion (k = {k})\")\n",
+          "node_note": "k-NN complet"
+        },
+        "ports": [
+          {
+            "id": "data__a",
+            "color": "data",
+            "label": "a"
+          },
+          {
+            "id": "scalar__b",
+            "color": "scalar",
+            "label": "b"
+          }
+        ],
+        "outPorts": [
+          {
+            "id": "scalar__out_score",
+            "color": "scalar",
+            "label": "out_score"
+          },
+          {
+            "id": "data__out_predictions",
+            "color": "data",
+            "label": "out_predictions"
+          },
+          {
+            "id": "image__out_plot",
+            "color": "image",
+            "label": "out_plot"
+          },
+          {
+            "id": "image__out_print",
+            "color": "image",
+            "label": "out_print"
+          }
+        ]
+      },
+      "width": 208,
+      "height": 253,
+      "selected": false
+    },
+    {
+      "id": "iC",
+      "type": "data_inspector",
+      "position": {
+        "x": 1140,
+        "y": 1150
+      },
+      "data": {
+        "label": "Inspector",
+        "params": {
+          "node_note": "précision"
+        }
+      },
+      "width": 220,
+      "height": 140,
+      "selected": false,
+      "style": {
+        "width": 220,
+        "height": 140
+      }
+    },
+    {
+      "id": "edC",
+      "type": "df_editor",
+      "position": {
+        "x": 1140,
+        "y": 1390
+      },
+      "data": {
+        "label": "DF Editor",
+        "params": {
+          "node_note": "prédictions"
+        }
+      },
+      "width": 208,
+      "height": 150,
+      "selected": false
+    },
+    {
+      "id": "dC1",
+      "type": "output_display",
+      "position": {
+        "x": 1390,
+        "y": 1390
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "node_note": "prédictions (aperçu)"
+        },
+        "mainConnected": true
+      },
+      "width": 208,
+      "height": 200,
+      "selected": false
+    },
+    {
+      "id": "dC2",
+      "type": "output_display",
+      "position": {
+        "x": 1390,
+        "y": 1150
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "node_note": "matrice de confusion"
+        },
+        "mainConnected": true
+      },
+      "width": 208,
+      "height": 200,
+      "selected": false
+    },
+    {
+      "id": "dC3",
+      "type": "output_display",
+      "position": {
+        "x": 1640,
+        "y": 1150
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "node_note": "rapport (console)"
+        },
+        "mainConnected": true
+      },
+      "width": 208,
+      "height": 200,
+      "selected": false
+    },
+    {
+      "id": "nC2",
+      "type": "canvas_note",
+      "position": {
+        "x": 1930,
+        "y": 1150
+      },
+      "style": {
+        "width": 500,
+        "height": 330
+      },
+      "data": {
+        "label": "Note",
+        "id": "nC2",
+        "params": {
+          "text": "## À essayer\n\n1. k = 1, puis k = 50 : la précision baisse-t-elle ? Pourquoi ?\n2. Remplacez `test_size=0.2` par `0.5`.\n3. Retirez `random_state=42` : les résultats changent à chaque modification du script. C'est normal, le découpage est tiré au hasard.",
+          "bg_color": "#dcfce7",
+          "text_color": "#166534"
+        }
+      },
+      "width": 500,
+      "height": 330,
+      "selected": false
+    },
+    {
+      "id": "fD",
+      "type": "canvas_frame",
+      "position": {
+        "x": -120,
+        "y": 1800
+      },
+      "style": {
+        "width": 2580,
+        "height": 620,
+        "zIndex": -1
+      },
+      "data": {
+        "label": "Frame",
+        "id": "fD",
+        "params": {
+          "title": "D — Choisir k : une boucle et une courbe",
+          "color_index": 2
+        }
+      },
+      "width": 2580,
+      "height": 620,
+      "selected": false
+    },
+    {
+      "id": "nD",
+      "type": "canvas_note",
+      "position": {
+        "x": -90,
+        "y": 1850
+      },
+      "style": {
+        "width": 620,
+        "height": 540
+      },
+      "data": {
+        "label": "Note",
+        "id": "nD",
+        "params": {
+          "text": "## Essayer plusieurs valeurs avec une boucle `for`\n\nPlutôt que de changer k à la main, le script essaie **k = 1 à 30** et note, à chaque fois, la précision sur le **train** et sur le **test**.\n\n```python\nfor k in valeurs_k:          # k prend chaque valeur\n    ...                      # bloc décalé de 4 espaces\n    scores_test.append(...)  # on ajoute à la liste\n```\n\n**Lire la courbe** (jeu *wine* : 178 vins, 13 mesures)\n- k petit : excellent sur le train, moins bon sur le test → **surapprentissage**.\n- k grand : le modèle devient trop simple → **sous-apprentissage**.\n- Le bon k est là où la courbe **test** est la plus haute.\n\n**Pour aller plus loin** : les mesures du vin n'ont pas la même échelle (le magnésium vaut ~100, la teinte ~1). Essayez de les normaliser avec `StandardScaler` avant le k-NN : la précision grimpe nettement.",
+          "bg_color": "#dbeafe",
+          "text_color": "#1e40af"
+        }
+      },
+      "width": 620,
+      "height": 540,
+      "selected": false
+    },
+    {
+      "id": "dsD",
+      "type": "ml_sklearn_dataset",
+      "position": {
+        "x": 640,
+        "y": 1870
+      },
+      "data": {
+        "label": "Sklearn Dataset",
+        "params": {
+          "dataset": 1,
+          "node_note": "Wine"
+        }
+      },
+      "width": 208,
+      "height": 153,
+      "selected": false
+    },
+    {
+      "id": "pyD",
+      "type": "logic_python",
+      "position": {
+        "x": 920,
+        "y": 1860
+      },
+      "data": {
+        "label": "Python Node",
+        "params": {
+          "code": "# D — Quel k choisir ? On essaie k = 1 à 30\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.neighbors import KNeighborsClassifier\nimport matplotlib.pyplot as plt\n\nX = a.drop(columns=['target'])\ny = a['target']\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.3, random_state=42, stratify=y)\n\nvaleurs_k = list(range(1, 31))   # 1, 2, 3, … 30\nscores_train = []                # listes vides, remplies dans la boucle\nscores_test = []\nfor k in valeurs_k:\n    modele = KNeighborsClassifier(n_neighbors=k)\n    modele.fit(X_train, y_train)\n    scores_train.append(modele.score(X_train, y_train))\n    scores_test.append(modele.score(X_test, y_test))\n\n# Le tableau des résultats, et la meilleure ligne\nout_resultats = pd.DataFrame({'k': valeurs_k, 'train': scores_train, 'test': scores_test})\nmeilleur = out_resultats.loc[out_resultats['test'].idxmax()]\nprint(\"Meilleur k :\", int(meilleur['k']), \" précision test :\", round(meilleur['test'], 3))\n\n# La courbe\nplt.figure(figsize=(7, 4))\nplt.plot(valeurs_k, scores_train, 'o-', label='train')\nplt.plot(valeurs_k, scores_test, 's-', label='test')\nplt.xlabel('k (nombre de voisins)')\nplt.ylabel('précision')\nplt.legend()\nplt.grid(alpha=0.3)\n",
+          "node_note": "Boucle sur k"
+        },
+        "ports": [
+          {
+            "id": "data__a",
+            "color": "data",
+            "label": "a"
+          }
+        ],
+        "outPorts": [
+          {
+            "id": "data__out_resultats",
+            "color": "data",
+            "label": "out_resultats"
+          },
+          {
+            "id": "image__out_plot",
+            "color": "image",
+            "label": "out_plot"
+          },
+          {
+            "id": "image__out_print",
+            "color": "image",
+            "label": "out_print"
+          }
+        ]
+      },
+      "width": 208,
+      "height": 221,
+      "selected": false
+    },
+    {
+      "id": "edD",
+      "type": "df_editor",
+      "position": {
+        "x": 1210,
+        "y": 1860
+      },
+      "data": {
+        "label": "DF Editor",
+        "params": {
+          "node_note": "résultats"
+        }
+      },
+      "width": 208,
+      "height": 150,
+      "selected": false
+    },
+    {
+      "id": "dD1",
+      "type": "output_display",
+      "position": {
+        "x": 1460,
+        "y": 1860
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "node_note": "courbe"
+        },
+        "mainConnected": true
+      },
+      "width": 208,
+      "height": 200,
+      "selected": false
+    },
+    {
+      "id": "dD2",
+      "type": "output_display",
+      "position": {
+        "x": 1460,
+        "y": 2100
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "node_note": "meilleur k (console)"
+        },
+        "mainConnected": true
+      },
+      "width": 208,
+      "height": 200,
+      "selected": false
+    },
+    {
+      "id": "dD3",
+      "type": "output_display",
+      "position": {
+        "x": 1210,
+        "y": 2060
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "node_note": "résultats (aperçu)"
+        },
+        "mainConnected": true
+      },
+      "width": 208,
+      "height": 200,
+      "selected": false
+    },
+    {
+      "id": "fE",
+      "type": "canvas_frame",
+      "position": {
+        "x": -120,
+        "y": 2450
+      },
+      "style": {
+        "width": 2580,
+        "height": 620,
+        "zIndex": -1
+      },
+      "data": {
+        "label": "Frame",
+        "id": "fE",
+        "params": {
+          "title": "E — Prédire un nombre : la régression linéaire",
+          "color_index": 4
+        }
+      },
+      "width": 2580,
+      "height": 620,
+      "selected": false
+    },
+    {
+      "id": "nE",
+      "type": "canvas_note",
+      "position": {
+        "x": -90,
+        "y": 2500
+      },
+      "style": {
+        "width": 620,
+        "height": 540
+      },
+      "data": {
+        "label": "Note",
+        "id": "nE",
+        "params": {
+          "text": "## Classification ou régression ?\n\n- **Classification** : prédire une **catégorie** (une espèce, un cépage). Mesure : la précision.\n- **Régression** : prédire un **nombre** (un prix, une température). Mesures :\n  - **R²** : 1 = parfait, 0 = pas mieux que de toujours répondre la moyenne ;\n  - **erreur moyenne** (MAE) : l'écart moyen entre prédiction et réalité, dans l'unité de `y`.\n\nJeu *diabetes* : 442 patients, 10 mesures médicales (déjà centrées et réduites), et dans `target` un indicateur de progression de la maladie un an plus tard.\n\n**Le graphique** : chaque point est un patient de test. Sur la diagonale rouge, la prédiction serait parfaite.\n\n**Les coefficients** : de combien la prédiction monte quand la variable augmente. Les plus grands en valeur absolue comptent le plus.\n\nLa recette est **la même** qu'en C : seuls le modèle et les mesures changent.",
+          "bg_color": "#dbeafe",
+          "text_color": "#1e40af"
+        }
+      },
+      "width": 620,
+      "height": 540,
+      "selected": false
+    },
+    {
+      "id": "dsE",
+      "type": "ml_sklearn_dataset",
+      "position": {
+        "x": 640,
+        "y": 2520
+      },
+      "data": {
+        "label": "Sklearn Dataset",
+        "params": {
+          "dataset": 3,
+          "node_note": "Diabetes"
+        }
+      },
+      "width": 208,
+      "height": 153,
+      "selected": false
+    },
+    {
+      "id": "pyE",
+      "type": "logic_python",
+      "position": {
+        "x": 920,
+        "y": 2510
+      },
+      "data": {
+        "label": "Python Node",
+        "params": {
+          "code": "# E — Régression linéaire : prédire un nombre\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.metrics import r2_score, mean_absolute_error\nimport matplotlib.pyplot as plt\n\nX = a.drop(columns=['target'])   # 10 mesures médicales\ny = a['target']                  # progression de la maladie (un nombre)\n\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\nmodele = LinearRegression()\nmodele.fit(X_train, y_train)\ny_pred = modele.predict(X_test)\n\nout_r2 = r2_score(y_test, y_pred)\nout_erreur = mean_absolute_error(y_test, y_pred)\n\n# Un coefficient par variable, du plus négatif au plus positif\nout_coefficients = pd.DataFrame({'variable': X.columns, 'coefficient': modele.coef_})\nout_coefficients = out_coefficients.sort_values('coefficient')\n\nprint(f\"R² = {out_r2:.2f}   (1 = parfait, 0 = pas mieux que la moyenne)\")\nprint(f\"Erreur moyenne = {out_erreur:.1f}\")\n\n# Valeurs réelles contre valeurs prédites\nplt.figure(figsize=(5, 5))\nplt.scatter(y_test, y_pred, alpha=0.6)\nplt.plot([y.min(), y.max()], [y.min(), y.max()], 'r--', label='prédiction parfaite')\nplt.xlabel('valeur réelle')\nplt.ylabel('valeur prédite')\nplt.legend()\n",
+          "node_note": "Régression linéaire"
+        },
+        "ports": [
+          {
+            "id": "data__a",
+            "color": "data",
+            "label": "a"
+          }
+        ],
+        "outPorts": [
+          {
+            "id": "scalar__out_r2",
+            "color": "scalar",
+            "label": "out_r2"
+          },
+          {
+            "id": "scalar__out_erreur",
+            "color": "scalar",
+            "label": "out_erreur"
+          },
+          {
+            "id": "data__out_coefficients",
+            "color": "data",
+            "label": "out_coefficients"
+          },
+          {
+            "id": "image__out_plot",
+            "color": "image",
+            "label": "out_plot"
+          },
+          {
+            "id": "image__out_print",
+            "color": "image",
+            "label": "out_print"
+          }
+        ]
+      },
+      "width": 208,
+      "height": 285,
+      "selected": false
+    },
+    {
+      "id": "iE1",
+      "type": "data_inspector",
+      "position": {
+        "x": 1210,
+        "y": 2510
+      },
+      "data": {
+        "label": "Inspector",
+        "params": {
+          "node_note": "R²"
+        }
+      },
+      "width": 220,
+      "height": 140,
+      "selected": false,
+      "style": {
+        "width": 220,
+        "height": 140
+      }
+    },
+    {
+      "id": "iE2",
+      "type": "data_inspector",
+      "position": {
+        "x": 1210,
+        "y": 2670
+      },
+      "data": {
+        "label": "Inspector",
+        "params": {
+          "node_note": "erreur moyenne"
+        }
+      },
+      "width": 220,
+      "height": 140,
+      "selected": false,
+      "style": {
+        "width": 220,
+        "height": 140
+      }
+    },
+    {
+      "id": "edE",
+      "type": "df_editor",
+      "position": {
+        "x": 1210,
+        "y": 2830
+      },
+      "data": {
+        "label": "DF Editor",
+        "params": {
+          "node_note": "coefficients"
+        }
+      },
+      "width": 208,
+      "height": 150,
+      "selected": false
+    },
+    {
+      "id": "dE1",
+      "type": "output_display",
+      "position": {
+        "x": 1460,
+        "y": 2510
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "node_note": "réel / prédit"
+        },
+        "mainConnected": true
+      },
+      "width": 208,
+      "height": 200,
+      "selected": false
+    },
+    {
+      "id": "dE2",
+      "type": "output_display",
+      "position": {
+        "x": 1710,
+        "y": 2510
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "node_note": "console"
+        },
+        "mainConnected": true
+      },
+      "width": 208,
+      "height": 200,
+      "selected": false
+    },
+    {
+      "id": "dE3",
+      "type": "output_display",
+      "position": {
+        "x": 1460,
+        "y": 2780
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "node_note": "coefficients (aperçu)"
+        },
+        "mainConnected": true
+      },
+      "width": 208,
+      "height": 200,
+      "selected": false
+    },
+    {
+      "id": "fF",
+      "type": "canvas_frame",
+      "position": {
+        "x": -120,
+        "y": 3100
+      },
+      "style": {
+        "width": 2580,
+        "height": 640,
+        "zIndex": -1
+      },
+      "data": {
+        "label": "Frame",
+        "id": "fF",
+        "params": {
+          "title": "F — Exercice : un arbre de décision sur les vins",
+          "color_index": 3
+        }
+      },
+      "width": 2580,
+      "height": 640,
+      "selected": false
+    },
+    {
+      "id": "nF",
+      "type": "canvas_note",
+      "position": {
+        "x": -90,
+        "y": 3150
+      },
+      "style": {
+        "width": 560,
+        "height": 560
+      },
+      "data": {
+        "label": "Note",
+        "id": "nF",
+        "params": {
+          "text": "## Exercice\n\nJeu *wine* : 178 vins, 13 mesures chimiques, 3 cépages dans `target`.\n\nOuvrez la node **« Exercice »** et complétez les lignes marquées ←, en vous inspirant du cadre C :\n\n1. `X` = toutes les colonnes sauf `'target'`, `y` = la colonne `'target'`.\n2. Découpage 80 / 20 avec `random_state=42`.\n3. Un arbre de décision de profondeur 3 : `DecisionTreeClassifier(max_depth=3)`, puis `fit`.\n4. La précision sur le test dans `out_score`.\n\n**Bonus**\n- Essayez `max_depth` = 1, 2, 5, 10. Comparez la précision sur le **train** (`modele.score(X_train, y_train)`) et sur le **test**. Que remarquez-vous ?\n- Dessinez l'arbre avec `plot_tree` (les lignes sont prêtes en commentaire).",
+          "bg_color": "#fef9c3",
+          "text_color": "#713f12"
+        }
+      },
+      "width": 560,
+      "height": 560,
+      "selected": false
+    },
+    {
+      "id": "dsF",
+      "type": "ml_sklearn_dataset",
+      "position": {
+        "x": 520,
+        "y": 3170
+      },
+      "data": {
+        "label": "Sklearn Dataset",
+        "params": {
+          "dataset": 1,
+          "node_note": "Wine"
+        }
+      },
+      "width": 208,
+      "height": 153,
+      "selected": false
+    },
+    {
+      "id": "pyF",
+      "type": "logic_python",
+      "position": {
+        "x": 790,
+        "y": 3160
+      },
+      "data": {
+        "label": "Python Node",
+        "params": {
+          "code": "# F — EXERCICE : un arbre de décision sur les vins\n# Complétez les lignes marquées ←  (modèle : le cadre C)\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.tree import DecisionTreeClassifier\nfrom sklearn.metrics import accuracy_score\n\n# 1. X : toutes les colonnes sauf 'target' ; y : la colonne 'target'\nX = None   # ←\ny = None   # ←\n\n# 2. Découpage 80 / 20, random_state=42\n# X_train, X_test, y_train, y_test = train_test_split(...)   ←\n\n# 3. Un arbre de profondeur maximale 3, puis l'entraînement\n# modele = DecisionTreeClassifier(...)   ←\n# modele.fit(...)                        ←\n\n# 4. La précision sur le test\nout_score = None   # ←\n\n# Bonus : dessiner l'arbre (retirez les # des 4 lignes)\n# from sklearn.tree import plot_tree\n# import matplotlib.pyplot as plt\n# plt.figure(figsize=(14, 7))\n# plot_tree(modele, feature_names=list(X.columns), filled=True, fontsize=7)\n",
+          "node_note": "Exercice"
+        },
+        "ports": [
+          {
+            "id": "data__a",
+            "color": "data",
+            "label": "a"
+          }
+        ],
+        "outPorts": [
+          {
+            "id": "scalar__out_score",
+            "color": "scalar",
+            "label": "out_score"
+          },
+          {
+            "id": "image__out_plot",
+            "color": "image",
+            "label": "out_plot"
+          },
+          {
+            "id": "image__out_print",
+            "color": "image",
+            "label": "out_print"
+          }
+        ]
+      },
+      "width": 208,
+      "height": 221,
+      "selected": false
+    },
+    {
+      "id": "iF",
+      "type": "data_inspector",
+      "position": {
+        "x": 1080,
+        "y": 3160
+      },
+      "data": {
+        "label": "Inspector",
+        "params": {
+          "node_note": "précision"
+        }
+      },
+      "width": 220,
+      "height": 140,
+      "selected": false,
+      "style": {
+        "width": 220,
+        "height": 140
+      }
+    },
+    {
+      "id": "dF1",
+      "type": "output_display",
+      "position": {
+        "x": 1330,
+        "y": 3160
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "node_note": "arbre"
+        },
+        "mainConnected": true
+      },
+      "width": 208,
+      "height": 200,
+      "selected": false
+    },
+    {
+      "id": "dF2",
+      "type": "output_display",
+      "position": {
+        "x": 1080,
+        "y": 3340
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "node_note": "console"
+        },
+        "mainConnected": true
+      },
+      "width": 208,
+      "height": 200,
+      "selected": false
+    },
+    {
+      "id": "nF2",
+      "type": "canvas_note",
+      "position": {
+        "x": 1620,
+        "y": 3160
+      },
+      "style": {
+        "width": 620,
+        "height": 530
+      },
+      "data": {
+        "label": "Note",
+        "id": "nF2",
+        "params": {
+          "text": "## Corrigé (essayez d'abord !)\n\n```python\nX = a.drop(columns=['target'])\ny = a['target']\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.2, random_state=42)\nmodele = DecisionTreeClassifier(max_depth=3)\nmodele.fit(X_train, y_train)\nout_score = accuracy_score(y_test, modele.predict(X_test))\nprint(\"train :\", modele.score(X_train, y_train))\nprint(\"test  :\", out_score)\n```\n\nAvec une grande profondeur, l'arbre apprend le train **par cœur** (100 %) sans faire mieux sur le test : c'est le surapprentissage.",
+          "bg_color": "#ede9fe",
+          "text_color": "#4c1d95"
+        }
+      },
+      "width": 620,
+      "height": 530,
+      "selected": false
+    },
+    {
+      "id": "fG",
+      "type": "canvas_frame",
+      "position": {
+        "x": -120,
+        "y": 3770
+      },
+      "style": {
+        "width": 2580,
+        "height": 600,
+        "zIndex": -1
+      },
+      "data": {
+        "label": "Frame",
+        "id": "fG",
+        "params": {
+          "title": "G — Antisèche scikit-learn",
+          "color_index": 0
+        }
+      },
+      "width": 2580,
+      "height": 600,
+      "selected": false
+    },
+    {
+      "id": "nG1",
+      "type": "canvas_note",
+      "position": {
+        "x": -90,
+        "y": 3820
+      },
+      "style": {
+        "width": 760,
+        "height": 520
+      },
+      "data": {
+        "label": "Note",
+        "id": "nG1",
+        "params": {
+          "text": "## Les imports à connaître\n\n```python\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.neighbors import KNeighborsClassifier\nfrom sklearn.tree import DecisionTreeClassifier\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.linear_model import LinearRegression, LogisticRegression\nfrom sklearn.svm import SVC\nfrom sklearn.cluster import KMeans\nfrom sklearn.metrics import (accuracy_score, classification_report,\n                             ConfusionMatrixDisplay, r2_score)\n```\n\nTous les modèles s'utilisent de la même façon : `modele.fit(X_train, y_train)`, puis `modele.predict(X_test)` ou `modele.score(X_test, y_test)`.",
+          "bg_color": "#1e293b",
+          "text_color": "#cbd5e1"
+        }
+      },
+      "width": 760,
+      "height": 520,
+      "selected": false
+    },
+    {
+      "id": "nG2",
+      "type": "canvas_note",
+      "position": {
+        "x": 710,
+        "y": 3820
+      },
+      "style": {
+        "width": 600,
+        "height": 520
+      },
+      "data": {
+        "label": "Note",
+        "id": "nG2",
+        "params": {
+          "text": "## Dans VNStudio\n\n- Données : **`a`** (et `b`, `c`… pour d'autres entrées).\n- Résultats : **`out_nom = valeur`**.\n- Texte : `print(...)` → **`out_print`** → Display.\n- Graphiques : `plt...` → **`out_plot`** → Display, ou `out_nom = fig`.\n- Toujours **`random_state=42`** : le script se relance à chaque modification.\n- Ne jamais mettre `'target'` dans `X`.\n- Évaluer sur **`X_test`**, jamais sur `X_train`.",
+          "bg_color": "#dbeafe",
+          "text_color": "#1e40af"
+        }
+      },
+      "width": 600,
+      "height": 520,
+      "selected": false
+    },
+    {
+      "id": "nG3",
+      "type": "canvas_note",
+      "position": {
+        "x": 1340,
+        "y": 3820
+      },
+      "style": {
+        "width": 560,
+        "height": 280
+      },
+      "data": {
+        "label": "Note",
+        "id": "nG3",
+        "params": {
+          "text": "## Et ensuite ?\n\nLes TP *Classification par k-NN*, *Régression linéaire*, *Comparaison de modèles* et *Forêt aléatoire* font la même chose avec des nodes toutes prêtes. Comparez leurs résultats avec les vôtres : ils doivent être proches.",
+          "bg_color": "#dcfce7",
+          "text_color": "#166534"
+        }
+      },
+      "width": 560,
+      "height": 280,
+      "selected": false
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "dsB",
+      "sourceHandle": "data__table",
+      "target": "pyB",
+      "targetHandle": "data__a"
+    },
+    {
+      "id": "e2",
+      "source": "pyB",
+      "sourceHandle": "data__out_X",
+      "target": "edB1",
+      "targetHandle": "data__table"
+    },
+    {
+      "id": "e3",
+      "source": "edB1",
+      "sourceHandle": "image__preview",
+      "target": "dB1",
+      "targetHandle": "image__main"
+    },
+    {
+      "id": "e4",
+      "source": "pyB",
+      "sourceHandle": "data__out_y",
+      "target": "edB2",
+      "targetHandle": "data__table"
+    },
+    {
+      "id": "e5",
+      "source": "pyB",
+      "sourceHandle": "image__out_print",
+      "target": "dB2",
+      "targetHandle": "image__main"
+    },
+    {
+      "id": "e6",
+      "source": "dsC",
+      "sourceHandle": "data__table",
+      "target": "pyC",
+      "targetHandle": "data__a"
+    },
+    {
+      "id": "e7",
+      "source": "numC",
+      "sourceHandle": "scalar__value",
+      "target": "pyC",
+      "targetHandle": "scalar__b"
+    },
+    {
+      "id": "e8",
+      "source": "pyC",
+      "sourceHandle": "scalar__out_score",
+      "target": "iC",
+      "targetHandle": "any__data"
+    },
+    {
+      "id": "e9",
+      "source": "pyC",
+      "sourceHandle": "data__out_predictions",
+      "target": "edC",
+      "targetHandle": "data__table"
+    },
+    {
+      "id": "e10",
+      "source": "edC",
+      "sourceHandle": "image__preview",
+      "target": "dC1",
+      "targetHandle": "image__main"
+    },
+    {
+      "id": "e11",
+      "source": "pyC",
+      "sourceHandle": "image__out_plot",
+      "target": "dC2",
+      "targetHandle": "image__main"
+    },
+    {
+      "id": "e12",
+      "source": "pyC",
+      "sourceHandle": "image__out_print",
+      "target": "dC3",
+      "targetHandle": "image__main"
+    },
+    {
+      "id": "e13",
+      "source": "dsD",
+      "sourceHandle": "data__table",
+      "target": "pyD",
+      "targetHandle": "data__a"
+    },
+    {
+      "id": "e14",
+      "source": "pyD",
+      "sourceHandle": "data__out_resultats",
+      "target": "edD",
+      "targetHandle": "data__table"
+    },
+    {
+      "id": "e15",
+      "source": "edD",
+      "sourceHandle": "image__preview",
+      "target": "dD3",
+      "targetHandle": "image__main"
+    },
+    {
+      "id": "e16",
+      "source": "pyD",
+      "sourceHandle": "image__out_plot",
+      "target": "dD1",
+      "targetHandle": "image__main"
+    },
+    {
+      "id": "e17",
+      "source": "pyD",
+      "sourceHandle": "image__out_print",
+      "target": "dD2",
+      "targetHandle": "image__main"
+    },
+    {
+      "id": "e18",
+      "source": "dsE",
+      "sourceHandle": "data__table",
+      "target": "pyE",
+      "targetHandle": "data__a"
+    },
+    {
+      "id": "e19",
+      "source": "pyE",
+      "sourceHandle": "scalar__out_r2",
+      "target": "iE1",
+      "targetHandle": "any__data"
+    },
+    {
+      "id": "e20",
+      "source": "pyE",
+      "sourceHandle": "scalar__out_erreur",
+      "target": "iE2",
+      "targetHandle": "any__data"
+    },
+    {
+      "id": "e21",
+      "source": "pyE",
+      "sourceHandle": "data__out_coefficients",
+      "target": "edE",
+      "targetHandle": "data__table"
+    },
+    {
+      "id": "e22",
+      "source": "edE",
+      "sourceHandle": "image__preview",
+      "target": "dE3",
+      "targetHandle": "image__main"
+    },
+    {
+      "id": "e23",
+      "source": "pyE",
+      "sourceHandle": "image__out_plot",
+      "target": "dE1",
+      "targetHandle": "image__main"
+    },
+    {
+      "id": "e24",
+      "source": "pyE",
+      "sourceHandle": "image__out_print",
+      "target": "dE2",
+      "targetHandle": "image__main"
+    },
+    {
+      "id": "e25",
+      "source": "dsF",
+      "sourceHandle": "data__table",
+      "target": "pyF",
+      "targetHandle": "data__a"
+    },
+    {
+      "id": "e26",
+      "source": "pyF",
+      "sourceHandle": "scalar__out_score",
+      "target": "iF",
+      "targetHandle": "any__data"
+    },
+    {
+      "id": "e27",
+      "source": "pyF",
+      "sourceHandle": "image__out_plot",
+      "target": "dF1",
+      "targetHandle": "image__main"
+    },
+    {
+      "id": "e28",
+      "source": "pyF",
+      "sourceHandle": "image__out_print",
+      "target": "dF2",
+      "targetHandle": "image__main"
+    }
+  ]
+}

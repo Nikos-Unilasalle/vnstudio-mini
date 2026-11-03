@@ -3,6 +3,16 @@
     "section": "Machine Learning",
     "entries": [
       {
+        "name": "Python 1 — Premiers pas",
+        "description": "Se servir de la node Python : entrées a, b…, sorties out_…, print et graphiques, lire un message d’erreur. Pour débuter en Python, avant les autres TP.",
+        "file": "PY01_premiers_pas_python.vn"
+      },
+      {
+        "name": "Python 2 — Python et scikit-learn",
+        "description": "Entraîner et évaluer des modèles dans la node Python, avec le même code qu’en cours : k-NN, choix de k, régression linéaire, arbre de décision.",
+        "file": "PY02_python_et_sklearn.vn"
+      },
+      {
         "name": "Charger et explorer",
         "description": "Premier contact avec un jeu de données : chargement, aperçu, types de colonnes et statistiques descriptives.",
         "file": "TP01_charger_explorer.vn"

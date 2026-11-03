@@ -123,6 +123,8 @@ const CLASSES = [
   {
     section: 'Machine Learning',
     entries: [
+      { file: 'PY01_premiers_pas_python.vn', name: 'Python 1 — Premiers pas', description: 'Se servir de la node Python : entrées a, b…, sorties out_…, print et graphiques, lire un message d’erreur. Pour débuter en Python, avant les autres TP.' },
+      { file: 'PY02_python_et_sklearn.vn', name: 'Python 2 — Python et scikit-learn', description: 'Entraîner et évaluer des modèles dans la node Python, avec le même code qu’en cours : k-NN, choix de k, régression linéaire, arbre de décision.' },
       { file: 'TP01_charger_explorer.vn', name: 'Charger et explorer', description: 'Premier contact avec un jeu de données : chargement, aperçu, types de colonnes et statistiques descriptives.' },
       { file: 'TP02_selection_filtrage.vn', name: 'Sélection et filtrage', description: 'Restreindre un tableau aux lignes et colonnes utiles, et lire l’effet de chaque filtre sur la distribution.' },
       { file: 'TP03_nettoyage.vn', name: 'Nettoyage des données', description: 'Valeurs manquantes, doublons et aberrants : les repérer, décider quoi en faire, mesurer ce que ça change.' },

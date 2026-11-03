@@ -1,0 +1,1992 @@
+{
+  "nodes": [
+    {
+      "id": "titre",
+      "type": "canvas_note",
+      "position": {
+        "x": -120,
+        "y": -230
+      },
+      "style": {
+        "width": 2580,
+        "height": 110
+      },
+      "data": {
+        "label": "Note",
+        "id": "titre",
+        "params": {
+          "text": "# Python 1 — Premiers pas dans la node Python\nCe TP apprend à **se servir de la node Python** : où arrivent les données, comment renvoyer un résultat, comment afficher du texte et des graphiques, comment comprendre une erreur. Pas encore de machine learning : ce sera le TP *Python 2*. Lisez les cadres dans l'ordre, de A à H.",
+          "bg_color": "#0f172a",
+          "text_color": "#f8fafc"
+        }
+      },
+      "width": 2580,
+      "height": 110,
+      "selected": false
+    },
+    {
+      "id": "fA",
+      "type": "canvas_frame",
+      "position": {
+        "x": -120,
+        "y": -90
+      },
+      "style": {
+        "width": 2580,
+        "height": 560,
+        "zIndex": -1
+      },
+      "data": {
+        "label": "Frame",
+        "id": "fA",
+        "params": {
+          "title": "A — Le principe : entrées, script, sorties",
+          "color_index": 0
+        }
+      },
+      "width": 2580,
+      "height": 560,
+      "selected": false
+    },
+    {
+      "id": "nA1",
+      "type": "canvas_note",
+      "position": {
+        "x": -90,
+        "y": -40
+      },
+      "style": {
+        "width": 560,
+        "height": 480
+      },
+      "data": {
+        "label": "Note",
+        "id": "nA1",
+        "params": {
+          "text": "## La node Python en une image\n\n```\n entrées            script               sorties\n  a  ──►   out_resultat = a.head()   ──►  out_resultat\n  b  ──►   print(...)                ──►  out_print\n```\n\n- Branchez une node sur le **+** d'entrée (à gauche) : elle devient **`a`**. La suivante devient **`b`**, puis **`c`**…\n- Toute variable dont le nom commence par **`out_`** devient une **sortie**.\n- Tirez un lien depuis le **+** de sortie (à droite) : le port s'appelle `out_a`, puis `out_b`… Il reçoit vos sorties **dans l'ordre où le script les crée** : le 1er `out_…` va dans `out_a`, le 2e dans `out_b`.\n- Le script se relance **tout seul** à chaque modification.\n- **Double-cliquez** sur la node pour ouvrir l'éditeur de code.",
+          "bg_color": "#dbeafe",
+          "text_color": "#1e40af"
+        }
+      },
+      "width": 560,
+      "height": 480,
+      "selected": false
+    },
+    {
+      "id": "nA2",
+      "type": "canvas_note",
+      "position": {
+        "x": 500,
+        "y": -40
+      },
+      "style": {
+        "width": 600,
+        "height": 480
+      },
+      "data": {
+        "label": "Note",
+        "id": "nA2",
+        "params": {
+          "text": "## Déjà prêt : pas besoin d'importer\n\n- **`pd`** (pandas) et **`np`** (numpy) sont **déjà importés**. Écrire `import pandas as pd` ne gêne pas (c'est l'habitude de Jupyter), mais c'est inutile.\n- Les autres bibliothèques s'importent **comme dans un notebook** :\n\n```python\nimport matplotlib.pyplot as plt\nfrom sklearn.neighbors import KNeighborsClassifier\n```\n\nElles sont téléchargées la première fois (quelques secondes).\n\n- **Première exécution** : Python lui-même se charge dans le navigateur (~15 Mo). Patientez, c'est une seule fois.\n- **Impossible ici** (sécurité) : `os`, `sys`, `open()` — pas de fichiers, les données arrivent par les entrées —, `input()` et les classes (`class`).",
+          "bg_color": "#1e293b",
+          "text_color": "#cbd5e1"
+        }
+      },
+      "width": 600,
+      "height": 480,
+      "selected": false
+    },
+    {
+      "id": "nA3",
+      "type": "canvas_note",
+      "position": {
+        "x": 1130,
+        "y": -40
+      },
+      "style": {
+        "width": 680,
+        "height": 480
+      },
+      "data": {
+        "label": "Note",
+        "id": "nA3",
+        "params": {
+          "text": "## Jupyter / Colab → VNStudio\n\n| Dans un notebook | Dans la node Python |\n|---|---|\n| `df = pd.read_csv('iris.csv')` | le tableau arrive dans **`a`** |\n| `print(x)` | `print(x)` → sortie **`out_print`**, à brancher sur un Display |\n| `df` en dernière ligne | `out_tableau = df` |\n| `plt.show()` | le graphique sort sur **`out_plot`** |\n| afficher une valeur | `out_valeur = …` → Inspector |\n\nTout le reste — pandas, numpy, scikit-learn — **s'écrit exactement pareil**. Ce que vous apprenez en cours fonctionne ici.",
+          "bg_color": "#dcfce7",
+          "text_color": "#166534"
+        }
+      },
+      "width": 680,
+      "height": 480,
+      "selected": false
+    },
+    {
+      "id": "fB",
+      "type": "canvas_frame",
+      "position": {
+        "x": -120,
+        "y": 500
+      },
+      "style": {
+        "width": 2580,
+        "height": 520,
+        "zIndex": -1
+      },
+      "data": {
+        "label": "Frame",
+        "id": "fB",
+        "params": {
+          "title": "B — Mon premier script : faire passer un tableau",
+          "color_index": 2
+        }
+      },
+      "width": 2580,
+      "height": 520,
+      "selected": false
+    },
+    {
+      "id": "nB",
+      "type": "canvas_note",
+      "position": {
+        "x": -90,
+        "y": 550
+      },
+      "style": {
+        "width": 560,
+        "height": 440
+      },
+      "data": {
+        "label": "Note",
+        "id": "nB",
+        "params": {
+          "text": "## À essayer\n\n1. **Double-cliquez** sur la première node Python pour lire son code : une seule ligne utile, `out_data = a`.\n2. Dans la deuxième, remplacez `a.head()` par `a.head(10)`, puis par `a.tail()`.\n3. Ajoutez la colonne `'petal length (cm)'` à la liste.\n4. Double-cliquez sur un **DF Editor** pour voir le tableau en entier.\n\n**Pourquoi des doubles crochets ?**\n`a['target']` donne **une** colonne (une *Series*).\n`a[['sepal length (cm)', 'target']]` donne un **tableau** de plusieurs colonnes : la liste des noms est entre les crochets intérieurs.\n\nLes noms de colonnes se recopient **exactement**, unités comprises.",
+          "bg_color": "#dcfce7",
+          "text_color": "#166534"
+        }
+      },
+      "width": 560,
+      "height": 440,
+      "selected": false
+    },
+    {
+      "id": "dsB",
+      "type": "ml_sklearn_dataset",
+      "position": {
+        "x": 520,
+        "y": 570
+      },
+      "data": {
+        "label": "Sklearn Dataset",
+        "params": {
+          "dataset": 0,
+          "node_note": "Iris"
+        }
+      },
+      "width": 208,
+      "height": 153,
+      "selected": false
+    },
+    {
+      "id": "pyB1",
+      "type": "logic_python",
+      "position": {
+        "x": 790,
+        "y": 560
+      },
+      "data": {
+        "label": "Python Node",
+        "params": {
+          "code": "# B1 — Mon premier script\n# 'a' contient le tableau branché à gauche : un DataFrame pandas.\n# On le renvoie tel quel : il ressort sur la sortie out_data.\nout_data = a\n",
+          "node_note": "Renvoyer le tableau"
+        },
+        "ports": [
+          {
+            "id": "data__a",
+            "color": "data",
+            "label": "a"
+          }
+        ],
+        "outPorts": [
+          {
+            "id": "data__out_data",
+            "color": "data",
+            "label": "out_data"
+          }
+        ]
+      },
+      "width": 208,
+      "height": 157,
+      "selected": false
+    },
+    {
+      "id": "edB1",
+      "type": "df_editor",
+      "position": {
+        "x": 1060,
+        "y": 560
+      },
+      "data": {
+        "label": "DF Editor",
+        "params": {
+          "node_note": "Tableau reçu"
+        }
+      },
+      "width": 208,
+      "height": 150,
+      "selected": false
+    },
+    {
+      "id": "dB1",
+      "type": "output_display",
+      "position": {
+        "x": 1330,
+        "y": 560
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "node_note": "Aperçu"
+        },
+        "mainConnected": true
+      },
+      "width": 208,
+      "height": 200,
+      "selected": false
+    },
+    {
+      "id": "pyB2",
+      "type": "logic_python",
+      "position": {
+        "x": 790,
+        "y": 790
+      },
+      "data": {
+        "label": "Python Node",
+        "params": {
+          "code": "# B2 — Ne garder qu'une partie du tableau\n# a.head() : les 5 premières lignes.\npetit = a.head()\n\n# Deux colonnes seulement : la liste des noms entre doubles crochets.\n# Les noms doivent être recopiés EXACTEMENT (espaces, unités).\nout_extrait = petit[['sepal length (cm)', 'target']]\n",
+          "node_note": "Extraire lignes et colonnes"
+        },
+        "ports": [
+          {
+            "id": "data__a",
+            "color": "data",
+            "label": "a"
+          }
+        ],
+        "outPorts": [
+          {
+            "id": "data__out_extrait",
+            "color": "data",
+            "label": "out_extrait"
+          }
+        ]
+      },
+      "width": 208,
+      "height": 157,
+      "selected": false
+    },
+    {
+      "id": "edB2",
+      "type": "df_editor",
+      "position": {
+        "x": 1060,
+        "y": 790
+      },
+      "data": {
+        "label": "DF Editor",
+        "params": {
+          "node_note": "Extrait"
+        }
+      },
+      "width": 208,
+      "height": 150,
+      "selected": false
+    },
+    {
+      "id": "dB2",
+      "type": "output_display",
+      "position": {
+        "x": 1330,
+        "y": 790
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "node_note": "Aperçu"
+        },
+        "mainConnected": true
+      },
+      "width": 208,
+      "height": 200,
+      "selected": false
+    },
+    {
+      "id": "nB2",
+      "type": "canvas_note",
+      "position": {
+        "x": 1620,
+        "y": 550
+      },
+      "style": {
+        "width": 680,
+        "height": 300
+      },
+      "data": {
+        "label": "Note",
+        "id": "nB2",
+        "params": {
+          "text": "## Ce qui vient de se passer\n\n- Le **Sklearn Dataset** envoie le tableau *iris* (150 fleurs, 4 mesures, l'espèce dans `target`).\n- Il entre dans la node Python sous le nom **`a`**.\n- `out_data = a` crée une sortie **`out_data`** : le tableau en ressort, et le DF Editor le reçoit.\n\nC'est tout le principe : **des données entrent, du code les transforme, des `out_` les renvoient.**",
+          "bg_color": "#dbeafe",
+          "text_color": "#1e40af"
+        }
+      },
+      "width": 680,
+      "height": 300,
+      "selected": false
+    },
+    {
+      "id": "fC",
+      "type": "canvas_frame",
+      "position": {
+        "x": -120,
+        "y": 1050
+      },
+      "style": {
+        "width": 2580,
+        "height": 560,
+        "zIndex": -1
+      },
+      "data": {
+        "label": "Frame",
+        "id": "fC",
+        "params": {
+          "title": "C — Qu'est-ce que je reçois ? Le réflexe type()",
+          "color_index": 4
+        }
+      },
+      "width": 2580,
+      "height": 560,
+      "selected": false
+    },
+    {
+      "id": "nC",
+      "type": "canvas_note",
+      "position": {
+        "x": -90,
+        "y": 1100
+      },
+      "style": {
+        "width": 620,
+        "height": 480
+      },
+      "data": {
+        "label": "Note",
+        "id": "nC",
+        "params": {
+          "text": "## Ce que vous branchez → ce que Python reçoit\n\n| Node branchée | Type Python dans `a`, `b`… |\n|---|---|\n| Dataset, CSV, DF… (tableau) | `pandas.DataFrame` |\n| Image, Webcam | `numpy.ndarray` (hauteur × largeur × 3, couleurs dans l'ordre **BGR**) |\n| Number | `int` ou `float` (un nombre) |\n| Texte | `str` |\n| Liste, dictionnaire | `list`, `dict` |\n| **rien** | la variable **n'existe pas** → erreur `NameError` |\n\n**Le réflexe** : quand vous ne savez pas ce que contient une variable, renvoyez son type et sa forme, et regardez-les dans un **Inspector**.\n\nChangez la valeur de la node **Number** : `out_double_b` suit.",
+          "bg_color": "#dbeafe",
+          "text_color": "#1e40af"
+        }
+      },
+      "width": 620,
+      "height": 480,
+      "selected": false
+    },
+    {
+      "id": "dsC",
+      "type": "ml_sklearn_dataset",
+      "position": {
+        "x": 640,
+        "y": 1120
+      },
+      "data": {
+        "label": "Sklearn Dataset",
+        "params": {
+          "dataset": 0,
+          "node_note": "Iris"
+        }
+      },
+      "width": 208,
+      "height": 153,
+      "selected": false
+    },
+    {
+      "id": "numC",
+      "type": "scalar_input",
+      "position": {
+        "x": 640,
+        "y": 1310
+      },
+      "data": {
+        "label": "Number",
+        "params": {
+          "value": 5,
+          "format": 0,
+          "node_note": "Un nombre"
+        }
+      },
+      "width": 208,
+      "height": 111,
+      "selected": false
+    },
+    {
+      "id": "pyC",
+      "type": "logic_python",
+      "position": {
+        "x": 920,
+        "y": 1140
+      },
+      "data": {
+        "label": "Python Node",
+        "params": {
+          "code": "# C — Inspecter ce qui arrive dans a et b\n# Quand on ne sait pas ce qu'on manipule, on renvoie son type\n# et sa forme, puis on les lit dans un Inspector.\n\nout_type_a = str(type(a))        # quel type d'objet ?\nout_taille = list(a.shape)       # [nombre de lignes, nombre de colonnes]\nout_colonnes = list(a.columns)   # les noms EXACTS des colonnes\n\nout_type_b = str(type(b))        # b vient de la node Number\nout_double_b = b * 2             # on calcule directement avec\n",
+          "node_note": "type() et shape"
+        },
+        "ports": [
+          {
+            "id": "data__a",
+            "color": "data",
+            "label": "a"
+          },
+          {
+            "id": "scalar__b",
+            "color": "scalar",
+            "label": "b"
+          }
+        ],
+        "outPorts": [
+          {
+            "id": "string__out_type_a",
+            "color": "string",
+            "label": "out_type_a"
+          },
+          {
+            "id": "list__out_taille",
+            "color": "list",
+            "label": "out_taille"
+          },
+          {
+            "id": "list__out_colonnes",
+            "color": "list",
+            "label": "out_colonnes"
+          },
+          {
+            "id": "string__out_type_b",
+            "color": "string",
+            "label": "out_type_b"
+          },
+          {
+            "id": "scalar__out_double_b",
+            "color": "scalar",
+            "label": "out_double_b"
+          }
+        ]
+      },
+      "width": 208,
+      "height": 285,
+      "selected": false
+    },
+    {
+      "id": "iC0",
+      "type": "data_inspector",
+      "position": {
+        "x": 1220,
+        "y": 1110
+      },
+      "data": {
+        "label": "Inspector",
+        "params": {
+          "node_note": "type de a"
+        }
+      },
+      "width": 220,
+      "height": 140,
+      "selected": false,
+      "style": {
+        "width": 220,
+        "height": 140
+      }
+    },
+    {
+      "id": "iC1",
+      "type": "data_inspector",
+      "position": {
+        "x": 1220,
+        "y": 1270
+      },
+      "data": {
+        "label": "Inspector",
+        "params": {
+          "node_note": "taille de a"
+        }
+      },
+      "width": 220,
+      "height": 140,
+      "selected": false,
+      "style": {
+        "width": 220,
+        "height": 140
+      }
+    },
+    {
+      "id": "iC2",
+      "type": "data_inspector",
+      "position": {
+        "x": 1220,
+        "y": 1430
+      },
+      "data": {
+        "label": "Inspector",
+        "params": {
+          "node_note": "colonnes de a"
+        }
+      },
+      "width": 220,
+      "height": 140,
+      "selected": false,
+      "style": {
+        "width": 220,
+        "height": 140
+      }
+    },
+    {
+      "id": "iC3",
+      "type": "data_inspector",
+      "position": {
+        "x": 1470,
+        "y": 1110
+      },
+      "data": {
+        "label": "Inspector",
+        "params": {
+          "node_note": "type de b"
+        }
+      },
+      "width": 220,
+      "height": 140,
+      "selected": false,
+      "style": {
+        "width": 220,
+        "height": 140
+      }
+    },
+    {
+      "id": "iC4",
+      "type": "data_inspector",
+      "position": {
+        "x": 1470,
+        "y": 1270
+      },
+      "data": {
+        "label": "Inspector",
+        "params": {
+          "node_note": "b × 2"
+        }
+      },
+      "width": 220,
+      "height": 140,
+      "selected": false,
+      "style": {
+        "width": 220,
+        "height": 140
+      }
+    },
+    {
+      "id": "nC2",
+      "type": "canvas_note",
+      "position": {
+        "x": 1760,
+        "y": 1100
+      },
+      "style": {
+        "width": 620,
+        "height": 330
+      },
+      "data": {
+        "label": "Note",
+        "id": "nC2",
+        "params": {
+          "text": "## À retenir\n\n- `str(type(a))` → un texte qui se termine par `DataFrame'>` : c'est un tableau pandas.\n- `a.shape` → (lignes, colonnes).\n- `list(a.columns)` : **copiez les noms de colonnes d'ici**, vous éviterez les fautes de frappe.\n\nL'Inspector affiche du texte, des nombres, des listes et des dictionnaires. Pour un tableau, utilisez un DF Editor.",
+          "bg_color": "#dcfce7",
+          "text_color": "#166534"
+        }
+      },
+      "width": 620,
+      "height": 330,
+      "selected": false
+    },
+    {
+      "id": "fD",
+      "type": "canvas_frame",
+      "position": {
+        "x": -120,
+        "y": 1640
+      },
+      "style": {
+        "width": 2580,
+        "height": 620,
+        "zIndex": -1
+      },
+      "data": {
+        "label": "Frame",
+        "id": "fD",
+        "params": {
+          "title": "D — Renvoyer des résultats : les formats de sortie",
+          "color_index": 2
+        }
+      },
+      "width": 2580,
+      "height": 620,
+      "selected": false
+    },
+    {
+      "id": "nD",
+      "type": "canvas_note",
+      "position": {
+        "x": -90,
+        "y": 1690
+      },
+      "style": {
+        "width": 620,
+        "height": 540
+      },
+      "data": {
+        "label": "Note",
+        "id": "nD",
+        "params": {
+          "text": "## Un `out_` pour chaque résultat\n\nLe nom après `out_` est **libre** : choisissez un nom parlant (`out_moyenne`, `out_score`…).\n\n| Ce que vous renvoyez | Où le regarder |\n|---|---|\n| un tableau (DataFrame ou Series) | **DF Editor** (puis Display) |\n| un nombre, un texte | **Inspector** |\n| une liste, un dictionnaire | **Inspector** |\n| une image (tableau numpy 2D ou 3D) | **Display** |\n| une figure matplotlib | **Display** (cadre E) |\n\n**L'ordre compte** quand vous tirez un lien depuis le **+** : le 1er `out_` créé par le script va dans `out_a`, le 2e dans `out_b`… Dans ce template, les ports portent déjà le nom de la variable.\n\nUn objet qui n'est ni un tableau, ni un nombre, ni une image (un modèle sklearn, par exemple) ressort sous forme de **texte**. Renvoyez plutôt son résultat : un score, des prédictions.",
+          "bg_color": "#dbeafe",
+          "text_color": "#1e40af"
+        }
+      },
+      "width": 620,
+      "height": 540,
+      "selected": false
+    },
+    {
+      "id": "dsD",
+      "type": "ml_sklearn_dataset",
+      "position": {
+        "x": 640,
+        "y": 1710
+      },
+      "data": {
+        "label": "Sklearn Dataset",
+        "params": {
+          "dataset": 0,
+          "node_note": "Iris"
+        }
+      },
+      "width": 208,
+      "height": 153,
+      "selected": false
+    },
+    {
+      "id": "pyD",
+      "type": "logic_python",
+      "position": {
+        "x": 920,
+        "y": 1700
+      },
+      "data": {
+        "label": "Python Node",
+        "params": {
+          "code": "# D — Un exemple de chaque format de sortie\n\n# 1. Un tableau : les statistiques de chaque colonne\nout_tableau = a.describe()\n\n# 2. Un nombre : la longueur moyenne des pétales\nout_nombre = a['petal length (cm)'].mean()\n\n# 3. Un texte (f\"...\" insère des valeurs entre accolades)\nout_texte = f\"{len(a)} fleurs dans le tableau\"\n\n# 4. Une liste : les espèces, sans doublon, triées\nout_liste = sorted(a['target'].unique().tolist())\n\n# 5. Un dictionnaire : des paires nom → valeur\nout_dico = {'lignes': len(a), 'colonnes': len(a.columns)}\n\n# 6. Une image : un dégradé de 100 × 256 pixels, du noir au blanc\ndegrade = np.tile(np.linspace(0, 255, 256), (100, 1))\nout_image = degrade.astype(np.uint8)\n",
+          "node_note": "Six formats de sortie"
+        },
+        "ports": [
+          {
+            "id": "data__a",
+            "color": "data",
+            "label": "a"
+          }
+        ],
+        "outPorts": [
+          {
+            "id": "data__out_tableau",
+            "color": "data",
+            "label": "out_tableau"
+          },
+          {
+            "id": "scalar__out_nombre",
+            "color": "scalar",
+            "label": "out_nombre"
+          },
+          {
+            "id": "string__out_texte",
+            "color": "string",
+            "label": "out_texte"
+          },
+          {
+            "id": "list__out_liste",
+            "color": "list",
+            "label": "out_liste"
+          },
+          {
+            "id": "dict__out_dico",
+            "color": "dict",
+            "label": "out_dico"
+          },
+          {
+            "id": "image__out_image",
+            "color": "image",
+            "label": "out_image"
+          }
+        ]
+      },
+      "width": 208,
+      "height": 317,
+      "selected": false
+    },
+    {
+      "id": "edD",
+      "type": "df_editor",
+      "position": {
+        "x": 1220,
+        "y": 1700
+      },
+      "data": {
+        "label": "DF Editor",
+        "params": {
+          "node_note": "tableau"
+        }
+      },
+      "width": 208,
+      "height": 150,
+      "selected": false
+    },
+    {
+      "id": "dD1",
+      "type": "output_display",
+      "position": {
+        "x": 1470,
+        "y": 1700
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "node_note": "tableau (aperçu)"
+        },
+        "mainConnected": true
+      },
+      "width": 208,
+      "height": 200,
+      "selected": false
+    },
+    {
+      "id": "iD1",
+      "type": "data_inspector",
+      "position": {
+        "x": 1220,
+        "y": 1940
+      },
+      "data": {
+        "label": "Inspector",
+        "params": {
+          "node_note": "nombre"
+        }
+      },
+      "width": 220,
+      "height": 140,
+      "selected": false,
+      "style": {
+        "width": 220,
+        "height": 140
+      }
+    },
+    {
+      "id": "iD2",
+      "type": "data_inspector",
+      "position": {
+        "x": 1470,
+        "y": 1940
+      },
+      "data": {
+        "label": "Inspector",
+        "params": {
+          "node_note": "texte"
+        }
+      },
+      "width": 220,
+      "height": 140,
+      "selected": false,
+      "style": {
+        "width": 220,
+        "height": 140
+      }
+    },
+    {
+      "id": "iD3",
+      "type": "data_inspector",
+      "position": {
+        "x": 1720,
+        "y": 1940
+      },
+      "data": {
+        "label": "Inspector",
+        "params": {
+          "node_note": "liste"
+        }
+      },
+      "width": 220,
+      "height": 140,
+      "selected": false,
+      "style": {
+        "width": 220,
+        "height": 140
+      }
+    },
+    {
+      "id": "iD4",
+      "type": "data_inspector",
+      "position": {
+        "x": 1970,
+        "y": 1940
+      },
+      "data": {
+        "label": "Inspector",
+        "params": {
+          "node_note": "dictionnaire"
+        }
+      },
+      "width": 220,
+      "height": 140,
+      "selected": false,
+      "style": {
+        "width": 220,
+        "height": 140
+      }
+    },
+    {
+      "id": "dD2",
+      "type": "output_display",
+      "position": {
+        "x": 1720,
+        "y": 1700
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "node_note": "image"
+        },
+        "mainConnected": true
+      },
+      "width": 208,
+      "height": 200,
+      "selected": false
+    },
+    {
+      "id": "fE",
+      "type": "canvas_frame",
+      "position": {
+        "x": -120,
+        "y": 2290
+      },
+      "style": {
+        "width": 2580,
+        "height": 640,
+        "zIndex": -1
+      },
+      "data": {
+        "label": "Frame",
+        "id": "fE",
+        "params": {
+          "title": "E — Afficher : print() et les graphiques",
+          "color_index": 4
+        }
+      },
+      "width": 2580,
+      "height": 640,
+      "selected": false
+    },
+    {
+      "id": "nE",
+      "type": "canvas_note",
+      "position": {
+        "x": -90,
+        "y": 2340
+      },
+      "style": {
+        "width": 560,
+        "height": 560
+      },
+      "data": {
+        "label": "Note",
+        "id": "nE",
+        "params": {
+          "text": "## print() et plt marchent… sur deux sorties spéciales\n\n**`out_print`** — tout ce que vous affichez avec `print()` est rassemblé dans une **console**. Branchez `out_print` sur un **Display** pour la lire. Les tableaux gardent leurs colonnes alignées, comme dans Jupyter.\n\n**`out_plot`** — une figure dessinée avec `plt` (histogramme, nuage de points…) sort sur `out_plot`. Branchez-la sur un **Display**. `plt.show()` est facultatif.\n\n**Plusieurs figures ?** Donnez à chacune sa propre sortie : `out_nuage = fig` (E3).\n\nCes deux sorties arrivent toujours **après** vos propres `out_…`.\n\n**Astuce** : cliquez sur un Display pour voir l'image en grand dans le panneau d'aperçu.",
+          "bg_color": "#dbeafe",
+          "text_color": "#1e40af"
+        }
+      },
+      "width": 560,
+      "height": 560,
+      "selected": false
+    },
+    {
+      "id": "dsE",
+      "type": "ml_sklearn_dataset",
+      "position": {
+        "x": 520,
+        "y": 2360
+      },
+      "data": {
+        "label": "Sklearn Dataset",
+        "params": {
+          "dataset": 0,
+          "node_note": "Iris"
+        }
+      },
+      "width": 208,
+      "height": 153,
+      "selected": false
+    },
+    {
+      "id": "pyE1",
+      "type": "logic_python",
+      "position": {
+        "x": 790,
+        "y": 2350
+      },
+      "data": {
+        "label": "Python Node",
+        "params": {
+          "code": "# E1 — print() s'affiche sur la sortie out_print\n# Branchez out_print sur un Display : c'est votre console.\nprint(\"Nombre de fleurs :\", len(a))\nprint()\nprint(a.head())\nprint()\nprint(\"Moyenne de chaque mesure :\")\nprint(a.mean(numeric_only=True).round(2))\n",
+          "node_note": "Console print()"
+        },
+        "ports": [
+          {
+            "id": "data__a",
+            "color": "data",
+            "label": "a"
+          }
+        ],
+        "outPorts": [
+          {
+            "id": "image__out_print",
+            "color": "image",
+            "label": "out_print"
+          }
+        ]
+      },
+      "width": 208,
+      "height": 157,
+      "selected": false
+    },
+    {
+      "id": "dE1",
+      "type": "output_display",
+      "position": {
+        "x": 1060,
+        "y": 2350
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "node_note": "console"
+        },
+        "mainConnected": true
+      },
+      "width": 208,
+      "height": 200,
+      "selected": false
+    },
+    {
+      "id": "pyE2",
+      "type": "logic_python",
+      "position": {
+        "x": 790,
+        "y": 2590
+      },
+      "data": {
+        "label": "Python Node",
+        "params": {
+          "code": "# E2 — Un graphique matplotlib\n# Dessinez comme dans un notebook : la figure sort sur out_plot.\nimport matplotlib.pyplot as plt\n\nplt.figure(figsize=(6, 4))\nplt.hist(a['petal length (cm)'], bins=20, color='teal')\nplt.title(\"Longueur des pétales\")\nplt.xlabel(\"longueur (cm)\")\nplt.ylabel(\"nombre de fleurs\")\nplt.show()   # facultatif, mais sans danger\n",
+          "node_note": "Histogramme"
+        },
+        "ports": [
+          {
+            "id": "data__a",
+            "color": "data",
+            "label": "a"
+          }
+        ],
+        "outPorts": [
+          {
+            "id": "image__out_plot",
+            "color": "image",
+            "label": "out_plot"
+          }
+        ]
+      },
+      "width": 208,
+      "height": 157,
+      "selected": false
+    },
+    {
+      "id": "dE2",
+      "type": "output_display",
+      "position": {
+        "x": 1060,
+        "y": 2590
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "node_note": "histogramme"
+        },
+        "mainConnected": true
+      },
+      "width": 208,
+      "height": 200,
+      "selected": false
+    },
+    {
+      "id": "pyE3",
+      "type": "logic_python",
+      "position": {
+        "x": 1350,
+        "y": 2350
+      },
+      "data": {
+        "label": "Python Node",
+        "params": {
+          "code": "# E3 — Une figure avec un nom de sortie choisi\nimport matplotlib.pyplot as plt\n\nfig, ax = plt.subplots(figsize=(6, 4))\n# Une couleur par espèce : groupby découpe le tableau par 'target'\nfor espece, groupe in a.groupby('target'):\n    ax.scatter(groupe['petal length (cm)'], groupe['petal width (cm)'], label=espece)\nax.set_xlabel(\"longueur du pétale (cm)\")\nax.set_ylabel(\"largeur du pétale (cm)\")\nax.legend()\n\nout_nuage = fig   # la figure sort sur out_nuage\n",
+          "node_note": "Nuage de points"
+        },
+        "ports": [
+          {
+            "id": "data__a",
+            "color": "data",
+            "label": "a"
+          }
+        ],
+        "outPorts": [
+          {
+            "id": "image__out_nuage",
+            "color": "image",
+            "label": "out_nuage"
+          }
+        ]
+      },
+      "width": 208,
+      "height": 157,
+      "selected": false
+    },
+    {
+      "id": "dE3",
+      "type": "output_display",
+      "position": {
+        "x": 1620,
+        "y": 2350
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "node_note": "nuage de points"
+        },
+        "mainConnected": true
+      },
+      "width": 208,
+      "height": 200,
+      "selected": false
+    },
+    {
+      "id": "nE2",
+      "type": "canvas_note",
+      "position": {
+        "x": 1910,
+        "y": 2350
+      },
+      "style": {
+        "width": 470,
+        "height": 260
+      },
+      "data": {
+        "label": "Note",
+        "id": "nE2",
+        "params": {
+          "text": "## À essayer\n\n- Dans E1, ajoutez `print(a.describe())`.\n- Dans E2, changez `bins=20` en `bins=5`, puis la colonne affichée.\n- Dans E3, remplacez `scatter` par `plot` : que se passe-t-il ?",
+          "bg_color": "#dcfce7",
+          "text_color": "#166534"
+        }
+      },
+      "width": 470,
+      "height": 260,
+      "selected": false
+    },
+    {
+      "id": "fF",
+      "type": "canvas_frame",
+      "position": {
+        "x": -120,
+        "y": 2960
+      },
+      "style": {
+        "width": 2580,
+        "height": 660,
+        "zIndex": -1
+      },
+      "data": {
+        "label": "Frame",
+        "id": "fF",
+        "params": {
+          "title": "F — Déboguer : lire un message d'erreur",
+          "color_index": 1
+        }
+      },
+      "width": 2580,
+      "height": 660,
+      "selected": false
+    },
+    {
+      "id": "nF",
+      "type": "canvas_note",
+      "position": {
+        "x": -90,
+        "y": 3010
+      },
+      "style": {
+        "width": 620,
+        "height": 580
+      },
+      "data": {
+        "label": "Note",
+        "id": "nF",
+        "params": {
+          "text": "## Lire un message d'erreur\n\nUne node qui plante ne renvoie rien. Le message apparaît **en rouge** dans l'éditeur (double-clic sur la node) et dans le panneau de paramètres :\n\n```\nLigne 3 — La variable « moyene » n'existe pas :\nfaute de frappe ? … (NameError: name 'moyene'\nis not defined)\n```\n\n1. **Ligne 3** : où regarder dans le code.\n2. **L'explication en français** : la cause la plus probable.\n3. **Entre parenthèses** : le message Python d'origine, le même que dans Jupyter. Copiez-le dans un moteur de recherche si besoin.\n\n**Les trois nodes à droite contiennent chacune une erreur classique.** Ouvrez-les, lisez le message, corrigez. Les Inspectors se remplissent quand c'est réparé.\n\n**Astuce** : pour voir ce que contient une variable en cours de route, ajoutez `print(variable)` ou `out_debug = variable`.",
+          "bg_color": "#ffe4e6",
+          "text_color": "#9f1239"
+        }
+      },
+      "width": 620,
+      "height": 580,
+      "selected": false
+    },
+    {
+      "id": "dsF",
+      "type": "ml_sklearn_dataset",
+      "position": {
+        "x": 640,
+        "y": 3030
+      },
+      "data": {
+        "label": "Sklearn Dataset",
+        "params": {
+          "dataset": 0,
+          "node_note": "Iris"
+        }
+      },
+      "width": 208,
+      "height": 153,
+      "selected": false
+    },
+    {
+      "id": "pyF1",
+      "type": "logic_python",
+      "position": {
+        "x": 920,
+        "y": 3020
+      },
+      "data": {
+        "label": "Python Node",
+        "params": {
+          "code": "# F1 — ERREUR À CORRIGER : un nom de colonne\n# Lisez le message d'erreur : il donne la liste des colonnes.\nout_moyenne = a['sepal length'].mean()\n",
+          "node_note": "À corriger (1)"
+        },
+        "ports": [
+          {
+            "id": "data__a",
+            "color": "data",
+            "label": "a"
+          }
+        ],
+        "outPorts": [
+          {
+            "id": "scalar__out_moyenne",
+            "color": "scalar",
+            "label": "out_moyenne"
+          }
+        ]
+      },
+      "width": 208,
+      "height": 157,
+      "selected": false
+    },
+    {
+      "id": "iF1",
+      "type": "data_inspector",
+      "position": {
+        "x": 1200,
+        "y": 3020
+      },
+      "data": {
+        "label": "Inspector",
+        "params": {
+          "node_note": "moyenne"
+        }
+      },
+      "width": 220,
+      "height": 140,
+      "selected": false,
+      "style": {
+        "width": 220,
+        "height": 140
+      }
+    },
+    {
+      "id": "pyF2",
+      "type": "logic_python",
+      "position": {
+        "x": 920,
+        "y": 3200
+      },
+      "data": {
+        "label": "Python Node",
+        "params": {
+          "code": "# F2 — ERREUR À CORRIGER : une entrée non branchée\n# Ce script attend un nombre sur l'entrée b…\n# Branchez une node Number sur le + d'entrée.\nout_resultat = len(a) * b\n",
+          "node_note": "À corriger (2)"
+        },
+        "ports": [
+          {
+            "id": "data__a",
+            "color": "data",
+            "label": "a"
+          }
+        ],
+        "outPorts": [
+          {
+            "id": "scalar__out_resultat",
+            "color": "scalar",
+            "label": "out_resultat"
+          }
+        ]
+      },
+      "width": 208,
+      "height": 157,
+      "selected": false
+    },
+    {
+      "id": "iF2",
+      "type": "data_inspector",
+      "position": {
+        "x": 1200,
+        "y": 3200
+      },
+      "data": {
+        "label": "Inspector",
+        "params": {
+          "node_note": "résultat"
+        }
+      },
+      "width": 220,
+      "height": 140,
+      "selected": false,
+      "style": {
+        "width": 220,
+        "height": 140
+      }
+    },
+    {
+      "id": "pyF3",
+      "type": "logic_python",
+      "position": {
+        "x": 920,
+        "y": 3380
+      },
+      "data": {
+        "label": "Python Node",
+        "params": {
+          "code": "# F3 — ERREUR À CORRIGER : une faute de frappe\nmoyenne = a['petal width (cm)'].mean()\nout_arrondi = round(moyene, 2)\n",
+          "node_note": "À corriger (3)"
+        },
+        "ports": [
+          {
+            "id": "data__a",
+            "color": "data",
+            "label": "a"
+          }
+        ],
+        "outPorts": [
+          {
+            "id": "scalar__out_arrondi",
+            "color": "scalar",
+            "label": "out_arrondi"
+          }
+        ]
+      },
+      "width": 208,
+      "height": 157,
+      "selected": false
+    },
+    {
+      "id": "iF3",
+      "type": "data_inspector",
+      "position": {
+        "x": 1200,
+        "y": 3380
+      },
+      "data": {
+        "label": "Inspector",
+        "params": {
+          "node_note": "arrondi"
+        }
+      },
+      "width": 220,
+      "height": 140,
+      "selected": false,
+      "style": {
+        "width": 220,
+        "height": 140
+      }
+    },
+    {
+      "id": "nF2",
+      "type": "canvas_note",
+      "position": {
+        "x": 1500,
+        "y": 3020
+      },
+      "style": {
+        "width": 620,
+        "height": 330
+      },
+      "data": {
+        "label": "Note",
+        "id": "nF2",
+        "params": {
+          "text": "## Les erreurs les plus fréquentes\n\n| Message | Cause habituelle |\n|---|---|\n| `KeyError: 'xxx'` | nom de colonne mal recopié |\n| `NameError` | variable mal orthographiée, entrée non branchée, import oublié |\n| `IndentationError` | décalage oublié après un `:` (if, for, def) |\n| `SyntaxError` | parenthèse ou guillemet non fermé, `:` oublié |\n| `AttributeError` | méthode mal orthographiée (`a.colums`) |\n| `TypeError` | opération entre types incompatibles (texte + nombre) |",
+          "bg_color": "#1e293b",
+          "text_color": "#cbd5e1"
+        }
+      },
+      "width": 620,
+      "height": 330,
+      "selected": false
+    },
+    {
+      "id": "nF3",
+      "type": "canvas_note",
+      "position": {
+        "x": 1500,
+        "y": 3380
+      },
+      "style": {
+        "width": 620,
+        "height": 210
+      },
+      "data": {
+        "label": "Note",
+        "id": "nF3",
+        "params": {
+          "text": "## Corrigés (essayez d'abord !)\n\n**F1** — la colonne s'appelle `'sepal length (cm)'` :\n`out_moyenne = a['sepal length (cm)'].mean()`\n\n**F2** — ajoutez une node **Number** et reliez-la au **+** d'entrée : elle devient `b`.\n\n**F3** — `moyene` → `moyenne` :\n`out_arrondi = round(moyenne, 2)`",
+          "bg_color": "#ede9fe",
+          "text_color": "#4c1d95"
+        }
+      },
+      "width": 620,
+      "height": 210,
+      "selected": false
+    },
+    {
+      "id": "fG",
+      "type": "canvas_frame",
+      "position": {
+        "x": -120,
+        "y": 3650
+      },
+      "style": {
+        "width": 2580,
+        "height": 600,
+        "zIndex": -1
+      },
+      "data": {
+        "label": "Frame",
+        "id": "fG",
+        "params": {
+          "title": "G — Exercice : moyennes par espèce",
+          "color_index": 3
+        }
+      },
+      "width": 2580,
+      "height": 600,
+      "selected": false
+    },
+    {
+      "id": "nG",
+      "type": "canvas_note",
+      "position": {
+        "x": -90,
+        "y": 3700
+      },
+      "style": {
+        "width": 560,
+        "height": 520
+      },
+      "data": {
+        "label": "Note",
+        "id": "nG",
+        "params": {
+          "text": "## Exercice\n\nOuvrez la node **« Exercice »** et complétez les lignes marquées ← :\n\n1. Regroupez `a` par espèce (`'target'`) et calculez la moyenne de `'petal length (cm)'`.\n   *Indice* : `a.groupby('target')['petal length (cm)'].mean()`\n2. Renvoyez ce tableau sur `out_moyennes`.\n3. Renvoyez la plus grande moyenne sur `out_max` (*indice* : `.max()`).\n4. Affichez avec `print` le nom de l'espèce gagnante (*indice* : `.idxmax()`).\n5. **Bonus** : un diagramme en barres avec `moyennes.plot(kind='bar')`.\n\nLes sorties sont déjà branchées : DF Editor, Inspector, console et graphique.",
+          "bg_color": "#fef9c3",
+          "text_color": "#713f12"
+        }
+      },
+      "width": 560,
+      "height": 520,
+      "selected": false
+    },
+    {
+      "id": "dsG",
+      "type": "ml_sklearn_dataset",
+      "position": {
+        "x": 520,
+        "y": 3720
+      },
+      "data": {
+        "label": "Sklearn Dataset",
+        "params": {
+          "dataset": 0,
+          "node_note": "Iris"
+        }
+      },
+      "width": 208,
+      "height": 153,
+      "selected": false
+    },
+    {
+      "id": "pyG",
+      "type": "logic_python",
+      "position": {
+        "x": 790,
+        "y": 3710
+      },
+      "data": {
+        "label": "Python Node",
+        "params": {
+          "code": "# G — EXERCICE : moyennes par espèce\n# Complétez les lignes marquées ←\n\n# 1. Moyenne de 'petal length (cm)' pour chaque espèce ('target')\nmoyennes = None   # ← à compléter\n\n# 2. Renvoyer le tableau des moyennes\nout_moyennes = moyennes\n\n# 3. La plus grande des moyennes\nout_max = None    # ← à compléter\n\n# 4. Afficher l'espèce correspondante avec print()\n# ← à compléter\n\n# 5. Bonus : diagramme en barres\n# import matplotlib.pyplot as plt\n# moyennes.plot(kind='bar')\n",
+          "node_note": "Exercice"
+        },
+        "ports": [
+          {
+            "id": "data__a",
+            "color": "data",
+            "label": "a"
+          }
+        ],
+        "outPorts": [
+          {
+            "id": "data__out_moyennes",
+            "color": "data",
+            "label": "out_moyennes"
+          },
+          {
+            "id": "scalar__out_max",
+            "color": "scalar",
+            "label": "out_max"
+          },
+          {
+            "id": "image__out_plot",
+            "color": "image",
+            "label": "out_plot"
+          },
+          {
+            "id": "image__out_print",
+            "color": "image",
+            "label": "out_print"
+          }
+        ]
+      },
+      "width": 208,
+      "height": 253,
+      "selected": false
+    },
+    {
+      "id": "edG",
+      "type": "df_editor",
+      "position": {
+        "x": 1080,
+        "y": 3710
+      },
+      "data": {
+        "label": "DF Editor",
+        "params": {
+          "node_note": "moyennes"
+        }
+      },
+      "width": 208,
+      "height": 150,
+      "selected": false
+    },
+    {
+      "id": "dG1",
+      "type": "output_display",
+      "position": {
+        "x": 1330,
+        "y": 3710
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "node_note": "moyennes (aperçu)"
+        },
+        "mainConnected": true
+      },
+      "width": 208,
+      "height": 200,
+      "selected": false
+    },
+    {
+      "id": "iG",
+      "type": "data_inspector",
+      "position": {
+        "x": 1080,
+        "y": 3930
+      },
+      "data": {
+        "label": "Inspector",
+        "params": {
+          "node_note": "plus grande moyenne"
+        }
+      },
+      "width": 220,
+      "height": 140,
+      "selected": false,
+      "style": {
+        "width": 220,
+        "height": 140
+      }
+    },
+    {
+      "id": "dG2",
+      "type": "output_display",
+      "position": {
+        "x": 1580,
+        "y": 3710
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "node_note": "graphique"
+        },
+        "mainConnected": true
+      },
+      "width": 208,
+      "height": 200,
+      "selected": false
+    },
+    {
+      "id": "dG3",
+      "type": "output_display",
+      "position": {
+        "x": 1330,
+        "y": 3950
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "node_note": "console"
+        },
+        "mainConnected": true
+      },
+      "width": 208,
+      "height": 200,
+      "selected": false
+    },
+    {
+      "id": "nG2",
+      "type": "canvas_note",
+      "position": {
+        "x": 1870,
+        "y": 3710
+      },
+      "style": {
+        "width": 560,
+        "height": 380
+      },
+      "data": {
+        "label": "Note",
+        "id": "nG2",
+        "params": {
+          "text": "## Corrigé (essayez d'abord !)\n\n```python\nmoyennes = a.groupby('target')['petal length (cm)'].mean()\nout_moyennes = moyennes\nout_max = moyennes.max()\nprint(\"Plus longs pétales :\", moyennes.idxmax())\n\nimport matplotlib.pyplot as plt\nmoyennes.plot(kind='bar', color='teal')\nplt.ylabel(\"longueur moyenne (cm)\")\n```",
+          "bg_color": "#ede9fe",
+          "text_color": "#4c1d95"
+        }
+      },
+      "width": 560,
+      "height": 380,
+      "selected": false
+    },
+    {
+      "id": "fH",
+      "type": "canvas_frame",
+      "position": {
+        "x": -120,
+        "y": 4280
+      },
+      "style": {
+        "width": 2580,
+        "height": 560,
+        "zIndex": -1
+      },
+      "data": {
+        "label": "Frame",
+        "id": "fH",
+        "params": {
+          "title": "H — Antisèche",
+          "color_index": 0
+        }
+      },
+      "width": 2580,
+      "height": 560,
+      "selected": false
+    },
+    {
+      "id": "nH1",
+      "type": "canvas_note",
+      "position": {
+        "x": -90,
+        "y": 4330
+      },
+      "style": {
+        "width": 680,
+        "height": 480
+      },
+      "data": {
+        "label": "Note",
+        "id": "nH1",
+        "params": {
+          "text": "## Antisèche : la node Python\n\n**Entrées** : branchez sur le **+** de gauche → `a`, `b`, `c`… dans l'ordre de branchement.\n\n**Sorties** : `out_nom = valeur`, puis tirez un lien depuis le **+** de droite.\n\n**Déjà importés** : `pd`, `np`. Le reste s'importe normalement.\n\n**Afficher** : `print(...)` → `out_print` ; graphiques `plt` → `out_plot` ; à brancher sur un **Display**.\n\n**Où regarder** : tableau → DF Editor · nombre / texte / liste → Inspector · image / figure → Display.\n\n**Erreur** : message rouge dans l'éditeur → numéro de ligne, explication, message Python.",
+          "bg_color": "#dbeafe",
+          "text_color": "#1e40af"
+        }
+      },
+      "width": 680,
+      "height": 480,
+      "selected": false
+    },
+    {
+      "id": "nH2",
+      "type": "canvas_note",
+      "position": {
+        "x": 630,
+        "y": 4330
+      },
+      "style": {
+        "width": 720,
+        "height": 480
+      },
+      "data": {
+        "label": "Note",
+        "id": "nH2",
+        "params": {
+          "text": "## pandas : les 10 gestes de base\n\n```python\na.head()                      # 5 premières lignes\na.shape                       # (lignes, colonnes)\nlist(a.columns)               # noms des colonnes\na['col']                      # une colonne\na[['col1', 'col2']]           # plusieurs colonnes\na[a['col'] > 5]               # filtrer les lignes\na['col'].mean()               # moyenne (aussi .min .max .std)\na.describe()                  # statistiques de chaque colonne\na.groupby('target').mean()    # moyennes par groupe\na.drop(columns=['target'])    # retirer une colonne\n```",
+          "bg_color": "#1e293b",
+          "text_color": "#cbd5e1"
+        }
+      },
+      "width": 720,
+      "height": 480,
+      "selected": false
+    },
+    {
+      "id": "nH3",
+      "type": "canvas_note",
+      "position": {
+        "x": 1390,
+        "y": 4330
+      },
+      "style": {
+        "width": 560,
+        "height": 300
+      },
+      "data": {
+        "label": "Note",
+        "id": "nH3",
+        "params": {
+          "text": "## Et ensuite ?\n\nLe TP **Python 2 — Python et scikit-learn** montre comment entraîner et évaluer un modèle de machine learning dans la node Python, avec les mêmes règles.\n\nLes TP *Charger et explorer*, *Sélection et filtrage*, etc. utilisent aussi la node Python : vous savez maintenant la lire.",
+          "bg_color": "#dcfce7",
+          "text_color": "#166534"
+        }
+      },
+      "width": 560,
+      "height": 300,
+      "selected": false
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "dsB",
+      "sourceHandle": "data__table",
+      "target": "pyB1",
+      "targetHandle": "data__a"
+    },
+    {
+      "id": "e2",
+      "source": "pyB1",
+      "sourceHandle": "data__out_data",
+      "target": "edB1",
+      "targetHandle": "data__table"
+    },
+    {
+      "id": "e3",
+      "source": "edB1",
+      "sourceHandle": "image__preview",
+      "target": "dB1",
+      "targetHandle": "image__main"
+    },
+    {
+      "id": "e4",
+      "source": "dsB",
+      "sourceHandle": "data__table",
+      "target": "pyB2",
+      "targetHandle": "data__a"
+    },
+    {
+      "id": "e5",
+      "source": "pyB2",
+      "sourceHandle": "data__out_extrait",
+      "target": "edB2",
+      "targetHandle": "data__table"
+    },
+    {
+      "id": "e6",
+      "source": "edB2",
+      "sourceHandle": "image__preview",
+      "target": "dB2",
+      "targetHandle": "image__main"
+    },
+    {
+      "id": "e7",
+      "source": "pyC",
+      "sourceHandle": "string__out_type_a",
+      "target": "iC0",
+      "targetHandle": "any__data"
+    },
+    {
+      "id": "e8",
+      "source": "pyC",
+      "sourceHandle": "list__out_taille",
+      "target": "iC1",
+      "targetHandle": "any__data"
+    },
+    {
+      "id": "e9",
+      "source": "pyC",
+      "sourceHandle": "list__out_colonnes",
+      "target": "iC2",
+      "targetHandle": "any__data"
+    },
+    {
+      "id": "e10",
+      "source": "pyC",
+      "sourceHandle": "string__out_type_b",
+      "target": "iC3",
+      "targetHandle": "any__data"
+    },
+    {
+      "id": "e11",
+      "source": "pyC",
+      "sourceHandle": "scalar__out_double_b",
+      "target": "iC4",
+      "targetHandle": "any__data"
+    },
+    {
+      "id": "e12",
+      "source": "dsC",
+      "sourceHandle": "data__table",
+      "target": "pyC",
+      "targetHandle": "data__a"
+    },
+    {
+      "id": "e13",
+      "source": "numC",
+      "sourceHandle": "scalar__value",
+      "target": "pyC",
+      "targetHandle": "scalar__b"
+    },
+    {
+      "id": "e14",
+      "source": "dsD",
+      "sourceHandle": "data__table",
+      "target": "pyD",
+      "targetHandle": "data__a"
+    },
+    {
+      "id": "e15",
+      "source": "pyD",
+      "sourceHandle": "data__out_tableau",
+      "target": "edD",
+      "targetHandle": "data__table"
+    },
+    {
+      "id": "e16",
+      "source": "edD",
+      "sourceHandle": "image__preview",
+      "target": "dD1",
+      "targetHandle": "image__main"
+    },
+    {
+      "id": "e17",
+      "source": "pyD",
+      "sourceHandle": "scalar__out_nombre",
+      "target": "iD1",
+      "targetHandle": "any__data"
+    },
+    {
+      "id": "e18",
+      "source": "pyD",
+      "sourceHandle": "string__out_texte",
+      "target": "iD2",
+      "targetHandle": "any__data"
+    },
+    {
+      "id": "e19",
+      "source": "pyD",
+      "sourceHandle": "list__out_liste",
+      "target": "iD3",
+      "targetHandle": "any__data"
+    },
+    {
+      "id": "e20",
+      "source": "pyD",
+      "sourceHandle": "dict__out_dico",
+      "target": "iD4",
+      "targetHandle": "any__data"
+    },
+    {
+      "id": "e21",
+      "source": "pyD",
+      "sourceHandle": "image__out_image",
+      "target": "dD2",
+      "targetHandle": "image__main"
+    },
+    {
+      "id": "e22",
+      "source": "dsE",
+      "sourceHandle": "data__table",
+      "target": "pyE1",
+      "targetHandle": "data__a"
+    },
+    {
+      "id": "e23",
+      "source": "pyE1",
+      "sourceHandle": "image__out_print",
+      "target": "dE1",
+      "targetHandle": "image__main"
+    },
+    {
+      "id": "e24",
+      "source": "dsE",
+      "sourceHandle": "data__table",
+      "target": "pyE2",
+      "targetHandle": "data__a"
+    },
+    {
+      "id": "e25",
+      "source": "pyE2",
+      "sourceHandle": "image__out_plot",
+      "target": "dE2",
+      "targetHandle": "image__main"
+    },
+    {
+      "id": "e26",
+      "source": "dsE",
+      "sourceHandle": "data__table",
+      "target": "pyE3",
+      "targetHandle": "data__a"
+    },
+    {
+      "id": "e27",
+      "source": "pyE3",
+      "sourceHandle": "image__out_nuage",
+      "target": "dE3",
+      "targetHandle": "image__main"
+    },
+    {
+      "id": "e28",
+      "source": "dsF",
+      "sourceHandle": "data__table",
+      "target": "pyF1",
+      "targetHandle": "data__a"
+    },
+    {
+      "id": "e29",
+      "source": "pyF1",
+      "sourceHandle": "scalar__out_moyenne",
+      "target": "iF1",
+      "targetHandle": "any__data"
+    },
+    {
+      "id": "e30",
+      "source": "dsF",
+      "sourceHandle": "data__table",
+      "target": "pyF2",
+      "targetHandle": "data__a"
+    },
+    {
+      "id": "e31",
+      "source": "pyF2",
+      "sourceHandle": "scalar__out_resultat",
+      "target": "iF2",
+      "targetHandle": "any__data"
+    },
+    {
+      "id": "e32",
+      "source": "dsF",
+      "sourceHandle": "data__table",
+      "target": "pyF3",
+      "targetHandle": "data__a"
+    },
+    {
+      "id": "e33",
+      "source": "pyF3",
+      "sourceHandle": "scalar__out_arrondi",
+      "target": "iF3",
+      "targetHandle": "any__data"
+    },
+    {
+      "id": "e34",
+      "source": "dsG",
+      "sourceHandle": "data__table",
+      "target": "pyG",
+      "targetHandle": "data__a"
+    },
+    {
+      "id": "e35",
+      "source": "pyG",
+      "sourceHandle": "data__out_moyennes",
+      "target": "edG",
+      "targetHandle": "data__table"
+    },
+    {
+      "id": "e36",
+      "source": "edG",
+      "sourceHandle": "image__preview",
+      "target": "dG1",
+      "targetHandle": "image__main"
+    },
+    {
+      "id": "e37",
+      "source": "pyG",
+      "sourceHandle": "scalar__out_max",
+      "target": "iG",
+      "targetHandle": "any__data"
+    },
+    {
+      "id": "e38",
+      "source": "pyG",
+      "sourceHandle": "image__out_plot",
+      "target": "dG2",
+      "targetHandle": "image__main"
+    },
+    {
+      "id": "e39",
+      "source": "pyG",
+      "sourceHandle": "image__out_print",
+      "target": "dG3",
+      "targetHandle": "image__main"
+    }
+  ]
+}
