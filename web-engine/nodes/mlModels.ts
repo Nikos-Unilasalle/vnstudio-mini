@@ -7,6 +7,7 @@
  * same substitution the rest of the port makes.
  */
 import type { NodeImpl, RunContext } from '../types'
+import { sklearnTrainTestSplit } from '../sklearnSplit'
 import {
   DataFrame,
   dfMeta,
@@ -37,7 +38,6 @@ import {
   pca,
   pcaInverse,
   r2Score,
-  shuffledIndices,
   silhouetteScore,
   standardize,
 } from '../ml'
@@ -392,32 +392,20 @@ export const mlTrainTestSplit: NodeImpl = (inputs, params, ctx) => {
   const shuffle = params.shuffle !== false
   const stratifyCol = resolveColumn(df, params.stratify_col)
 
-  const trainRows: Record<string, unknown>[] = []
-  const testRows: Record<string, unknown>[] = []
-
-  /** Splits one pool of row indices, taking the test share off the front. */
-  const splitPool = (pool: number[], salt: number) => {
-    const order = shuffle ? shuffledIndices(pool.length, seed + salt).map((i) => pool[i]) : [...pool]
-    const testCount = Math.ceil(pool.length * testFraction)
-    order.forEach((rowIndex, position) => {
-      (position < testCount ? testRows : trainRows).push(df!.rows[rowIndex])
-    })
+  // The same rows, in the same order, as sklearn's train_test_split with these
+  // settings — so this node agrees with the desktop and with a Python node.
+  let warning = ''
+  let split
+  try {
+    split = sklearnTrainTestSplit(df.rows.length, testFraction, seed, shuffle,
+      stratifyCol && shuffle ? df.rows.map((r) => r[stratifyCol]) : undefined)
+  } catch (error) {
+    warning = error instanceof Error ? error.message : String(error)
+    split = sklearnTrainTestSplit(df.rows.length, testFraction, seed, shuffle)
   }
-
-  if (stratifyCol) {
-    // Stratified: each class is split at the same ratio, so the class balance
-    // of the test set matches the whole frame.
-    const pools = new Map<string, number[]>()
-    df.rows.forEach((r, i) => {
-      const key = String(r[stratifyCol])
-      const pool = pools.get(key)
-      if (pool) pool.push(i)
-      else pools.set(key, [i])
-    })
-    ;[...pools.keys()].sort().forEach((key, salt) => splitPool(pools.get(key)!, salt))
-  } else {
-    splitPool([...df.rows.keys()], 0)
-  }
+  if (stratifyCol && !shuffle) warning = 'Stratify ignoré sans Shuffle (sklearn refuse les deux ensemble).'
+  const trainRows = split.train.map((i) => df!.rows[i])
+  const testRows = split.test.map((i) => df!.rows[i])
 
   const train = makeDf(df.columns, trainRows)
   const test = makeDf(df.columns, testRows)
@@ -434,7 +422,8 @@ export const mlTrainTestSplit: NodeImpl = (inputs, params, ctx) => {
   cv.rectangle(img, new cv.Point(8, 38), new cv.Point(8 + Math.round(barWidth * trainShare), 54), new cv.Scalar(246, 130, 59, 255), -1)
   text(cv, img, `Train : ${trainRows.length} rows  (${Math.round(trainShare * 100)}%)`, 8, 72, 0.4, new cv.Scalar(255, 200, 140, 255))
   text(cv, img, `Test  : ${testRows.length} rows  (${Math.round((1 - trainShare) * 100)}%)`, 8, 90, 0.4, new cv.Scalar(80, 165, 255, 255))
-  if (stratifyCol) text(cv, img, `Stratified by: ${stratifyCol}`, 8, 112, 0.38, new cv.Scalar(160, 160, 160, 255))
+  if (stratifyCol && !warning) text(cv, img, `Stratified by: ${stratifyCol}`, 8, 112, 0.38, new cv.Scalar(160, 160, 160, 255))
+  if (warning) text(cv, img, warning.slice(0, 60), 8, 112, 0.34, new cv.Scalar(90, 140, 255, 255))
 
   return {
     train,

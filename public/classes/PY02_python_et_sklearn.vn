@@ -307,7 +307,7 @@
       },
       "style": {
         "width": 2580,
-        "height": 680,
+        "height": 1060,
         "zIndex": -1
       },
       "data": {
@@ -319,7 +319,7 @@
         }
       },
       "width": 2580,
-      "height": 680,
+      "height": 1060,
       "selected": false
     },
     {
@@ -554,11 +554,114 @@
       "selected": false
     },
     {
+      "id": "spC",
+      "type": "ml_train_test_split",
+      "position": {
+        "x": 850,
+        "y": 1730
+      },
+      "data": {
+        "label": "Train / Test Split",
+        "params": {
+          "test_size": 20,
+          "stratify_col": "target",
+          "random_state": 42,
+          "shuffle": true,
+          "node_note": "test 20 %, graine 42, stratifié"
+        }
+      },
+      "width": 208,
+      "height": 150,
+      "selected": false
+    },
+    {
+      "id": "knnC",
+      "type": "ml_knn_classifier",
+      "position": {
+        "x": 1140,
+        "y": 1710
+      },
+      "data": {
+        "label": "KNN Classifier",
+        "params": {
+          "target": "target",
+          "k": 5,
+          "node_note": "k = 5"
+        }
+      },
+      "width": 420,
+      "height": 330,
+      "selected": false
+    },
+    {
+      "id": "dC4",
+      "type": "output_display",
+      "position": {
+        "x": 1600,
+        "y": 1710
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "node_note": "matrice (nodes)"
+        },
+        "mainConnected": true
+      },
+      "width": 208,
+      "height": 200,
+      "selected": false
+    },
+    {
+      "id": "iC4",
+      "type": "data_inspector",
+      "position": {
+        "x": 1600,
+        "y": 1950
+      },
+      "data": {
+        "label": "Inspector",
+        "params": {
+          "node_note": "précision (nodes)"
+        }
+      },
+      "width": 220,
+      "height": 140,
+      "selected": false,
+      "style": {
+        "width": 220,
+        "height": 140
+      }
+    },
+    {
+      "id": "nC3",
+      "type": "canvas_note",
+      "position": {
+        "x": -90,
+        "y": 1770
+      },
+      "style": {
+        "width": 560,
+        "height": 360
+      },
+      "data": {
+        "label": "Note",
+        "id": "nC3",
+        "params": {
+          "text": "## La même chose avec des nodes\n\nEn bas, **Train / Test Split** + **KNN Classifier** font le même travail que le script, sans code.\n\nAvec **les mêmes réglages**, ils donnent **exactement les mêmes résultats** : le Split tire les mêmes lignes que `train_test_split` de sklearn. Il faut aligner :\n\n| Script | Node |\n|---|---|\n| `test_size=0.2` | Test size : 20 % |\n| `random_state=42` | Random seed : 42 |\n| `stratify=y` | Stratify by : `target` |\n| `n_neighbors=5` | k : 5 |\n\nChangez un seul de ces réglages d'un côté et les résultats divergent : c'est un bon exercice.\n\nLa matrice de la node est en **proportions** (chaque ligne fait 1), celle de sklearn en **nombres** de fleurs.",
+          "bg_color": "#dcfce7",
+          "text_color": "#166534"
+        }
+      },
+      "width": 560,
+      "height": 360,
+      "selected": false
+    },
+    {
       "id": "fD",
       "type": "canvas_frame",
       "position": {
         "x": -120,
-        "y": 1800
+        "y": 2180
       },
       "style": {
         "width": 2580,
@@ -582,7 +685,7 @@
       "type": "canvas_note",
       "position": {
         "x": -90,
-        "y": 1850
+        "y": 2230
       },
       "style": {
         "width": 620,
@@ -606,7 +709,7 @@
       "type": "ml_sklearn_dataset",
       "position": {
         "x": 640,
-        "y": 1870
+        "y": 2250
       },
       "data": {
         "label": "Sklearn Dataset",
@@ -624,7 +727,7 @@
       "type": "logic_python",
       "position": {
         "x": 920,
-        "y": 1860
+        "y": 2240
       },
       "data": {
         "label": "Python Node",
@@ -666,7 +769,7 @@
       "type": "df_editor",
       "position": {
         "x": 1210,
-        "y": 1860
+        "y": 2240
       },
       "data": {
         "label": "DF Editor",
@@ -683,7 +786,7 @@
       "type": "output_display",
       "position": {
         "x": 1460,
-        "y": 1860
+        "y": 2240
       },
       "data": {
         "label": "Display",
@@ -701,7 +804,7 @@
       "type": "output_display",
       "position": {
         "x": 1460,
-        "y": 2100
+        "y": 2480
       },
       "data": {
         "label": "Display",
@@ -719,7 +822,7 @@
       "type": "output_display",
       "position": {
         "x": 1210,
-        "y": 2060
+        "y": 2440
       },
       "data": {
         "label": "Display",
@@ -737,7 +840,7 @@
       "type": "canvas_frame",
       "position": {
         "x": -120,
-        "y": 2450
+        "y": 2830
       },
       "style": {
         "width": 2580,
@@ -761,7 +864,7 @@
       "type": "canvas_note",
       "position": {
         "x": -90,
-        "y": 2500
+        "y": 2880
       },
       "style": {
         "width": 620,
@@ -785,7 +888,7 @@
       "type": "ml_sklearn_dataset",
       "position": {
         "x": 640,
-        "y": 2520
+        "y": 2900
       },
       "data": {
         "label": "Sklearn Dataset",
@@ -803,7 +906,7 @@
       "type": "logic_python",
       "position": {
         "x": 920,
-        "y": 2510
+        "y": 2890
       },
       "data": {
         "label": "Python Node",
@@ -855,7 +958,7 @@
       "type": "data_inspector",
       "position": {
         "x": 1210,
-        "y": 2510
+        "y": 2890
       },
       "data": {
         "label": "Inspector",
@@ -876,7 +979,7 @@
       "type": "data_inspector",
       "position": {
         "x": 1210,
-        "y": 2670
+        "y": 3050
       },
       "data": {
         "label": "Inspector",
@@ -897,7 +1000,7 @@
       "type": "df_editor",
       "position": {
         "x": 1210,
-        "y": 2830
+        "y": 3210
       },
       "data": {
         "label": "DF Editor",
@@ -914,7 +1017,7 @@
       "type": "output_display",
       "position": {
         "x": 1460,
-        "y": 2510
+        "y": 2890
       },
       "data": {
         "label": "Display",
@@ -932,7 +1035,7 @@
       "type": "output_display",
       "position": {
         "x": 1710,
-        "y": 2510
+        "y": 2890
       },
       "data": {
         "label": "Display",
@@ -950,7 +1053,7 @@
       "type": "output_display",
       "position": {
         "x": 1460,
-        "y": 2780
+        "y": 3160
       },
       "data": {
         "label": "Display",
@@ -968,7 +1071,7 @@
       "type": "canvas_frame",
       "position": {
         "x": -120,
-        "y": 3100
+        "y": 3480
       },
       "style": {
         "width": 2580,
@@ -992,7 +1095,7 @@
       "type": "canvas_note",
       "position": {
         "x": -90,
-        "y": 3150
+        "y": 3530
       },
       "style": {
         "width": 560,
@@ -1016,7 +1119,7 @@
       "type": "ml_sklearn_dataset",
       "position": {
         "x": 520,
-        "y": 3170
+        "y": 3550
       },
       "data": {
         "label": "Sklearn Dataset",
@@ -1034,7 +1137,7 @@
       "type": "logic_python",
       "position": {
         "x": 790,
-        "y": 3160
+        "y": 3540
       },
       "data": {
         "label": "Python Node",
@@ -1076,7 +1179,7 @@
       "type": "data_inspector",
       "position": {
         "x": 1080,
-        "y": 3160
+        "y": 3540
       },
       "data": {
         "label": "Inspector",
@@ -1097,7 +1200,7 @@
       "type": "output_display",
       "position": {
         "x": 1330,
-        "y": 3160
+        "y": 3540
       },
       "data": {
         "label": "Display",
@@ -1115,7 +1218,7 @@
       "type": "output_display",
       "position": {
         "x": 1080,
-        "y": 3340
+        "y": 3720
       },
       "data": {
         "label": "Display",
@@ -1133,7 +1236,7 @@
       "type": "canvas_note",
       "position": {
         "x": 1620,
-        "y": 3160
+        "y": 3540
       },
       "style": {
         "width": 620,
@@ -1157,7 +1260,7 @@
       "type": "canvas_frame",
       "position": {
         "x": -120,
-        "y": 3770
+        "y": 4150
       },
       "style": {
         "width": 2580,
@@ -1181,7 +1284,7 @@
       "type": "canvas_note",
       "position": {
         "x": -90,
-        "y": 3820
+        "y": 4200
       },
       "style": {
         "width": 760,
@@ -1205,7 +1308,7 @@
       "type": "canvas_note",
       "position": {
         "x": 710,
-        "y": 3820
+        "y": 4200
       },
       "style": {
         "width": 600,
@@ -1229,7 +1332,7 @@
       "type": "canvas_note",
       "position": {
         "x": 1340,
-        "y": 3820
+        "y": 4200
       },
       "style": {
         "width": 560,
@@ -1336,111 +1439,146 @@
     },
     {
       "id": "e13",
+      "source": "dsC",
+      "sourceHandle": "data__table",
+      "target": "spC",
+      "targetHandle": "data__table"
+    },
+    {
+      "id": "e14",
+      "source": "spC",
+      "sourceHandle": "data__train",
+      "target": "knnC",
+      "targetHandle": "data__train"
+    },
+    {
+      "id": "e15",
+      "source": "spC",
+      "sourceHandle": "data__test",
+      "target": "knnC",
+      "targetHandle": "data__test"
+    },
+    {
+      "id": "e16",
+      "source": "knnC",
+      "sourceHandle": "image__preview",
+      "target": "dC4",
+      "targetHandle": "image__main"
+    },
+    {
+      "id": "e17",
+      "source": "knnC",
+      "sourceHandle": "scalar__accuracy",
+      "target": "iC4",
+      "targetHandle": "any__data"
+    },
+    {
+      "id": "e18",
       "source": "dsD",
       "sourceHandle": "data__table",
       "target": "pyD",
       "targetHandle": "data__a"
     },
     {
-      "id": "e14",
+      "id": "e19",
       "source": "pyD",
       "sourceHandle": "data__out_resultats",
       "target": "edD",
       "targetHandle": "data__table"
     },
     {
-      "id": "e15",
+      "id": "e20",
       "source": "edD",
       "sourceHandle": "image__preview",
       "target": "dD3",
       "targetHandle": "image__main"
     },
     {
-      "id": "e16",
+      "id": "e21",
       "source": "pyD",
       "sourceHandle": "image__out_plot",
       "target": "dD1",
       "targetHandle": "image__main"
     },
     {
-      "id": "e17",
+      "id": "e22",
       "source": "pyD",
       "sourceHandle": "image__out_print",
       "target": "dD2",
       "targetHandle": "image__main"
     },
     {
-      "id": "e18",
+      "id": "e23",
       "source": "dsE",
       "sourceHandle": "data__table",
       "target": "pyE",
       "targetHandle": "data__a"
     },
     {
-      "id": "e19",
+      "id": "e24",
       "source": "pyE",
       "sourceHandle": "scalar__out_r2",
       "target": "iE1",
       "targetHandle": "any__data"
     },
     {
-      "id": "e20",
+      "id": "e25",
       "source": "pyE",
       "sourceHandle": "scalar__out_erreur",
       "target": "iE2",
       "targetHandle": "any__data"
     },
     {
-      "id": "e21",
+      "id": "e26",
       "source": "pyE",
       "sourceHandle": "data__out_coefficients",
       "target": "edE",
       "targetHandle": "data__table"
     },
     {
-      "id": "e22",
+      "id": "e27",
       "source": "edE",
       "sourceHandle": "image__preview",
       "target": "dE3",
       "targetHandle": "image__main"
     },
     {
-      "id": "e23",
+      "id": "e28",
       "source": "pyE",
       "sourceHandle": "image__out_plot",
       "target": "dE1",
       "targetHandle": "image__main"
     },
     {
-      "id": "e24",
+      "id": "e29",
       "source": "pyE",
       "sourceHandle": "image__out_print",
       "target": "dE2",
       "targetHandle": "image__main"
     },
     {
-      "id": "e25",
+      "id": "e30",
       "source": "dsF",
       "sourceHandle": "data__table",
       "target": "pyF",
       "targetHandle": "data__a"
     },
     {
-      "id": "e26",
+      "id": "e31",
       "source": "pyF",
       "sourceHandle": "scalar__out_score",
       "target": "iF",
       "targetHandle": "any__data"
     },
     {
-      "id": "e27",
+      "id": "e32",
       "source": "pyF",
       "sourceHandle": "image__out_plot",
       "target": "dF1",
       "targetHandle": "image__main"
     },
     {
-      "id": "e28",
+      "id": "e33",
       "source": "pyF",
       "sourceHandle": "image__out_print",
       "target": "dF2",
