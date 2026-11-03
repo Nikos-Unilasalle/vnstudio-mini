@@ -8,7 +8,7 @@
         "y": -200
       },
       "style": {
-        "width": 1860,
+        "width": 2580,
         "height": 72
       },
       "data": {
@@ -20,7 +20,7 @@
           "text_color": "#f8fafc"
         }
       },
-      "width": 1860,
+      "width": 2580,
       "height": 72,
       "selected": false
     },
@@ -32,7 +32,7 @@
         "y": -110
       },
       "style": {
-        "width": 1860,
+        "width": 2580,
         "height": 430,
         "zIndex": -1
       },
@@ -43,7 +43,7 @@
           "color_index": 0
         }
       },
-      "width": 1860,
+      "width": 2580,
       "height": 430,
       "selected": false
     },
@@ -127,8 +127,8 @@
         "y": 350
       },
       "style": {
-        "width": 1860,
-        "height": 480,
+        "width": 2580,
+        "height": 680,
         "zIndex": -1
       },
       "data": {
@@ -138,8 +138,8 @@
           "color_index": 2
         }
       },
-      "width": 1860,
-      "height": 480,
+      "width": 2580,
+      "height": 680,
       "selected": false
     },
     {
@@ -161,10 +161,28 @@
       "selected": false
     },
     {
+      "id": "nanB",
+      "type": "logic_python",
+      "position": {
+        "x": 200,
+        "y": 400
+      },
+      "data": {
+        "label": "Python Node",
+        "params": {
+          "code": "# Les jeux sklearn sont complets : aucun NaN, aucun doublon.\n# On les abîme donc volontairement, avec une graine fixe :\n# tout le monde obtient exactement les mêmes trous.\nrng = np.random.default_rng(42)\ndf = a.copy()\n\n# 1. Manquants au hasard (MCAR) : le trou ne dépend de rien\nfor col, taux in [('bmi', 0.08), ('bp', 0.05), ('s1', 0.10), ('s2', 0.06), ('s3', 0.04)]:\n    df.loc[rng.random(len(df)) < taux, col] = np.nan\n\n# 2. Manquants non aléatoires (MNAR) : s5 disparaît surtout\n#    quand il est élevé -> la moyenne des valeurs restantes est biaisée\nhaut = a['s5'] > a['s5'].quantile(0.8)\ndf.loc[haut & (rng.random(len(df)) < 0.6), 's5'] = np.nan\n\n# 3. Doublons : 12 patients saisis deux fois\ndf = pd.concat([df, df.sample(12, random_state=7)], ignore_index=True)\n\nout_data   = df\nout_scalar = int(df.isna().sum().sum())   # nombre total de NaN\n",
+          "node_note": "Données abîmées (NaN + doublons)"
+        }
+      },
+      "width": 430,
+      "height": 420,
+      "selected": false
+    },
+    {
       "id": "fillna1",
       "type": "df_fillna",
       "position": {
-        "x": 200,
+        "x": 680,
         "y": 400
       },
       "data": {
@@ -184,7 +202,7 @@
       "id": "dB1",
       "type": "output_display",
       "position": {
-        "x": 550,
+        "x": 1030,
         "y": 400
       },
       "data": {
@@ -202,8 +220,8 @@
       "id": "stats1",
       "type": "ml_df_stats",
       "position": {
-        "x": 200,
-        "y": 610
+        "x": 680,
+        "y": 700
       },
       "data": {
         "label": "DF Stats",
@@ -220,8 +238,8 @@
       "id": "dB2",
       "type": "output_display",
       "position": {
-        "x": 640,
-        "y": 620
+        "x": 1120,
+        "y": 710
       },
       "data": {
         "label": "Display",
@@ -238,24 +256,24 @@
       "id": "nB_ref",
       "type": "canvas_note",
       "position": {
-        "x": 1000,
+        "x": 1480,
         "y": 390
       },
       "style": {
         "width": 720,
-        "height": 400
+        "height": 520
       },
       "data": {
         "label": "Note",
         "id": "nB_ref",
         "params": {
-          "text": "Ce pipeline montre :\n\n1. Chargement du dataset Diabetes\n   (données médicales réelles, 442 patients)\n\n2. Node 'Traiter NaN' → remplace les\n   valeurs manquantes selon la stratégie :\n   • mean  : remplace par la moyenne\n   • median: remplace par la médiane\n   • value : remplace par une valeur fixe\n   • drop  : supprime les lignes avec NaN\n\n3. 'Audit NaN' → décrit le DataFrame nettoyé\n\nComparez les statistiques avant/après !",
+          "text": "Ce pipeline montre :\n\n1. Chargement du dataset Diabetes\n   (données médicales réelles, 442 patients)\n\n2. 'Données abîmées' (Python) → les jeux sklearn\n   n'ont aucun NaN : on en crée (graine fixe),\n   au hasard et de façon biaisée sur s5,\n   puis on ajoute 12 doublons\n\n3. Node 'Traiter NaN' → remplace les\n   valeurs manquantes selon la stratégie :\n   • mean  : remplace par la moyenne\n   • median: remplace par la médiane\n   • value : remplace par une valeur fixe\n   • drop  : supprime les lignes avec NaN\n\n4. 'Audit NaN' → décrit le DataFrame abîmé\n\nComparez les statistiques avant/après !",
           "bg_color": "#dcfce7",
           "text_color": "#166534"
         }
       },
       "width": 720,
-      "height": 400,
+      "height": 520,
       "selected": false
     },
     {
@@ -263,10 +281,10 @@
       "type": "canvas_frame",
       "position": {
         "x": -120,
-        "y": 860
+        "y": 1060
       },
       "style": {
-        "width": 1860,
+        "width": 2580,
         "height": 500,
         "zIndex": -1
       },
@@ -277,7 +295,7 @@
           "color_index": 4
         }
       },
-      "width": 1860,
+      "width": 2580,
       "height": 500,
       "selected": false
     },
@@ -286,7 +304,7 @@
       "type": "canvas_note",
       "position": {
         "x": -90,
-        "y": 920
+        "y": 1120
       },
       "style": {
         "width": 540,
@@ -310,7 +328,7 @@
       "type": "ml_sklearn_dataset",
       "position": {
         "x": 490,
-        "y": 930
+        "y": 1130
       },
       "data": {
         "label": "Sklearn Dataset",
@@ -324,11 +342,29 @@
       "selected": false
     },
     {
-      "id": "pyC",
+      "id": "nanC",
       "type": "logic_python",
       "position": {
         "x": 770,
-        "y": 920
+        "y": 1120
+      },
+      "data": {
+        "label": "Python Node",
+        "params": {
+          "code": "# Les jeux sklearn sont complets : aucun NaN, aucun doublon.\n# On les abîme donc volontairement, avec une graine fixe :\n# tout le monde obtient exactement les mêmes trous.\nrng = np.random.default_rng(42)\ndf = a.copy()\n\n# 1. Manquants au hasard (MCAR) : le trou ne dépend de rien\nfor col, taux in [('bmi', 0.08), ('bp', 0.05), ('s1', 0.10), ('s2', 0.06), ('s3', 0.04)]:\n    df.loc[rng.random(len(df)) < taux, col] = np.nan\n\n# 2. Manquants non aléatoires (MNAR) : s5 disparaît surtout\n#    quand il est élevé -> la moyenne des valeurs restantes est biaisée\nhaut = a['s5'] > a['s5'].quantile(0.8)\ndf.loc[haut & (rng.random(len(df)) < 0.6), 's5'] = np.nan\n\n# 3. Doublons : 12 patients saisis deux fois\ndf = pd.concat([df, df.sample(12, random_state=7)], ignore_index=True)\n\nout_data   = df\nout_scalar = int(df.isna().sum().sum())   # nombre total de NaN\n",
+          "node_note": "Données abîmées (NaN + doublons)"
+        }
+      },
+      "width": 430,
+      "height": 420,
+      "selected": false
+    },
+    {
+      "id": "pyC",
+      "type": "logic_python",
+      "position": {
+        "x": 1250,
+        "y": 1120
       },
       "data": {
         "label": "Python Node",
@@ -345,8 +381,8 @@
       "id": "statsC",
       "type": "ml_df_stats",
       "position": {
-        "x": 1260,
-        "y": 920
+        "x": 1740,
+        "y": 1120
       },
       "data": {
         "label": "DF Stats",
@@ -363,8 +399,8 @@
       "id": "dC1",
       "type": "output_display",
       "position": {
-        "x": 1700,
-        "y": 920
+        "x": 2180,
+        "y": 1120
       },
       "data": {
         "label": "Display",
@@ -381,8 +417,8 @@
       "id": "inspC",
       "type": "data_inspector",
       "position": {
-        "x": 1700,
-        "y": 1140
+        "x": 2180,
+        "y": 1340
       },
       "data": {
         "label": "Inspector",
@@ -399,11 +435,11 @@
       "type": "canvas_frame",
       "position": {
         "x": -120,
-        "y": 1390
+        "y": 1590
       },
       "style": {
-        "width": 1860,
-        "height": 530,
+        "width": 2580,
+        "height": 880,
         "zIndex": -1
       },
       "data": {
@@ -413,8 +449,8 @@
           "color_index": 4
         }
       },
-      "width": 1860,
-      "height": 530,
+      "width": 2580,
+      "height": 880,
       "selected": false
     },
     {
@@ -422,7 +458,7 @@
       "type": "canvas_note",
       "position": {
         "x": -90,
-        "y": 1450
+        "y": 1650
       },
       "style": {
         "width": 540,
@@ -432,7 +468,7 @@
         "label": "Note",
         "id": "nD_inst",
         "params": {
-          "text": "EXERCICE 2 — Imputation\n\nComparez 3 stratégies pour gérer les NaN :\n\nPipeline A : Remplacer NaN par la MOYENNE\nPipeline B : Remplacer NaN par la MÉDIANE\nPipeline C : Supprimer les lignes avec NaN\n\nPour chaque pipeline :\n1. Connectez le dataset\n2. Utilisez df_fillna avec la bonne stratégie\n3. Observez l'impact sur describe()\n\nQUESTION : Quelle stratégie préserve\nle mieux la distribution originale ?",
+          "text": "EXERCICE 2 — Imputation\n\nComparez 3 stratégies pour gérer les NaN :\n\nPipeline A : Remplacer NaN par la MOYENNE\nPipeline B : Remplacer NaN par la MÉDIANE\nPipeline C : Supprimer les lignes avec NaN\n\nPour chaque pipeline :\n1. Vérifiez la stratégie de chaque df_fillna\n2. Observez l'impact sur describe()\n3. Regardez surtout s5 : ses NaN ne sont\n   pas aléatoires (valeurs hautes retirées)\n\nQUESTION : Quelle stratégie préserve\nle mieux la distribution originale ?",
           "bg_color": "#fef9c3",
           "text_color": "#713f12"
         }
@@ -446,7 +482,7 @@
       "type": "ml_sklearn_dataset",
       "position": {
         "x": 490,
-        "y": 1460
+        "y": 1660
       },
       "data": {
         "label": "Sklearn Dataset",
@@ -460,11 +496,29 @@
       "selected": false
     },
     {
+      "id": "nanD",
+      "type": "logic_python",
+      "position": {
+        "x": 770,
+        "y": 1640
+      },
+      "data": {
+        "label": "Python Node",
+        "params": {
+          "code": "# Les jeux sklearn sont complets : aucun NaN, aucun doublon.\n# On les abîme donc volontairement, avec une graine fixe :\n# tout le monde obtient exactement les mêmes trous.\nrng = np.random.default_rng(42)\ndf = a.copy()\n\n# 1. Manquants au hasard (MCAR) : le trou ne dépend de rien\nfor col, taux in [('bmi', 0.08), ('bp', 0.05), ('s1', 0.10), ('s2', 0.06), ('s3', 0.04)]:\n    df.loc[rng.random(len(df)) < taux, col] = np.nan\n\n# 2. Manquants non aléatoires (MNAR) : s5 disparaît surtout\n#    quand il est élevé -> la moyenne des valeurs restantes est biaisée\nhaut = a['s5'] > a['s5'].quantile(0.8)\ndf.loc[haut & (rng.random(len(df)) < 0.6), 's5'] = np.nan\n\n# 3. Doublons : 12 patients saisis deux fois\ndf = pd.concat([df, df.sample(12, random_state=7)], ignore_index=True)\n\nout_data   = df\nout_scalar = int(df.isna().sum().sum())   # nombre total de NaN\n",
+          "node_note": "Données abîmées (NaN + doublons)"
+        }
+      },
+      "width": 430,
+      "height": 420,
+      "selected": false
+    },
+    {
       "id": "fnA",
       "type": "df_fillna",
       "position": {
-        "x": 770,
-        "y": 1440
+        "x": 1250,
+        "y": 1640
       },
       "data": {
         "label": "DF Fill NA",
@@ -481,8 +535,8 @@
       "id": "fnB",
       "type": "df_fillna",
       "position": {
-        "x": 770,
-        "y": 1710
+        "x": 1250,
+        "y": 1910
       },
       "data": {
         "label": "DF Fill NA",
@@ -499,8 +553,8 @@
       "id": "dD1",
       "type": "output_display",
       "position": {
-        "x": 1110,
-        "y": 1440
+        "x": 1590,
+        "y": 1640
       },
       "data": {
         "label": "Display",
@@ -517,8 +571,8 @@
       "id": "dD2",
       "type": "output_display",
       "position": {
-        "x": 1110,
-        "y": 1660
+        "x": 1590,
+        "y": 1910
       },
       "data": {
         "label": "Display",
@@ -532,11 +586,47 @@
       "selected": false
     },
     {
+      "id": "fnC",
+      "type": "df_fillna",
+      "position": {
+        "x": 1250,
+        "y": 2180
+      },
+      "data": {
+        "label": "DF Fill NA",
+        "params": {
+          "strategy": 6,
+          "node_note": "Stratégie : supprimer les lignes"
+        }
+      },
+      "width": 280,
+      "height": 250,
+      "selected": false
+    },
+    {
+      "id": "dD3",
+      "type": "output_display",
+      "position": {
+        "x": 1590,
+        "y": 2180
+      },
+      "data": {
+        "label": "Display",
+        "params": {
+          "mainConnected": true,
+          "node_note": "Après suppression"
+        }
+      },
+      "width": 240,
+      "height": 200,
+      "selected": false
+    },
+    {
       "id": "nD_tip",
       "type": "canvas_note",
       "position": {
-        "x": 1400,
-        "y": 1450
+        "x": 1880,
+        "y": 1650
       },
       "style": {
         "width": 440,
@@ -558,9 +648,16 @@
   ],
   "edges": [
     {
-      "id": "eB1",
+      "id": "eB0",
       "source": "ds",
       "sourceHandle": "data__table",
+      "target": "nanB",
+      "targetHandle": "any__a"
+    },
+    {
+      "id": "eB1",
+      "source": "nanB",
+      "sourceHandle": "data__out_data",
       "target": "fillna1",
       "targetHandle": "data__table"
     },
@@ -573,8 +670,8 @@
     },
     {
       "id": "eB3",
-      "source": "ds",
-      "sourceHandle": "data__table",
+      "source": "nanB",
+      "sourceHandle": "data__out_data",
       "target": "stats1",
       "targetHandle": "data__table"
     },
@@ -586,9 +683,16 @@
       "targetHandle": "image__main"
     },
     {
-      "id": "eC1",
+      "id": "eC0",
       "source": "dsC",
       "sourceHandle": "data__table",
+      "target": "nanC",
+      "targetHandle": "any__a"
+    },
+    {
+      "id": "eC1",
+      "source": "nanC",
+      "sourceHandle": "data__out_data",
       "target": "pyC",
       "targetHandle": "any__a"
     },
@@ -614,16 +718,23 @@
       "targetHandle": "any__data"
     },
     {
-      "id": "eD1",
+      "id": "eD0",
       "source": "dsD",
       "sourceHandle": "data__table",
+      "target": "nanD",
+      "targetHandle": "any__a"
+    },
+    {
+      "id": "eD1",
+      "source": "nanD",
+      "sourceHandle": "data__out_data",
       "target": "fnA",
       "targetHandle": "data__table"
     },
     {
       "id": "eD2",
-      "source": "dsD",
-      "sourceHandle": "data__table",
+      "source": "nanD",
+      "sourceHandle": "data__out_data",
       "target": "fnB",
       "targetHandle": "data__table"
     },
@@ -639,6 +750,20 @@
       "source": "fnB",
       "sourceHandle": "image__preview",
       "target": "dD2",
+      "targetHandle": "image__main"
+    },
+    {
+      "id": "eD5",
+      "source": "nanD",
+      "sourceHandle": "data__out_data",
+      "target": "fnC",
+      "targetHandle": "data__table"
+    },
+    {
+      "id": "eD6",
+      "source": "fnC",
+      "sourceHandle": "image__preview",
+      "target": "dD3",
       "targetHandle": "image__main"
     }
   ]

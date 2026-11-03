@@ -38,29 +38,57 @@ function infoPanel(cv: any, ctx: RunContext, lines: string[], w: number, h: numb
 type Bundle = Record<string, { columns: string[]; data: Record<string, (number | string)[]> }>
 const BUNDLE = DATASETS as Bundle
 
-// The desktop offers six; digits and california_housing are not bundled — the
-// first would add a quarter of a megabyte to the download, the second is
-// fetched from the network at runtime, which a browser build cannot do offline.
+// The desktop offers six. The four small ones are compiled into the worker.
+// digits (1797 × 65) would add a quarter of a megabyte to a bundle every graph
+// pays for, so it is served from public/datasets/ and fetched the first time a
+// node asks for it. california_housing is not shipped at all: sklearn downloads
+// it from figshare at runtime, and no faithful copy is bundled yet.
 const DATASET_KEYS = ['iris', 'wine', 'breast_cancer', 'diabetes', 'digits', 'california_housing']
+const ON_DEMAND = new Set(['digits'])
 
-export const mlSklearnDataset: NodeImpl = (inputs, params, ctx) => {
+/** One request per dataset per worker; a failed one is forgotten so the next run retries. */
+const onDemandCache = new Map<string, Promise<Bundle[string]>>()
+
+function fetchDataset(key: string): Promise<Bundle[string]> {
+  let pending = onDemandCache.get(key)
+  if (!pending) {
+    const base = (import.meta.env.BASE_URL ?? '/').replace(/\/$/, '')
+    pending = fetch(`${base}/datasets/${key}.json`).then((response) => {
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      return response.json() as Promise<Bundle[string]>
+    })
+    pending.catch(() => onDemandCache.delete(key))
+    onDemandCache.set(key, pending)
+  }
+  return pending
+}
+
+export const mlSklearnDataset: NodeImpl = async (inputs, params, ctx) => {
   const cv = ctx.cv
   const index = Math.round(Number(params.dataset ?? 0))
   const key = DATASET_KEYS[index] ?? 'iris'
   const [w, h] = previewSize(inputs.img_size, { width: 320, height: 200, ...params })
 
-  const bundled = BUNDLE[key]
+  let bundled = BUNDLE[key]
+  let failure = ''
+  if (!bundled && ON_DEMAND.has(key)) {
+    try {
+      bundled = await fetchDataset(key)
+    } catch (error) {
+      failure = error instanceof Error ? error.message : String(error)
+    }
+  }
   if (!bundled) {
     return {
-      main: infoPanel(cv, ctx, [
-        `"${key}" is not bundled in the web build.`,
-        '',
-        key === 'digits'
-          ? 'digits would add ~250 KB to the download.'
-          : 'california_housing is fetched over the network.',
-        '',
-        'Available: iris, wine, breast_cancer, diabetes.',
-      ], w, h, 'sklearn - unavailable'),
+      main: infoPanel(cv, ctx, failure
+        ? [`"${key}" could not be downloaded (${failure}).`, '', 'It will be retried on the next run.']
+        : [
+            `"${key}" is not available in the web build.`,
+            '',
+            'sklearn downloads it from the network at runtime.',
+            '',
+            'Available: iris, wine, breast_cancer, diabetes, digits.',
+          ], w, h, 'sklearn - unavailable'),
       row_count: 0,
       col_count: 0,
     }
