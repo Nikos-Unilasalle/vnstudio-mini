@@ -37,6 +37,7 @@ function isJavaScript(code: string): boolean {
 export const logicPython: NodeImpl = async (inputs, params, ctx) => {
   const code = String(params.code ?? '')
   const outputs = isJavaScript(code) ? runJavaScript(code, inputs, ctx) : await runPython(code, inputs, ctx)
+  aliasLetterPorts(outputs)
   // A script fed nothing yet (an upstream fetch not pressed, a camera still
   // opening) fails on its first `a.something`; say what it is waiting for
   // rather than showing that raw TypeError.
@@ -45,6 +46,26 @@ export const logicPython: NodeImpl = async (inputs, params, ctx) => {
     outputs.__error__ = `En attente de données sur ${waiting.sort().join(', ')} (entrée encore vide).`
   }
   return outputs
+}
+
+/**
+ * Feeds the editor's letter-named output ports from the script's own names.
+ *
+ * Dragging a link out of the node's "+" output creates `out_a`, then `out_b`…
+ * (useConnectionHandling.ts), whatever the script calls its results. A script
+ * writing `out_data = a` therefore left `out_a` empty, and whatever was wired to
+ * it (a DF Editor, a Display) sat on "no data". Each letter port the script does
+ * not assign itself now takes the script's output at the same position, in the
+ * order the script first assigns them: `out_a` ← the first `out_*`, `out_b` ←
+ * the second. A script that assigns `out_a` directly is left untouched.
+ */
+function aliasLetterPorts(outputs: Record<string, unknown>): void {
+  const assigned = Object.keys(outputs).filter((name) => name.startsWith('out_'))
+  assigned.forEach((name, index) => {
+    if (index >= 26) return
+    const letter = `out_${String.fromCharCode(97 + index)}`
+    if (!(letter in outputs)) outputs[letter] = outputs[name]
+  })
 }
 
 function runJavaScript(code: string, inputs: Record<string, unknown>, ctx: Parameters<NodeImpl>[2]): Record<string, unknown> {
