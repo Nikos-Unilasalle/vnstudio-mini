@@ -5,7 +5,7 @@ import { isMat, matToBase64, matToImageBitmap } from './cvUtils'
 export interface GraphNode {
   id: string
   type: string
-  data?: { params?: Record<string, any> }
+  data?: { params?: Record<string, any>; ports?: { id: string }[] }
 }
 
 export interface GraphEdge {
@@ -288,6 +288,7 @@ export class GraphExecutor {
         state: this.nodeState,
         nodeId,
         frames,
+        dynamicPorts: (node.data?.ports ?? []).map((port) => portIdOf(port.id, port.id)),
         track: (mat: any) => {
           if (mat && typeof mat.delete === 'function') this.matPool.push(mat)
           return mat

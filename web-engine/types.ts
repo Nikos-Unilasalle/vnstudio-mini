@@ -54,6 +54,12 @@ export interface RunContext {
    * and transfers the bitmaps in with each run request (see shims/useVisionEngine.ts).
    */
   frames?: Record<string, CapturedFrame>
+  /**
+   * Ids of the node's dynamic input ports (`data.ports`, the ones the "+" handle
+   * creates), colour prefix stripped, in the order the node draws them. Nodes
+   * that grow inputs read them in this order rather than in edge order.
+   */
+  dynamicPorts?: string[]
 }
 
 export type NodeInputs = Record<string, unknown>

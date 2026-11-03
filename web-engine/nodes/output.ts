@@ -2,9 +2,26 @@ import type { NodeImpl } from '../types'
 import { isMat, toBgr } from '../cvUtils'
 import { downloadFile } from '../../shims/vfs'
 
+/** Keys the executor adds as aliases of another input, never ports of their own. */
+const ALIAS_KEYS = new Set(['image', 'data', 'in', 'value', 'raw_frame'])
+const FIXED_KEYS = new Set(['main', 'mask_in', 'flow_in'])
+
+/**
+ * The images to compose, in the order the node draws its handles: `main`, then
+ * every port the "+" handle grew (data.ports order, falling back to edge order
+ * for one the node does not list, e.g. an edge still aimed at the "+" itself),
+ * then `mask_in` and `flow_in`.
+ */
+function displaySources(inputs: Record<string, unknown>, dynamicPorts: string[]): any[] {
+  const listed = dynamicPorts.filter((id) => !FIXED_KEYS.has(id))
+  const unlisted = Object.keys(inputs).filter((key) => !FIXED_KEYS.has(key) && !ALIAS_KEYS.has(key) && !listed.includes(key))
+  const order = ['main', ...listed, ...unlisted, 'mask_in', 'flow_in']
+  return order.map((key) => inputs[key]).filter(isMat)
+}
+
 export const outputDisplay: NodeImpl = (inputs, params, ctx) => {
   const cv = ctx.cv
-  const sources = [inputs.main, inputs.mask_in, inputs.flow_in].filter(isMat) as any[]
+  const sources = displaySources(inputs, ctx.dynamicPorts ?? [])
   if (sources.length === 0) return { main: null }
   if (sources.length === 1) return { main: sources[0] }
 
