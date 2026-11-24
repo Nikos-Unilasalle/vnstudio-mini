@@ -144,7 +144,7 @@
       "type": "canvas_note",
       "position": {
         "x": -40,
-        "y": 380
+        "y": 470
       },
       "data": {
         "label": "Note",
@@ -154,16 +154,16 @@
         }
       },
       "width": 420,
-      "height": 180,
+      "height": 120,
       "selected": false,
       "dragging": false,
       "positionAbsolute": {
         "x": -40,
-        "y": 380
+        "y": 470
       },
       "style": {
         "width": 420,
-        "height": 180
+        "height": 120
       }
     },
     {
@@ -176,7 +176,7 @@
       "data": {
         "label": "Note",
         "params": {
-          "text": "Calibration : la piece de 2 euros fait 25,75 mm et mesure 232 px sur cette photo.\n25,75 / 232 = 0,1108 mm/px, soit 110,8 um/px — la valeur reglee ici.\n\nCette valeur ne vaut que pour la photo d'atelier. Sur une autre photo, refais le calcul.",
+          "text": "Calibration : la piece de 2 euros fait 25,75 mm et mesure 87,5 px sur cette photo.\n25,75 / 87,5 = 0,2944 mm/px, soit 294,4 um/px — la valeur reglee ici.\n\nCette valeur ne vaut que pour la photo d'atelier. Sur une autre photo, refais le calcul.",
           "color_index": 3
         }
       },
@@ -214,6 +214,31 @@
       "positionAbsolute": {
         "x": -40,
         "y": -40
+      }
+    },
+    {
+      "id": "poly",
+      "type": "util_roi_polygon",
+      "position": {
+        "x": -40,
+        "y": 200
+      },
+      "data": {
+        "label": "Mask Polygon",
+        "params": {
+          "points": "[{\"x\": 0.55733, \"y\": 0.50134}, {\"x\": 0.54041, \"y\": 0.55606}, {\"x\": 0.49956, \"y\": 0.57872}, {\"x\": 0.4587, \"y\": 0.55606}, {\"x\": 0.44178, \"y\": 0.50134}, {\"x\": 0.4587, \"y\": 0.44662}, {\"x\": 0.49956, \"y\": 0.42396}, {\"x\": 0.54041, \"y\": 0.44662}]",
+          "filled": true,
+          "thickness": 2,
+          "color_index": 3
+        }
+      },
+      "width": 208,
+      "height": 245,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": -40,
+        "y": 200
       }
     },
     {
@@ -329,7 +354,7 @@
           "intensity": true,
           "show_ids": true,
           "show_ellipse": false,
-          "um_per_px": 110.8,
+          "um_per_px": 294.4,
           "color_index": 2
         }
       },
@@ -350,7 +375,7 @@
         "y": -40
       },
       "data": {
-        "label": "Grain Size Histogram",
+        "label": "Grain Histogram",
         "params": {
           "bins": 30,
           "metric": 0,
@@ -417,9 +442,16 @@
   ],
   "edges": [
     {
-      "id": "e-img-main-gray-image",
+      "id": "e-img-main-poly-image",
       "source": "img",
       "sourceHandle": "image__main",
+      "target": "poly",
+      "targetHandle": "image__image"
+    },
+    {
+      "id": "e-poly-masked_inv-gray-image",
+      "source": "poly",
+      "sourceHandle": "image__masked_inv",
       "target": "gray",
       "targetHandle": "image__image"
     },

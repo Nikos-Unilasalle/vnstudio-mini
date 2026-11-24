@@ -174,6 +174,18 @@ const CLASSES = [
  * with a Python node that has no browser equivalent.
  */
 const FIXUPS = {
+  // The desktop graph is calibrated on the 2400 px original (coin = 232 px,
+  // 110.8 µm/px). The web build ships the 900 px variant, where the same coin
+  // spans 87.5 px: kept as is, every diameter would come out 2.7 times too small.
+  'M1.1_reference.vn': (graph) => {
+    const byId = new Map(graph.nodes.map((n) => [n.id, n]))
+    byId.get('props').data.params.um_per_px = 294.4
+    byId.get('n-calib').data.params.text =
+      'Calibration : la piece de 2 euros fait 25,75 mm et mesure 87,5 px sur cette photo.\n' +
+      '25,75 / 87,5 = 0,2944 mm/px, soit 294,4 um/px — la valeur reglee ici.\n\n' +
+      "Cette valeur ne vaut que pour la photo d'atelier. Sur une autre photo, refais le calcul."
+    return graph
+  },
   'feature_matching.vn': (graph) => {
     const byId = new Map(graph.nodes.map((n) => [n.id, n]))
     byId.get('src-1').data.params.path = 'samples/car.jpg'
