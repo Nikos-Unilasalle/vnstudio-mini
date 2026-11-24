@@ -160,17 +160,23 @@ export function useFileOperations({
   }, [setNodes, setEdges, setActiveFilePath, setPreviewSize, setPreviewPos, setActivePaletteIndex, setVisualizedNodeId, setPreviewNode, updateGraph, pushNotification, setGroupStack, groupStackRef, pluginSchemas]);
 
   const loadProject = useCallback(async () => {
-    await confirmUnsaved();
+    // The file picker must open first, while the click that triggered it still
+    // counts as a user gesture. Asking about unsaved changes beforehand (a
+    // window.confirm, sometimes followed by a download) spends that gesture, and
+    // the browser then silently refuses to show the picker. So: pick, then ask.
     try {
       const path = await open({
         filters: [{ name: 'VisionNodes Project', extensions: ['vn'] }],
         multiple: false
       });
-      if (path && typeof path === 'string') await loadProjectFromPath(path);
+      if (!path || typeof path !== 'string') return;
+      if (!(await confirmUnsaved())) return;
+      await loadProjectFromPath(path);
     } catch (err) {
-      console.error('Failed to open dialog:', err);
+      console.error('Failed to open project:', err);
+      pushNotification('Open failed — see console', 'error');
     }
-  }, [confirmUnsaved, loadProjectFromPath]);
+  }, [confirmUnsaved, loadProjectFromPath, pushNotification]);
 
   const applyTemplateData = useCallback((data: any) => {
     const { nodes, edges } = repairGraph(data.nodes || [], data.edges || [], pluginSchemas);
